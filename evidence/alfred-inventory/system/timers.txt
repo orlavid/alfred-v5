@@ -1,0 +1,28 @@
+NEXT                            LEFT LAST                              PASSED UNIT                                 ACTIVATES
+Sun 2026-06-28 22:20:00 IST 2min 55s Sun 2026-06-28 22:10:03 IST     7min ago sysstat-collect.timer                sysstat-collect.service
+Sun 2026-06-28 23:08:45 IST    51min Sun 2026-06-28 22:11:54 IST     5min ago fwupd-refresh.timer                  fwupd-refresh.service
+Sun 2026-06-28 23:39:15 IST 1h 22min Sat 2026-06-27 23:39:15 IST      22h ago update-notifier-download.timer       update-notifier-download.service
+Sun 2026-06-28 23:49:15 IST 1h 32min Sat 2026-06-27 23:49:15 IST      22h ago systemd-tmpfiles-clean.timer         systemd-tmpfiles-clean.service
+Mon 2026-06-29 00:00:00 IST 1h 42min Sun 2026-06-28 00:00:03 IST      22h ago dpkg-db-backup.timer                 dpkg-db-backup.service
+Mon 2026-06-29 00:00:00 IST 1h 42min Sun 2026-06-28 00:00:03 IST      22h ago logrotate.timer                      logrotate.service
+Mon 2026-06-29 00:02:07 IST 1h 45min Mon 2026-06-22 00:57:48 IST            - fstrim.timer                         fstrim.service
+Mon 2026-06-29 00:07:00 IST 1h 49min Sun 2026-06-28 00:07:03 IST      22h ago sysstat-summary.timer                sysstat-summary.service
+Mon 2026-06-29 02:00:00 IST 3h 42min Sun 2026-06-28 02:00:03 IST      20h ago alfred-overnight-batch.timer         alfred-overnight-batch.service
+Mon 2026-06-29 02:00:00 IST 3h 42min Sun 2026-06-28 02:00:03 IST      20h ago alfred-v2-overnight.timer            alfred-v2-overnight.service
+Mon 2026-06-29 05:00:00 IST       6h Sun 2026-06-28 05:00:03 IST      17h ago hermes-5am-check.timer               hermes-5am-check.service
+Mon 2026-06-29 05:25:00 IST       7h Sun 2026-06-28 05:25:03 IST      16h ago obsidian-headless-sync-restart.timer obsidian-headless-sync-restart.service
+Mon 2026-06-29 05:30:00 IST       7h Sun 2026-06-28 05:30:03 IST      16h ago hermes-vps-backup.timer              hermes-vps-backup.service
+Mon 2026-06-29 05:40:00 IST       7h Sun 2026-06-28 05:40:03 IST      16h ago hermes-semantic-reindex.timer        hermes-semantic-reindex.service
+Mon 2026-06-29 06:19:14 IST       8h Sun 2026-06-28 06:18:35 IST      15h ago alfred-retrieval-daily.timer         alfred-retrieval-daily.service
+Mon 2026-06-29 06:34:40 IST       8h Sun 2026-06-28 06:29:56 IST      15h ago apt-daily-upgrade.timer              apt-daily-upgrade.service
+Mon 2026-06-29 08:21:04 IST      10h Sun 2026-06-28 01:23:03 IST      20h ago man-db.timer                         man-db.service
+Mon 2026-06-29 11:30:21 IST      13h Sun 2026-06-28 15:37:15 IST       6h ago motd-news.timer                      motd-news.service
+Mon 2026-06-29 14:28:29 IST      16h Sun 2026-06-28 20:49:24 IST 1h 27min ago apt-daily.timer                      apt-daily.service
+Sat 2026-07-04 13:32:37 IST   5 days Wed 2026-06-24 20:51:07 IST            - update-notifier-motd.timer           update-notifier-motd.service
+Sun 2026-07-05 03:10:57 IST   6 days Sun 2026-06-28 03:10:25 IST      19h ago e2scrub_all.timer                    e2scrub_all.service
+Sun 2026-07-05 07:07:02 IST   6 days Sun 2026-06-28 07:02:56 IST      15h ago alfred-retrieval-weekly.timer        alfred-retrieval-weekly.service
+-                                  - -                                      - apport-autoreport.timer              apport-autoreport.service
+-                                  - -                                      - snapd.snap-repair.timer              snapd.snap-repair.service
+-                                  - -                                      - ua-timer.timer                       ua-timer.service
+
+25 timers listed.

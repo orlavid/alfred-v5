@@ -1,0 +1,25 @@
+# /etc/systemd/system/hermes-telegram.service
+[Unit]
+Description=Hermes Telegram Bot
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root
+ExecStart=/usr/bin/python3 /root/hermes-telegram.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+# /etc/systemd/system/hermes-telegram.service.d/20-authoritative-vault.conf
+[Service]
+Environment=HERMES_CONTAINER=hermes-agent-mctr-hermes-agent-1
+Environment=HERMES_KEY_CONTAINER=hermes-agent-mctr-hermes-agent-1
+
+# /etc/systemd/system/hermes-telegram.service.d/30-openrouter-env.conf
+[Service]
+EnvironmentFile=/root/.openrouter.env

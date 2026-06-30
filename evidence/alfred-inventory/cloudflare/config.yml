@@ -1,0 +1,14 @@
+tunnel: 297ae52c-a42f-4431-83d4-a3b49cc486f5
+credentials-file: /root/.cloudflared/297ae52c-a42f-4431-83d4-a3b49cc486f5.json
+
+ingress:
+  - hostname: alfred.alfreddoheny.cloud
+    service: http://localhost:4865
+
+  - hostname: v2.alfreddoheny.cloud
+    service: http://127.0.0.1:4880
+
+  - hostname: api.alfreddoheny.cloud
+    service: http://127.0.0.1:8788
+
+  - service: http_status:404

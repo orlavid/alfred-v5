@@ -1,0 +1,13 @@
+● hermes-telegram.service - Hermes Telegram Bot
+     Loaded: loaded (/etc/systemd/system/hermes-telegram.service; enabled; preset: enabled)
+    Drop-In: /etc/systemd/system/hermes-telegram.service.d
+             └─20-authoritative-vault.conf, 30-openrouter-env.conf
+     Active: active (running) since Sun 2026-06-28 21:09:59 IST; 1h 7min ago
+   Main PID: 13945 (python3)
+      Tasks: 3 (limit: 9483)
+     Memory: 38.7M (peak: 66.3M)
+        CPU: 2.387s
+     CGroup: /system.slice/hermes-telegram.service
+             └─13945 /usr/bin/python3 /root/hermes-telegram.py
+
+Jun 28 21:09:59 orlavid-hermes systemd[1]: Started hermes-telegram.service - Hermes Telegram Bot.

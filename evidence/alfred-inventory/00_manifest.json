@@ -1,0 +1,11 @@
+{
+  "generated": "2026-06-28T22:17:03.715349",
+  "paths": {
+    "second_brain": "/opt/second-brain",
+    "alfred_v2": "/opt/alfred-v2",
+    "llamaindex": "/opt/llamaindex-bakeoff",
+    "vault": "/docker/obsidian-vault",
+    "cloudflared": "/etc/cloudflared",
+    "systemd": "/etc/systemd/system"
+  }
+}

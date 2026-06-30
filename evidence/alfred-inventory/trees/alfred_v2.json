@@ -1,0 +1,800 @@
+[
+  {
+    "path": "/opt/alfred-v2/nightly.sh",
+    "type": "file",
+    "size": 665,
+    "mtime": "2026-06-13T22:49:17.196901"
+  },
+  {
+    "path": "/opt/alfred-v2/logs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:51:49.842335"
+  },
+  {
+    "path": "/opt/alfred-v2/README.md",
+    "type": "file",
+    "size": 2786,
+    "mtime": "2026-06-13T22:23:16.510440"
+  },
+  {
+    "path": "/opt/alfred-v2/batch.py",
+    "type": "file",
+    "size": 3567,
+    "mtime": "2026-06-13T22:48:55.379982"
+  },
+  {
+    "path": "/opt/alfred-v2/venv",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:00.341049"
+  },
+  {
+    "path": "/opt/alfred-v2/nginx-alfred-splitter.conf",
+    "type": "file",
+    "size": 1527,
+    "mtime": "2026-06-13T22:32:06.842922"
+  },
+  {
+    "path": "/opt/alfred-v2/systemd",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:49:32.037846"
+  },
+  {
+    "path": "/opt/alfred-v2/run.sh",
+    "type": "file",
+    "size": 240,
+    "mtime": "2026-06-13T22:11:40.488751"
+  },
+  {
+    "path": "/opt/alfred-v2/seed.py",
+    "type": "file",
+    "size": 3446,
+    "mtime": "2026-06-13T22:11:33.352774"
+  },
+  {
+    "path": "/opt/alfred-v2/alfred-v2.service",
+    "type": "file",
+    "size": 527,
+    "mtime": "2026-06-13T22:32:06.842922"
+  },
+  {
+    "path": "/opt/alfred-v2/data",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T19:51:04.439953"
+  },
+  {
+    "path": "/opt/alfred-v2/app",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T23:02:26.051730"
+  },
+  {
+    "path": "/opt/alfred-v2/logs/batch.log",
+    "type": "file",
+    "size": 113936,
+    "mtime": "2026-06-28T02:00:14.853418"
+  },
+  {
+    "path": "/opt/alfred-v2/logs/service.log",
+    "type": "file",
+    "size": 26471,
+    "mtime": "2026-06-28T19:51:04.440953"
+  },
+  {
+    "path": "/opt/alfred-v2/logs/server.log",
+    "type": "file",
+    "size": 1342,
+    "mtime": "2026-06-13T22:32:22.426856"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib64",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:00.341049"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:00.341049"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/include",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:00.341049"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/pyvenv.cfg",
+    "type": "file",
+    "size": 158,
+    "mtime": "2026-06-13T22:05:00.341049"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.495023"
+  },
+  {
+    "path": "/opt/alfred-v2/systemd/alfred-v2-overnight.service",
+    "type": "file",
+    "size": 370,
+    "mtime": "2026-06-13T22:49:24.758873"
+  },
+  {
+    "path": "/opt/alfred-v2/systemd/alfred-v2-overnight.timer",
+    "type": "file",
+    "size": 271,
+    "mtime": "2026-06-13T22:49:24.761873"
+  },
+  {
+    "path": "/opt/alfred-v2/data/auth_state.json",
+    "type": "file",
+    "size": 284,
+    "mtime": "2026-06-28T19:51:04.403954"
+  },
+  {
+    "path": "/opt/alfred-v2/data/last_batch.json",
+    "type": "file",
+    "size": 8510,
+    "mtime": "2026-06-28T02:00:14.853418"
+  },
+  {
+    "path": "/opt/alfred-v2/data/alfred.db",
+    "type": "file",
+    "size": 0,
+    "mtime": "2026-06-18T20:44:16.973510"
+  },
+  {
+    "path": "/opt/alfred-v2/data/alfred_v2.sqlite",
+    "type": "file",
+    "size": 430080,
+    "mtime": "2026-06-28T02:00:14.850419"
+  },
+  {
+    "path": "/opt/alfred-v2/app/auth.py",
+    "type": "file",
+    "size": 4976,
+    "mtime": "2026-06-13T22:56:31.082301"
+  },
+  {
+    "path": "/opt/alfred-v2/app/engine.py",
+    "type": "file",
+    "size": 18934,
+    "mtime": "2026-06-13T23:02:13.297754"
+  },
+  {
+    "path": "/opt/alfred-v2/app/watchlist.py",
+    "type": "file",
+    "size": 4714,
+    "mtime": "2026-06-13T23:01:53.699790"
+  },
+  {
+    "path": "/opt/alfred-v2/app/static",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:09:33.172165"
+  },
+  {
+    "path": "/opt/alfred-v2/app/obsidian.py",
+    "type": "file",
+    "size": 5072,
+    "mtime": "2026-06-13T22:06:02.735848"
+  },
+  {
+    "path": "/opt/alfred-v2/app/insights.py",
+    "type": "file",
+    "size": 9580,
+    "mtime": "2026-06-13T23:02:15.100751"
+  },
+  {
+    "path": "/opt/alfred-v2/app/agents.py",
+    "type": "file",
+    "size": 4430,
+    "mtime": "2026-06-13T22:07:09.735631"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__init__.py",
+    "type": "file",
+    "size": 37,
+    "mtime": "2026-06-13T22:11:10.818848"
+  },
+  {
+    "path": "/opt/alfred-v2/app/db.py",
+    "type": "file",
+    "size": 8854,
+    "mtime": "2026-06-13T22:47:20.394336"
+  },
+  {
+    "path": "/opt/alfred-v2/app/hermes.py",
+    "type": "file",
+    "size": 3484,
+    "mtime": "2026-06-13T22:06:02.735848"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T23:02:54.623675"
+  },
+  {
+    "path": "/opt/alfred-v2/app/config.py",
+    "type": "file",
+    "size": 2475,
+    "mtime": "2026-06-13T22:05:24.507971"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T23:02:45.995692"
+  },
+  {
+    "path": "/opt/alfred-v2/app/main.py",
+    "type": "file",
+    "size": 13822,
+    "mtime": "2026-06-13T23:02:26.049730"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:00.341049"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/include/python3.12",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:00.341049"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/pip3.12",
+    "type": "file",
+    "size": 236,
+    "mtime": "2026-06-13T22:05:05.024034"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/Activate.ps1",
+    "type": "file",
+    "size": 9033,
+    "mtime": "2026-06-13T22:05:03.550039"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/activate.csh",
+    "type": "file",
+    "size": 915,
+    "mtime": "2026-06-13T22:05:03.550039"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/python3.12",
+    "type": "file",
+    "size": 8020928,
+    "mtime": "2026-03-23T19:04:32"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/fastapi",
+    "type": "file",
+    "size": 173,
+    "mtime": "2026-06-13T22:05:08.495023"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/uvicorn",
+    "type": "file",
+    "size": 174,
+    "mtime": "2026-06-13T22:05:07.849025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/pip",
+    "type": "file",
+    "size": 236,
+    "mtime": "2026-06-13T22:05:05.024034"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/activate",
+    "type": "file",
+    "size": 2026,
+    "mtime": "2026-06-13T22:05:03.551039"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/activate.fish",
+    "type": "file",
+    "size": 2190,
+    "mtime": "2026-06-13T22:05:03.550039"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/pip3",
+    "type": "file",
+    "size": 236,
+    "mtime": "2026-06-13T22:05:05.024034"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/dotenv",
+    "type": "file",
+    "size": 175,
+    "mtime": "2026-06-13T22:05:07.631026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/python",
+    "type": "file",
+    "size": 8020928,
+    "mtime": "2026-03-23T19:04:32"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/websockets",
+    "type": "file",
+    "size": 176,
+    "mtime": "2026-06-13T22:05:07.460026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/python3",
+    "type": "file",
+    "size": 8020928,
+    "mtime": "2026-03-23T19:04:32"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/idna",
+    "type": "file",
+    "size": 170,
+    "mtime": "2026-06-13T22:05:07.678026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/bin/watchfiles",
+    "type": "file",
+    "size": 174,
+    "mtime": "2026-06-13T22:05:08.092024"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.431023"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/starlette",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.102024"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/annotated_types",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.800025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/watchfiles-1.2.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.094024"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/_yaml",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.571026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/yaml",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.573026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/uvloop-0.22.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.534026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/pydantic_core",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.892025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/python_dotenv-1.2.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.634026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/fastapi-0.115.14.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.497023"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/fastapi",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.438023"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/uvicorn",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.813025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/multipart",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.609026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/typing_extensions-4.15.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.557026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/anyio-4.13.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.078024"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/pip",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:04.324036"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/httptools-0.8.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.697026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/pydantic-2.13.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.429023"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/h11-0.16.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.715025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/pydantic_core-2.46.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.913025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/typing_inspection-0.4.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.864025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/pyyaml-6.0.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.606026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/annotated_types-0.7.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.806025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/jinja2-3.1.6.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.992025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/jinja2",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.920025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/typing_inspection",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.855025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/httptools",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.693026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/markupsafe-3.0.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.641026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/starlette-0.46.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.166024"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/typing_extensions.py",
+    "type": "file",
+    "size": 160429,
+    "mtime": "2026-06-13T22:05:07.536026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/python_multipart-0.0.32.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.622026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/__pycache__",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.555026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/dotenv",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.625026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/click",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.723026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/pip-26.1.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:05.030034"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/uvicorn-0.32.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.852025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/python_multipart",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.609026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/websockets",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.383027"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/idna",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.644026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/idna-3.18.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.681026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/pydantic",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.187024"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/anyio",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.000025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/watchfiles",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:08.086024"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/markupsafe",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.639026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/websockets-16.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.463026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/click-8.4.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.795025"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/h11",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.700026"
+  },
+  {
+    "path": "/opt/alfred-v2/venv/lib/python3.12/site-packages/uvloop",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-13T22:05:07.528026"
+  },
+  {
+    "path": "/opt/alfred-v2/app/static/app.css",
+    "type": "file",
+    "size": 4245,
+    "mtime": "2026-06-13T22:09:33.170165"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/obsidian.cpython-312.pyc",
+    "type": "file",
+    "size": 8653,
+    "mtime": "2026-06-13T22:11:41.796747"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/agents.cpython-312.pyc",
+    "type": "file",
+    "size": 5669,
+    "mtime": "2026-06-13T22:11:41.797747"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/engine.cpython-312.pyc",
+    "type": "file",
+    "size": 26391,
+    "mtime": "2026-06-13T23:02:54.621675"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/auth.cpython-312.pyc",
+    "type": "file",
+    "size": 8600,
+    "mtime": "2026-06-13T22:57:30.069149"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/watchlist.cpython-312.pyc",
+    "type": "file",
+    "size": 6701,
+    "mtime": "2026-06-13T23:01:59.285780"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/db.cpython-312.pyc",
+    "type": "file",
+    "size": 12328,
+    "mtime": "2026-06-13T22:49:32.414844"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/hermes.cpython-312.pyc",
+    "type": "file",
+    "size": 5362,
+    "mtime": "2026-06-13T22:11:41.773747"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/main.cpython-312.pyc",
+    "type": "file",
+    "size": 21756,
+    "mtime": "2026-06-13T23:02:54.386675"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/__init__.cpython-312.pyc",
+    "type": "file",
+    "size": 172,
+    "mtime": "2026-06-13T22:11:41.750747"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/insights.cpython-312.pyc",
+    "type": "file",
+    "size": 13038,
+    "mtime": "2026-06-13T23:02:54.623675"
+  },
+  {
+    "path": "/opt/alfred-v2/app/__pycache__/config.cpython-312.pyc",
+    "type": "file",
+    "size": 2622,
+    "mtime": "2026-06-13T22:11:41.751747"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/workspace.html",
+    "type": "file",
+    "size": 4340,
+    "mtime": "2026-06-13T22:10:21.812007"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/home.html",
+    "type": "file",
+    "size": 2506,
+    "mtime": "2026-06-13T22:18:44.062368"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/search.html",
+    "type": "file",
+    "size": 701,
+    "mtime": "2026-06-13T22:18:54.401334"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/base.html",
+    "type": "file",
+    "size": 1148,
+    "mtime": "2026-06-13T22:57:21.534156"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/login.html",
+    "type": "file",
+    "size": 1494,
+    "mtime": "2026-06-13T22:57:10.768164"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/writeback_log.html",
+    "type": "file",
+    "size": 602,
+    "mtime": "2026-06-13T22:11:02.173876"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/board.html",
+    "type": "file",
+    "size": 899,
+    "mtime": "2026-06-13T22:11:33.274775"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/brief.html",
+    "type": "file",
+    "size": 1971,
+    "mtime": "2026-06-13T23:02:45.993691"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/review.html",
+    "type": "file",
+    "size": 1442,
+    "mtime": "2026-06-13T22:11:02.281875"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/landing.html",
+    "type": "file",
+    "size": 1678,
+    "mtime": "2026-06-13T22:57:13.809162"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/insights.html",
+    "type": "file",
+    "size": 3293,
+    "mtime": "2026-06-13T22:52:46.240127"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/board_detail.html",
+    "type": "file",
+    "size": 1401,
+    "mtime": "2026-06-13T22:11:02.283875"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/agents.html",
+    "type": "file",
+    "size": 1302,
+    "mtime": "2026-06-13T22:11:02.266876"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/reviews.html",
+    "type": "file",
+    "size": 1075,
+    "mtime": "2026-06-13T22:11:02.280875"
+  },
+  {
+    "path": "/opt/alfred-v2/app/templates/intel.html",
+    "type": "file",
+    "size": 2403,
+    "mtime": "2026-06-13T23:02:42.973697"
+  }
+]

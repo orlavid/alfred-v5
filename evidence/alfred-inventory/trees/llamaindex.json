@@ -1,0 +1,3626 @@
+[
+  {
+    "path": "/opt/llamaindex-bakeoff/alfred.py.pre-v6-evidence-only-20260628-180717.bak",
+    "type": "file",
+    "size": 2218,
+    "mtime": "2026-06-28T18:07:17.169312"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-people-summary-card-20260622-215908.bak",
+    "type": "file",
+    "size": 13418,
+    "mtime": "2026-06-22T21:59:08.732544"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/prompt_builder.py",
+    "type": "file",
+    "size": 2045,
+    "mtime": "2026-06-27T18:35:34.050739"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/alfred_action_openapi.json",
+    "type": "file",
+    "size": 2059,
+    "mtime": "2026-06-27T22:22:29.899405"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/people_evidence.py",
+    "type": "file",
+    "size": 824,
+    "mtime": "2026-06-22T21:26:48.382984"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/bakeoff.sh",
+    "type": "file",
+    "size": 1960,
+    "mtime": "2026-06-22T22:27:02.293195"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-people-filename-lookup-20260622-211729.bak",
+    "type": "file",
+    "size": 11838,
+    "mtime": "2026-06-22T21:17:29.194752"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_config.py.pre-4type-20260622-222438.bak",
+    "type": "file",
+    "size": 1080,
+    "mtime": "2026-06-22T22:24:38.625654"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/index",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:39:22.309587"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T21:24:31.847834"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_synthesise.py.pre-grounding-20260623-190154.bak",
+    "type": "file",
+    "size": 1102,
+    "mtime": "2026-06-23T19:01:54.180058"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/people_summary.py",
+    "type": "file",
+    "size": 492,
+    "mtime": "2026-06-22T21:28:39.506633"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-drillthrough-20260622-200723.bak",
+    "type": "file",
+    "size": 5449,
+    "mtime": "2026-06-22T20:07:23.978955"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/requirements.txt",
+    "type": "file",
+    "size": 2152,
+    "mtime": "2026-06-28T17:23:36.060600"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/bakeoff-results.txt",
+    "type": "file",
+    "size": 22388,
+    "mtime": "2026-06-22T22:29:02.437811"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:16:12.150518"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-work-filter-20260622-202827.bak",
+    "type": "file",
+    "size": 6222,
+    "mtime": "2026-06-22T20:28:27.046970"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-route-query-20260621-223058.bak",
+    "type": "file",
+    "size": 3753,
+    "mtime": "2026-06-21T22:30:58.223796"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/prompts",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:28:55.342979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_answer.py",
+    "type": "file",
+    "size": 987,
+    "mtime": "2026-06-28T18:09:30.846890"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-object-types-20260621-224753.bak",
+    "type": "file",
+    "size": 4469,
+    "mtime": "2026-06-21T22:47:53.860698"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-latest-fix-20260622-205955.bak",
+    "type": "file",
+    "size": 10394,
+    "mtime": "2026-06-22T20:59:55.062113"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_evidence_v2.py.pre-4type-20260622-222438.bak",
+    "type": "file",
+    "size": 2161,
+    "mtime": "2026-06-22T22:24:38.629654"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/intent_classifier.py",
+    "type": "file",
+    "size": 2136,
+    "mtime": "2026-06-27T18:18:15.534995"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/routed_retrieval_results.txt",
+    "type": "file",
+    "size": 18448,
+    "mtime": "2026-06-21T21:58:01.158680"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_synthesise.py.pre-policy-20260623-191555.bak",
+    "type": "file",
+    "size": 1918,
+    "mtime": "2026-06-23T19:15:55.055316"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/heading_search.py",
+    "type": "file",
+    "size": 544,
+    "mtime": "2026-06-28T17:05:59.901021"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/harness.log",
+    "type": "file",
+    "size": 874,
+    "mtime": "2026-06-27T21:52:59.708801"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/policies",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-23T19:15:04.362483"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/routed_retrieval.py",
+    "type": "file",
+    "size": 1938,
+    "mtime": "2026-06-21T21:57:27.207771"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-routing-20260621-222612.bak",
+    "type": "file",
+    "size": 2477,
+    "mtime": "2026-06-21T22:26:12.358672"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.gitignore",
+    "type": "file",
+    "size": 84,
+    "mtime": "2026-06-28T16:32:38.719667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/people_graham.py",
+    "type": "file",
+    "size": 655,
+    "mtime": "2026-06-22T21:29:18.928509"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_evidence.py.pre-score-fix-20260622-214205.bak",
+    "type": "file",
+    "size": 968,
+    "mtime": "2026-06-22T21:42:05.066938"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/validation_results.txt",
+    "type": "file",
+    "size": 65051,
+    "mtime": "2026-06-21T21:13:07.303224"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_answer.py.pre-v6-evidence-only-20260628-180717.bak",
+    "type": "file",
+    "size": 987,
+    "mtime": "2026-06-28T18:07:17.171312"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/filter_test.py",
+    "type": "file",
+    "size": 1159,
+    "mtime": "2026-06-28T17:05:59.901021"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py",
+    "type": "file",
+    "size": 15157,
+    "mtime": "2026-06-28T19:18:15.629543"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.658762"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/retrieval-test-20260621-210144.txt",
+    "type": "file",
+    "size": 10095,
+    "mtime": "2026-06-21T21:02:17.771923"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/validate_retrieval.py",
+    "type": "file",
+    "size": 1368,
+    "mtime": "2026-06-21T21:12:34.255382"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.alfred_api_token",
+    "type": "file",
+    "size": 43,
+    "mtime": "2026-06-27T22:03:47.633788"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-full-rewrite-20260622-203255.bak",
+    "type": "file",
+    "size": 6222,
+    "mtime": "2026-06-22T20:32:55.032160"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/alfred.py.broken-20260628-182536.bak",
+    "type": "file",
+    "size": 2218,
+    "mtime": "2026-06-28T18:25:36.914629"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/nohup.out",
+    "type": "file",
+    "size": 256,
+    "mtime": "2026-06-28T19:18:16.253541"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/validation_queries.txt",
+    "type": "file",
+    "size": 119,
+    "mtime": "2026-06-21T21:11:25.514720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-theme-collapse-20260622-203816.bak",
+    "type": "file",
+    "size": 6915,
+    "mtime": "2026-06-22T20:38:16.320172"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/ask.py",
+    "type": "file",
+    "size": 530,
+    "mtime": "2026-06-27T18:18:15.536995"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_synthesise.py",
+    "type": "file",
+    "size": 3084,
+    "mtime": "2026-06-27T18:36:12.255621"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-sys-executable-20260628-182536.bak",
+    "type": "file",
+    "size": 15120,
+    "mtime": "2026-06-28T18:25:36.916629"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/people_summarise.py",
+    "type": "file",
+    "size": 562,
+    "mtime": "2026-06-22T21:30:51.558216"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_synthesise.py.pre-4type-20260622-222438.bak",
+    "type": "file",
+    "size": 815,
+    "mtime": "2026-06-22T22:24:38.632654"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_summary.py",
+    "type": "file",
+    "size": 702,
+    "mtime": "2026-06-22T21:48:23.600658"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/review_answer.py",
+    "type": "file",
+    "size": 1864,
+    "mtime": "2026-06-27T18:53:14.988517"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T19:18:15.662543"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-theme-collapse-function-20260622-204100.bak",
+    "type": "file",
+    "size": 6915,
+    "mtime": "2026-06-22T20:41:00.048664"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.bak",
+    "type": "file",
+    "size": 2304,
+    "mtime": "2026-06-21T22:19:38.982886"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/filter_test_output.txt",
+    "type": "file",
+    "size": 9477,
+    "mtime": "2026-06-21T21:29:07.748346"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/governance",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:41:38.543610"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/docs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:05:59.880021"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_evidence_v2.py",
+    "type": "file",
+    "size": 1981,
+    "mtime": "2026-06-28T17:05:59.901021"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_synthesise.py.pre-no-hallucination-20260623-190515.bak",
+    "type": "file",
+    "size": 1552,
+    "mtime": "2026-06-23T19:05:15.889399"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_evidence.py",
+    "type": "file",
+    "size": 1269,
+    "mtime": "2026-06-28T17:05:59.901021"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/debug",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T19:02:16.750903"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/app.py.pre-theme-drillthrough-20260622-204247.bak",
+    "type": "file",
+    "size": 8149,
+    "mtime": "2026-06-22T20:42:47.301331"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/benchmarks",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:28:55.341979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/playbooks",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:41:38.541610"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/heading_search_results.txt",
+    "type": "file",
+    "size": 8094,
+    "mtime": "2026-06-21T21:31:04.600921"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/improve_answer.py",
+    "type": "file",
+    "size": 2778,
+    "mtime": "2026-06-27T18:59:43.193364"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/test_index.py",
+    "type": "file",
+    "size": 707,
+    "mtime": "2026-06-28T17:28:35.259642"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_evidence.py.bak",
+    "type": "file",
+    "size": 624,
+    "mtime": "2026-06-22T21:36:45.014070"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_answer.py.pre-4type-20260622-222438.bak",
+    "type": "file",
+    "size": 897,
+    "mtime": "2026-06-22T22:24:38.636654"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/alfred.py",
+    "type": "file",
+    "size": 1790,
+    "mtime": "2026-06-28T19:15:25.337072"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/entity_config.py",
+    "type": "file",
+    "size": 1454,
+    "mtime": "2026-06-22T22:24:38.638654"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/index/default__vector_store.json",
+    "type": "file",
+    "size": 117946088,
+    "mtime": "2026-06-28T17:39:22.308587"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/index/docstore.json",
+    "type": "file",
+    "size": 58865656,
+    "mtime": "2026-06-28T17:39:10.115626"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/index/image__vector_store.json",
+    "type": "file",
+    "size": 72,
+    "mtime": "2026-06-28T17:39:22.309587"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/index/index_store.json",
+    "type": "file",
+    "size": 1093927,
+    "mtime": "2026-06-28T17:39:10.228626"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/index/graph_store.json",
+    "type": "file",
+    "size": 18,
+    "mtime": "2026-06-28T17:39:10.229625"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/index",
+    "type": "file",
+    "size": 6848,
+    "mtime": "2026-06-28T16:35:21.329197"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/description",
+    "type": "file",
+    "size": 73,
+    "mtime": "2026-06-27T22:57:45.726757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.727757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/HEAD",
+    "type": "file",
+    "size": 23,
+    "mtime": "2026-06-27T22:57:45.732757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/logs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.776757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/refs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.732757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T16:32:38.733667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/config",
+    "type": "file",
+    "size": 143,
+    "mtime": "2026-06-27T22:57:45.738757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/branches",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.727757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.731757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/COMMIT_EDITMSG",
+    "type": "file",
+    "size": 66,
+    "mtime": "2026-06-28T16:32:38.729667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_synthesise.modewire.20260627-120237.py",
+    "type": "file",
+    "size": 4292,
+    "mtime": "2026-06-27T12:02:37.014220"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/baseline-20260627-113531",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T11:35:31.492307"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/ask.pre-intent.20260627-181815.py",
+    "type": "file",
+    "size": 753,
+    "mtime": "2026-06-27T18:18:15.531995"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/alfred.gate.20260627-190548.py",
+    "type": "file",
+    "size": 1423,
+    "mtime": "2026-06-27T19:05:48.657264"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/alfred.pre-json.20260627-221612.py",
+    "type": "file",
+    "size": 1854,
+    "mtime": "2026-06-27T22:16:12.148518"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/app.pre-json-alfred.20260627-221612.py",
+    "type": "file",
+    "size": 15457,
+    "mtime": "2026-06-27T22:16:12.150518"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_answer.cli.20260627-120653.py",
+    "type": "file",
+    "size": 897,
+    "mtime": "2026-06-27T12:06:53.520397"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_synthesise.pre-governance.20260627-182938.py",
+    "type": "file",
+    "size": 5490,
+    "mtime": "2026-06-27T18:29:38.254845"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/baseline-20260627-113531.tgz",
+    "type": "file",
+    "size": 6680,
+    "mtime": "2026-06-27T11:35:31.499307"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-evidence-contract-20260627-114554",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T11:45:54.948371"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/improve_answer.truth.20260627-185943.py",
+    "type": "file",
+    "size": 1846,
+    "mtime": "2026-06-27T18:59:43.191364"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/app.pre-alfred-api.20260627-212408.py",
+    "type": "file",
+    "size": 14253,
+    "mtime": "2026-06-27T21:24:08.997218"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/review_answer.fix.20260627-185314.py",
+    "type": "file",
+    "size": 1655,
+    "mtime": "2026-06-27T18:53:14.985517"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_synthesise.debug.20260627-183128.py",
+    "type": "file",
+    "size": 6061,
+    "mtime": "2026-06-27T18:31:28.569502"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/review_answer.pre-openrouter.20260627-184743.py",
+    "type": "file",
+    "size": 1082,
+    "mtime": "2026-06-27T18:47:43.542481"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/alfred.pre-self-improve.20260627-185615.py",
+    "type": "file",
+    "size": 740,
+    "mtime": "2026-06-27T18:56:15.191985"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_synthesise.pre-promptbuilder.20260627-183612.py",
+    "type": "file",
+    "size": 6201,
+    "mtime": "2026-06-27T18:36:12.232621"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/alfred.pipeline.20260627-185649.py",
+    "type": "file",
+    "size": 740,
+    "mtime": "2026-06-27T18:56:49.209884"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-alfred-runtime-20260627-184554",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:45:54.265819"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_synthesise.reasoning.20260627-120155.py",
+    "type": "file",
+    "size": 3735,
+    "mtime": "2026-06-27T12:01:55.485354"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_answer.pre-intent.20260627-181815.py",
+    "type": "file",
+    "size": 987,
+    "mtime": "2026-06-27T18:18:15.533995"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_answer.debug.20260627-190216.py",
+    "type": "file",
+    "size": 987,
+    "mtime": "2026-06-27T19:02:16.752903"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-constitution-20260627-182855",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:28:55.330979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-evidence-contract-20260627-114554.tgz",
+    "type": "file",
+    "size": 2512,
+    "mtime": "2026-06-27T11:45:54.953371"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/entity_synthesise.cli.20260627-120653.py",
+    "type": "file",
+    "size": 5395,
+    "mtime": "2026-06-27T12:06:53.522397"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/review_answer.pre-openrouter-reuse.20260627-184928.py",
+    "type": "file",
+    "size": 1655,
+    "mtime": "2026-06-27T18:49:28.824175"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/prompts/prompt_loader_notes.md",
+    "type": "file",
+    "size": 270,
+    "mtime": "2026-06-27T18:28:55.343979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/policies/evidence_policy.md",
+    "type": "file",
+    "size": 1348,
+    "mtime": "2026-06-23T19:15:04.363483"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib64",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:21:48.997945"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:21:48.997945"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/include",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.042719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/pyvenv.cfg",
+    "type": "file",
+    "size": 168,
+    "mtime": "2026-06-28T17:21:48.997945"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/share",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.658762"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.491605"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/ask.cpython-312.pyc",
+    "type": "file",
+    "size": 844,
+    "mtime": "2026-06-28T18:09:30.882890"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/entity_evidence_v2.cpython-312.pyc",
+    "type": "file",
+    "size": 2826,
+    "mtime": "2026-06-28T17:05:59.937020"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/entity_synthesise.cpython-312.pyc",
+    "type": "file",
+    "size": 4884,
+    "mtime": "2026-06-28T18:07:17.207312"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/entity_answer.cpython-312.pyc",
+    "type": "file",
+    "size": 1504,
+    "mtime": "2026-06-28T18:09:30.882890"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/prompt_builder.cpython-312.pyc",
+    "type": "file",
+    "size": 2537,
+    "mtime": "2026-06-27T18:36:12.289621"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/app.cpython-312.pyc",
+    "type": "file",
+    "size": 20917,
+    "mtime": "2026-06-28T19:18:15.662543"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/filter_test.cpython-312.pyc",
+    "type": "file",
+    "size": 2111,
+    "mtime": "2026-06-28T17:05:59.937020"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/entity_evidence.cpython-312.pyc",
+    "type": "file",
+    "size": 1949,
+    "mtime": "2026-06-28T17:05:59.936020"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/heading_search.cpython-312.pyc",
+    "type": "file",
+    "size": 1131,
+    "mtime": "2026-06-28T17:05:59.937020"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/test_index.cpython-312.pyc",
+    "type": "file",
+    "size": 1149,
+    "mtime": "2026-06-28T17:28:35.292642"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/alfred.cpython-312.pyc",
+    "type": "file",
+    "size": 2747,
+    "mtime": "2026-06-28T19:15:25.367072"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/intent_classifier.cpython-312.pyc",
+    "type": "file",
+    "size": 4176,
+    "mtime": "2026-06-27T18:18:15.565995"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/review_answer.cpython-312.pyc",
+    "type": "file",
+    "size": 2532,
+    "mtime": "2026-06-27T18:53:15.019517"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/improve_answer.cpython-312.pyc",
+    "type": "file",
+    "size": 3512,
+    "mtime": "2026-06-27T18:59:43.226364"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/__pycache__/entity_config.cpython-312.pyc",
+    "type": "file",
+    "size": 684,
+    "mtime": "2026-06-27T11:45:55.009371"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/governance/quality_policy.md",
+    "type": "file",
+    "size": 367,
+    "mtime": "2026-06-27T18:41:38.544610"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/governance/alfred_constitution.md",
+    "type": "file",
+    "size": 3190,
+    "mtime": "2026-06-27T18:28:55.332979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/docs/alfred-executive-os-architecture-vnext.md",
+    "type": "file",
+    "size": 4979,
+    "mtime": "2026-06-28T16:32:38.716667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/docs/current-build-plan.md",
+    "type": "file",
+    "size": 966,
+    "mtime": "2026-06-28T16:32:38.718667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/benchmarks/executive_benchmark.md",
+    "type": "file",
+    "size": 681,
+    "mtime": "2026-06-27T18:28:55.342979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/playbooks/strategy.md",
+    "type": "file",
+    "size": 418,
+    "mtime": "2026-06-27T18:28:55.337979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/playbooks/risk_review.md",
+    "type": "file",
+    "size": 420,
+    "mtime": "2026-06-27T18:28:55.336979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/playbooks/project_plan.md",
+    "type": "file",
+    "size": 297,
+    "mtime": "2026-06-27T18:28:55.339979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/playbooks/reviewer.md",
+    "type": "file",
+    "size": 1111,
+    "mtime": "2026-06-27T18:41:38.542610"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/playbooks/meeting_brief.md",
+    "type": "file",
+    "size": 406,
+    "mtime": "2026-06-27T18:28:55.333979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/playbooks/decision_paper.md",
+    "type": "file",
+    "size": 409,
+    "mtime": "2026-06-27T18:28:55.335979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/playbooks/general_answer.md",
+    "type": "file",
+    "size": 198,
+    "mtime": "2026-06-27T18:28:55.340979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/info/exclude",
+    "type": "file",
+    "size": 240,
+    "mtime": "2026-06-27T22:57:45.727757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/logs/HEAD",
+    "type": "file",
+    "size": 385,
+    "mtime": "2026-06-28T16:32:38.730667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/logs/refs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.776757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/refs/heads",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T16:32:38.730667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/refs/tags",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.732757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/4e",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.751757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/dd",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/5b",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.753757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/94",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.760757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/c7",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.775757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ae",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.747757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/40",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/47",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.775757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/f5",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.748757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/e4",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.756757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/8d",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.754757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/46",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.746757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/26",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.748757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/c9",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.755757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/7d",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.743757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.733757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/4d",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.758757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ea",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.774757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/pack",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.733757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/36",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.760757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/6e",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.752757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/7a",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.742757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/00",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T16:32:38.729667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/84",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/58",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.774757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/2b",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.764757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/98",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.755757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/73",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.747757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/83",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ef",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.774757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/8c",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.764757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/52",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.756757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/9f",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.761757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/cc",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.752757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/0b",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.742757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/92",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/b3",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.741757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/d4",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.776757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/5c",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T16:32:38.728667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/90",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.749757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/fe",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.752757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/2d",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.763757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/16",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.759757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ce",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.749757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/09",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/69",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.748757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/0d",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/21",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.749757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/53",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.774757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/64",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.746757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/14",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.761757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/a2",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.765757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/f6",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T16:32:38.724667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/da",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/7e",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.757757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/d8",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.753757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/d9",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.758757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/dc",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.746757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/c5",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.759757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/f2",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.751757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/48",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.757757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/2f",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.743757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/38",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T16:32:38.723667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/1f",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.751757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/8a",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T16:32:38.728667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/76",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.754757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/02",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.763757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/fsmonitor-watchman.sample",
+    "type": "file",
+    "size": 4726,
+    "mtime": "2026-06-27T22:57:45.728757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/pre-merge-commit.sample",
+    "type": "file",
+    "size": 416,
+    "mtime": "2026-06-27T22:57:45.728757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/pre-receive.sample",
+    "type": "file",
+    "size": 544,
+    "mtime": "2026-06-27T22:57:45.729757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/applypatch-msg.sample",
+    "type": "file",
+    "size": 478,
+    "mtime": "2026-06-27T22:57:45.729757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/pre-rebase.sample",
+    "type": "file",
+    "size": 4898,
+    "mtime": "2026-06-27T22:57:45.729757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/post-update.sample",
+    "type": "file",
+    "size": 189,
+    "mtime": "2026-06-27T22:57:45.729757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/push-to-checkout.sample",
+    "type": "file",
+    "size": 2783,
+    "mtime": "2026-06-27T22:57:45.730757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/commit-msg.sample",
+    "type": "file",
+    "size": 896,
+    "mtime": "2026-06-27T22:57:45.730757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/pre-push.sample",
+    "type": "file",
+    "size": 1374,
+    "mtime": "2026-06-27T22:57:45.730757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/prepare-commit-msg.sample",
+    "type": "file",
+    "size": 1492,
+    "mtime": "2026-06-27T22:57:45.731757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/update.sample",
+    "type": "file",
+    "size": 3650,
+    "mtime": "2026-06-27T22:57:45.731757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/sendemail-validate.sample",
+    "type": "file",
+    "size": 2308,
+    "mtime": "2026-06-27T22:57:45.731757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/pre-commit.sample",
+    "type": "file",
+    "size": 1643,
+    "mtime": "2026-06-27T22:57:45.731757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/hooks/pre-applypatch.sample",
+    "type": "file",
+    "size": 424,
+    "mtime": "2026-06-27T22:57:45.732757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/logs/refs/heads",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T22:57:45.776757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/logs/refs/heads/master",
+    "type": "file",
+    "size": 385,
+    "mtime": "2026-06-28T16:32:38.730667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/refs/heads/master",
+    "type": "file",
+    "size": 41,
+    "mtime": "2026-06-28T16:32:38.730667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/4e/c3494f2a7ce467dd96d8e6f3ed3c3938afe8e4",
+    "type": "file",
+    "size": 1002,
+    "mtime": "2026-06-27T22:57:45.751757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/dd/6dc8c6ece02dd0cb22b2045ae74bd0e364e3dc",
+    "type": "file",
+    "size": 1894,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/5b/dc9f317a7c9c3df53092e6a6af09f574aca9d9",
+    "type": "file",
+    "size": 1220,
+    "mtime": "2026-06-27T22:57:45.753757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/94/e2e1f64b5477da25e33e28f5b8279b9f46d29b",
+    "type": "file",
+    "size": 1672,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/94/99d8592912039863c6672f1063defb3614a96a",
+    "type": "file",
+    "size": 198,
+    "mtime": "2026-06-27T22:57:45.760757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/c7/4ee8b23800ef5f05c690965b14de3452c9d6fc",
+    "type": "file",
+    "size": 2059,
+    "mtime": "2026-06-27T22:57:45.775757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ae/a48bf2568c7db729529c8600a0a99dad8be01d",
+    "type": "file",
+    "size": 290,
+    "mtime": "2026-06-27T22:57:45.747757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/40/e3c8b07efaac383d3886fe26939db8d3e40c29",
+    "type": "file",
+    "size": 848,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/47/fc475347648251a10ce7b3f0b5667451776b9a",
+    "type": "file",
+    "size": 67,
+    "mtime": "2026-06-27T22:57:45.775757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/f5/e6ef37071821720a1f11bd07220077377456cf",
+    "type": "file",
+    "size": 262,
+    "mtime": "2026-06-27T22:57:45.748757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/e4/f429028fbac1aee8541ccc39ee9dd7168cff3f",
+    "type": "file",
+    "size": 283,
+    "mtime": "2026-06-27T22:57:45.755757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/8d/f7aa63647306514dbea1aaf1bd1ecedc3a1099",
+    "type": "file",
+    "size": 428,
+    "mtime": "2026-06-27T22:57:45.754757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/46/df5e4a2888d1b938be5aaa5aade3ffba31ebd0",
+    "type": "file",
+    "size": 1238,
+    "mtime": "2026-06-27T22:57:45.746757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/26/580b391f5b8db95d2d6e9db9d8fd0f3d8d70e8",
+    "type": "file",
+    "size": 565,
+    "mtime": "2026-06-27T22:57:45.748757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/c9/34c84b10266237cbbd2fc5551114899e692d1a",
+    "type": "file",
+    "size": 325,
+    "mtime": "2026-06-27T22:57:45.755757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/7d/5b21eb825c3cf90db4c0737b86c2939472a6c2",
+    "type": "file",
+    "size": 1163,
+    "mtime": "2026-06-27T22:57:45.743757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/4d/c90c338434fa062187522dfa49ad0e22409796",
+    "type": "file",
+    "size": 609,
+    "mtime": "2026-06-27T22:57:45.758757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/4d/d86b682505fb8abcaf4856862b13776b5a9858",
+    "type": "file",
+    "size": 250,
+    "mtime": "2026-06-27T22:57:45.752757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ea/7a4052c45fbeb0a1863bb91f468fa87a1b7c09",
+    "type": "file",
+    "size": 63,
+    "mtime": "2026-06-27T22:57:45.774757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ea/f44120d85d5e3d8f7f4897890a31363954adeb",
+    "type": "file",
+    "size": 641,
+    "mtime": "2026-06-27T22:57:45.751757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/36/9da33f8ecf830e25758ee194f7425279806800",
+    "type": "file",
+    "size": 738,
+    "mtime": "2026-06-27T22:57:45.760757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/6e/061b5a7db12c74028aa5838e247277940c92f9",
+    "type": "file",
+    "size": 1508,
+    "mtime": "2026-06-27T22:57:45.752757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/7a/b059373da9d19aae2ad46e620572257bf9c608",
+    "type": "file",
+    "size": 5161,
+    "mtime": "2026-06-27T22:57:45.742757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/00/dea85e72ffd1dcbf01f9b282fae0d59379df43",
+    "type": "file",
+    "size": 197,
+    "mtime": "2026-06-28T16:32:38.729667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/84/30d01bcadc75a1df74967e23a1f67e254c2186",
+    "type": "file",
+    "size": 3768,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/58/7d2e6cb453e79310af74f3dfe9ddf537f3389f",
+    "type": "file",
+    "size": 618,
+    "mtime": "2026-06-27T22:57:45.752757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/58/eb00c88696c3ff542631c12557bf83840a18bb",
+    "type": "file",
+    "size": 473,
+    "mtime": "2026-06-27T22:57:45.752757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/58/07c360cdd32b6c84944089af0a1d407fe735c0",
+    "type": "file",
+    "size": 67,
+    "mtime": "2026-06-27T22:57:45.774757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/2b/83e84bdc14956eb0f7c142c380ed6b10c5c74d",
+    "type": "file",
+    "size": 122,
+    "mtime": "2026-06-27T22:57:45.764757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/98/9e8a4ccffe69ca6b738c49501aff1338de2f67",
+    "type": "file",
+    "size": 346,
+    "mtime": "2026-06-27T22:57:45.755757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/73/7ac26e6f689df5dcd006ed9e587aaf5f78f339",
+    "type": "file",
+    "size": 8152,
+    "mtime": "2026-06-27T22:57:45.747757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/83/e2f7b7a15015b02d88e311d559d18ac859428c",
+    "type": "file",
+    "size": 532,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ef/920fab2390cfd4f8f96961639ad241eed24315",
+    "type": "file",
+    "size": 105,
+    "mtime": "2026-06-27T22:57:45.774757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/8c/e3032a1bd3ea253ced18be17441df4e2085459",
+    "type": "file",
+    "size": 658,
+    "mtime": "2026-06-27T22:57:45.764757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/52/eeb149d9fa27a2e7e484fc3816710ca59c1ff4",
+    "type": "file",
+    "size": 170,
+    "mtime": "2026-06-27T22:57:45.756757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/9f/b73eceb80817a92e7ce07c95776e0e142aed5d",
+    "type": "file",
+    "size": 3870,
+    "mtime": "2026-06-27T22:57:45.761757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/cc/f56efd0f4556d718aa4f0396a0ada275336de4",
+    "type": "file",
+    "size": 334,
+    "mtime": "2026-06-27T22:57:45.752757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/0b/4397e8e7853aa5b25212a20ec91139ab9423f7",
+    "type": "file",
+    "size": 683,
+    "mtime": "2026-06-27T22:57:45.742757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/92/c65de90dcae0ec79d5cd29af6a19cc8bb31977",
+    "type": "file",
+    "size": 4567,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/b3/71b13d14bfc9ac396cfb80196ed6b723013b3d",
+    "type": "file",
+    "size": 90,
+    "mtime": "2026-06-28T16:32:38.723667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/d4/9050658d255ca952bf1fec5de17e295f7f3d82",
+    "type": "file",
+    "size": 149,
+    "mtime": "2026-06-27T22:57:45.776757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/5c/777912b26094d2f984393966791fb023a629dd",
+    "type": "file",
+    "size": 2086,
+    "mtime": "2026-06-28T16:32:38.728667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/90/25dfa472b000d83f109a90786cdbbbc1e6bf80",
+    "type": "file",
+    "size": 283,
+    "mtime": "2026-06-27T22:57:45.749757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/fe/37394e9a17aa0f0615347c241fad97d7342d7a",
+    "type": "file",
+    "size": 888,
+    "mtime": "2026-06-27T22:57:45.751757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/2d/4110039c0d5ae2554d0bbad03f6ed623fadaee",
+    "type": "file",
+    "size": 5044,
+    "mtime": "2026-06-27T22:57:45.763757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/16/783dabd4326a20eab3196e2f518386ff5c8bf1",
+    "type": "file",
+    "size": 819,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/16/872cecafec916a2d68c9c46925c5975befdd56",
+    "type": "file",
+    "size": 705,
+    "mtime": "2026-06-27T22:57:45.759757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/ce/e59e5b72ce2ac4d02656b0d7ec28f2099dbca0",
+    "type": "file",
+    "size": 373,
+    "mtime": "2026-06-27T22:57:45.749757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/09/2396d93495838913d2c0922a51d5dd81d0b098",
+    "type": "file",
+    "size": 2223,
+    "mtime": "2026-06-27T22:57:45.743757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/09/507aebc1e82979720f0ea440f64e416f3e030b",
+    "type": "file",
+    "size": 1413,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/69/da25f26c6f1fe880b92e44d570cd6ca12465a0",
+    "type": "file",
+    "size": 530,
+    "mtime": "2026-06-27T22:57:45.748757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/0d/070258ab7ee054a7ef887e12bdc39f30c8f9ea",
+    "type": "file",
+    "size": 409,
+    "mtime": "2026-06-27T22:57:45.750757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/21/9fb22ec7a749a49a075a117f52554c023a0fec",
+    "type": "file",
+    "size": 597,
+    "mtime": "2026-06-27T22:57:45.749757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/53/34dd73e1fea3a3dbfc01085ab92dd520933c79",
+    "type": "file",
+    "size": 271,
+    "mtime": "2026-06-27T22:57:45.774757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/53/166f516e51962b7a05de6e7c942ea6feef0392",
+    "type": "file",
+    "size": 922,
+    "mtime": "2026-06-27T22:57:45.762757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/64/034a8fd63b43a13f19e7b2aae538055edaa445",
+    "type": "file",
+    "size": 2741,
+    "mtime": "2026-06-27T22:57:45.746757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/14/bc986e10757d6bcd684f5268daeb9e8875fe12",
+    "type": "file",
+    "size": 876,
+    "mtime": "2026-06-27T22:57:45.761757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/a2/b1e0cea8e0c0ec4aad7a82d61709ecfcb5e060",
+    "type": "file",
+    "size": 21799,
+    "mtime": "2026-06-27T22:57:45.765757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/f6/f3a974814aa3f2c4c73be2bf1f9578d98c28a3",
+    "type": "file",
+    "size": 380,
+    "mtime": "2026-06-27T22:57:45.748757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/f6/b6816462c056998e50fde3ef22edd7e731e0b6",
+    "type": "file",
+    "size": 556,
+    "mtime": "2026-06-28T16:32:38.724667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/da/2265a75478b10caf49b01522cc9e201c1b60e8",
+    "type": "file",
+    "size": 4187,
+    "mtime": "2026-06-27T22:57:45.745757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/7e/c489ed9d689d9f967d1778161fc09f94028f9a",
+    "type": "file",
+    "size": 286,
+    "mtime": "2026-06-27T22:57:45.757757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/d8/a716641cbddc2663b4b1f07280c50b5bf6dc1b",
+    "type": "file",
+    "size": 878,
+    "mtime": "2026-06-27T22:57:45.753757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/d9/01ee877df85955e4a7ee319c9c6f282cffd57e",
+    "type": "file",
+    "size": 295,
+    "mtime": "2026-06-27T22:57:45.758757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/dc/62018cc15b6f92481331dcc0b92a48fb1afaae",
+    "type": "file",
+    "size": 3160,
+    "mtime": "2026-06-27T22:57:45.746757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/c5/3eef66d605757a9a52cfd0a3311abcb13c3d71",
+    "type": "file",
+    "size": 290,
+    "mtime": "2026-06-27T22:57:45.759757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/f2/4213e3b53328a1aae2edb3efbe2d9ad51169ea",
+    "type": "file",
+    "size": 688,
+    "mtime": "2026-06-27T22:57:45.751757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/48/9166dee97af5cfd0e3101c7691f21ed4be3791",
+    "type": "file",
+    "size": 225,
+    "mtime": "2026-06-27T22:57:45.757757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/2f/f5b0c7c934d8bedf7d031819abe17f8e1310b7",
+    "type": "file",
+    "size": 2516,
+    "mtime": "2026-06-27T22:57:45.746757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/38/75f91aa306d77a0903701fbbe0b53c93ee4c13",
+    "type": "file",
+    "size": 298,
+    "mtime": "2026-06-27T22:57:45.748757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/38/1e3596e94822071ef71e6f5bfa9c9b6dbbd6ae",
+    "type": "file",
+    "size": 2266,
+    "mtime": "2026-06-28T16:32:38.723667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/1f/becf5994f7d25060aff71e0791760c35dfe5bc",
+    "type": "file",
+    "size": 922,
+    "mtime": "2026-06-27T22:57:45.751757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/8a/f58dd621d180f351e6ee125a5fd33b5b78be89",
+    "type": "file",
+    "size": 130,
+    "mtime": "2026-06-28T16:32:38.728667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/8a/fc4babb62e212ebdded76152a3c78531c11bab",
+    "type": "file",
+    "size": 487,
+    "mtime": "2026-06-27T22:57:45.749757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/76/85677b3f74301b8dca3afb56ca71a64f365574",
+    "type": "file",
+    "size": 837,
+    "mtime": "2026-06-27T22:57:45.742757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/76/4cc25a8937e3fd463753166007904c5dcdafc5",
+    "type": "file",
+    "size": 405,
+    "mtime": "2026-06-27T22:57:45.754757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.git/objects/02/e31224b993f8bf3264ab2a2c0ef93c4bfeb7b1",
+    "type": "file",
+    "size": 643,
+    "mtime": "2026-06-27T22:57:45.763757"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/baseline-20260627-113531/entity_answer.py",
+    "type": "file",
+    "size": 897,
+    "mtime": "2026-06-27T11:35:31.490307"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/baseline-20260627-113531/routed_retrieval.py",
+    "type": "file",
+    "size": 1938,
+    "mtime": "2026-06-27T11:35:31.491307"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/baseline-20260627-113531/app.py",
+    "type": "file",
+    "size": 14253,
+    "mtime": "2026-06-27T11:35:31.492307"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/baseline-20260627-113531/entity_synthesise.py",
+    "type": "file",
+    "size": 2087,
+    "mtime": "2026-06-27T11:35:31.491307"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/baseline-20260627-113531/entity_evidence_v2.py",
+    "type": "file",
+    "size": 1997,
+    "mtime": "2026-06-27T11:35:31.491307"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-evidence-contract-20260627-114554/entity_answer.py",
+    "type": "file",
+    "size": 897,
+    "mtime": "2026-06-27T11:45:54.948371"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-evidence-contract-20260627-114554/entity_synthesise.py",
+    "type": "file",
+    "size": 2087,
+    "mtime": "2026-06-27T11:45:54.948371"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-evidence-contract-20260627-114554/entity_evidence_v2.py",
+    "type": "file",
+    "size": 1997,
+    "mtime": "2026-06-27T11:45:54.948371"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-evidence-contract-20260627-114554/entity_config.py",
+    "type": "file",
+    "size": 1454,
+    "mtime": "2026-06-27T11:45:54.948371"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-alfred-runtime-20260627-184554/prompt_builder.py",
+    "type": "file",
+    "size": 2045,
+    "mtime": "2026-06-27T18:45:54.265819"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-alfred-runtime-20260627-184554/entity_answer.py",
+    "type": "file",
+    "size": 987,
+    "mtime": "2026-06-27T18:45:54.265819"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-alfred-runtime-20260627-184554/intent_classifier.py",
+    "type": "file",
+    "size": 2136,
+    "mtime": "2026-06-27T18:45:54.264819"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-alfred-runtime-20260627-184554/ask.py",
+    "type": "file",
+    "size": 530,
+    "mtime": "2026-06-27T18:45:54.264819"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-alfred-runtime-20260627-184554/entity_synthesise.py",
+    "type": "file",
+    "size": 3084,
+    "mtime": "2026-06-27T18:45:54.265819"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-alfred-runtime-20260627-184554/review_answer.py",
+    "type": "file",
+    "size": 1082,
+    "mtime": "2026-06-27T18:45:54.264819"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-constitution-20260627-182855/prompts",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:28:55.330979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-constitution-20260627-182855/governance",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:28:55.330979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-constitution-20260627-182855/benchmarks",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:28:55.330979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/releases/pre-constitution-20260627-182855/playbooks",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-27T18:28:55.330979"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:21:48.997945"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/include/site",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.042719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/include/python3.12",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:21:48.997945"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/share/man",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.658762"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/pip3.12",
+    "type": "file",
+    "size": 245,
+    "mtime": "2026-06-28T17:21:53.295931"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/filetype",
+    "type": "file",
+    "size": 188,
+    "mtime": "2026-06-28T17:22:42.483773"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/hf",
+    "type": "file",
+    "size": 193,
+    "mtime": "2026-06-28T17:23:27.506627"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/torchfrtrace",
+    "type": "file",
+    "size": 213,
+    "mtime": "2026-06-28T17:23:26.988629"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/Activate.ps1",
+    "type": "file",
+    "size": 9033,
+    "mtime": "2026-06-28T17:21:51.607937"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/isympy",
+    "type": "file",
+    "size": 177,
+    "mtime": "2026-06-28T17:22:50.587746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/activate.csh",
+    "type": "file",
+    "size": 927,
+    "mtime": "2026-06-28T17:21:51.606937"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/distro",
+    "type": "file",
+    "size": 184,
+    "mtime": "2026-06-28T17:22:59.267718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/python3.12",
+    "type": "file",
+    "size": 8020928,
+    "mtime": "2026-03-23T19:04:32"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/fastapi",
+    "type": "file",
+    "size": 182,
+    "mtime": "2026-06-28T17:23:15.316667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/transformers",
+    "type": "file",
+    "size": 200,
+    "mtime": "2026-06-28T17:23:34.491605"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/uvicorn",
+    "type": "file",
+    "size": 183,
+    "mtime": "2026-06-28T17:22:59.589717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/pip",
+    "type": "file",
+    "size": 245,
+    "mtime": "2026-06-28T17:21:53.294931"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/tiny-agents",
+    "type": "file",
+    "size": 203,
+    "mtime": "2026-06-28T17:23:27.506627"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/typer",
+    "type": "file",
+    "size": 180,
+    "mtime": "2026-06-28T17:23:14.343670"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/huggingface-cli",
+    "type": "file",
+    "size": 205,
+    "mtime": "2026-06-28T17:23:27.506627"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/numpy-config",
+    "type": "file",
+    "size": 188,
+    "mtime": "2026-06-28T17:22:57.121725"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/nltk",
+    "type": "file",
+    "size": 177,
+    "mtime": "2026-06-28T17:23:09.077687"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/griffecli",
+    "type": "file",
+    "size": 180,
+    "mtime": "2026-06-28T17:23:09.334686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/activate",
+    "type": "file",
+    "size": 2048,
+    "mtime": "2026-06-28T17:21:51.607937"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/activate.fish",
+    "type": "file",
+    "size": 2202,
+    "mtime": "2026-06-28T17:21:51.606937"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/normalizer",
+    "type": "file",
+    "size": 205,
+    "mtime": "2026-06-28T17:22:59.427718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/proton",
+    "type": "file",
+    "size": 193,
+    "mtime": "2026-06-28T17:22:45.285764"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/proton-viewer",
+    "type": "file",
+    "size": 193,
+    "mtime": "2026-06-28T17:22:45.285764"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/f2py",
+    "type": "file",
+    "size": 188,
+    "mtime": "2026-06-28T17:22:57.121725"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/pip3",
+    "type": "file",
+    "size": 245,
+    "mtime": "2026-06-28T17:21:53.295931"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/python",
+    "type": "file",
+    "size": 8020928,
+    "mtime": "2026-03-23T19:04:32"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/llama-index-instrumentation",
+    "type": "file",
+    "size": 198,
+    "mtime": "2026-06-28T17:23:15.215667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/python3",
+    "type": "file",
+    "size": 8020928,
+    "mtime": "2026-03-23T19:04:32"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/idna",
+    "type": "file",
+    "size": 179,
+    "mtime": "2026-06-28T17:22:58.830720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/markdown-it",
+    "type": "file",
+    "size": 192,
+    "mtime": "2026-06-28T17:23:09.177686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/tqdm",
+    "type": "file",
+    "size": 179,
+    "mtime": "2026-06-28T17:22:45.326763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/torchrun",
+    "type": "file",
+    "size": 192,
+    "mtime": "2026-06-28T17:23:26.988629"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/griffe",
+    "type": "file",
+    "size": 180,
+    "mtime": "2026-06-28T17:23:14.110671"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/pygmentize",
+    "type": "file",
+    "size": 187,
+    "mtime": "2026-06-28T17:22:51.999742"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/bin/httpx",
+    "type": "file",
+    "size": 176,
+    "mtime": "2026-06-28T17:23:14.105671"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages",
+    "type": "dir",
+    "size": 12288,
+    "mtime": "2026-06-28T17:42:26.134006"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/starlette",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.618685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cusolver-12.0.4.66.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:12.757675"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/annotated_types",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.482718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/scipy-1.18.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:04.532701"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/triton",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.081764"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/rich",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:11.647678"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sklearn",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.916684"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/triton-3.7.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.290763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/marshmallow-3.26.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.118687"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/filetype",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.466773"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/shellingham-1.5.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:50.618746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index_embeddings_huggingface-0.7.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.844604"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/anyio-4.14.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.578685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/attr",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.442718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/torch-2.12.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:27.033629"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index-0.14.23.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.836604"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sqlalchemy-2.0.51.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:00.656714"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/cuda_pathfinder-1.5.5.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.305718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/mdurl-0.1.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.618721"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/workflows",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:27.054629"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index_instrumentation",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:15.204667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/numpy",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:55.655730"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/starlette-1.3.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.688685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/httpx-0.28.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.108670"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/isympy.py",
+    "type": "file",
+    "size": 11220,
+    "mtime": "2026-06-28T17:22:45.391763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/networkx-3.6.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.255722"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/_yaml",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.305744"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/narwhals",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.292722"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/transformers-5.12.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.510605"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sentence_transformers",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.581605"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cuda_nvrtc-13.0.88.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:55.211731"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/yaml",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.307744"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/huggingface_hub-1.21.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:27.510628"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/fastapi-0.138.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:15.319667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/multidict",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.593720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/distro",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.261719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pydantic_core",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:04.594701"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/frozenlist",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.227719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cublas-13.1.1.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:08.318689"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index_instrumentation-0.5.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:15.218667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pygments-2.20.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.005742"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/griffe-2.1.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.113671"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/platformdirs-4.10.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.035742"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/wrapt-2.2.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.532772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/fastapi",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:15.232667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/annotated_doc",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.488718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/attrs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.473718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/regex-2026.5.9.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.287744"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tiktoken_ext",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.608685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/scikit_learn-1.9.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:11.630679"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/transformers",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:28.685624"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/uvicorn",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.547718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/certifi-2026.6.17.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.435718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/scipy.libs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:01.166712"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/multipart",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:42:26.136006"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/typing_extensions-4.15.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.629772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tenacity-9.1.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.378763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/httpcore",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.273686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/cuda",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.346686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/scikit_learn.libs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.700685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pip",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:21:52.612933"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/filelock-3.29.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.258718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tenacity",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.366763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/typing_inspect-0.9.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.608717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/griffelib-2.1.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.017719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/cuda_toolkit-13.0.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.507772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/colorama",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.309718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pydantic-2.13.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:12.071677"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/dirtyjson",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.490772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/h11-0.16.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.905720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/propcache-0.5.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.013742"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/typer-0.25.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.346670"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/torchgen",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:26.826630"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pydantic_core-2.46.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:04.611701"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/typing_inspection-0.4.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.600717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pillow-12.2.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.362741"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pyyaml-6.0.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.350744"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/httpcore-1.0.9.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.325686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/annotated_types-0.7.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.486718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/typer",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.314670"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/griffecli-2.1.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.336686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/filetype-1.2.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.485772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/wrapt",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.514772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/torch",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:20.093651"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/threadpoolctl.py",
+    "type": "file",
+    "size": 50722,
+    "mtime": "2026-06-28T17:22:45.349763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/aiosqlite-0.22.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.512717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/aiohappyeyeballs-2.6.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.520718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/annotated_doc-0.0.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.490718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cudnn_cu13-9.20.0.48.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.053671"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cusparselt_cu13-0.8.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.108774"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/greenlet",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.042719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tqdm-4.68.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.329763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/jiter-0.15.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.793720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sympy",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.663762"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/filelock",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.235718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/jinja2-3.1.6.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.266686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sniffio",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:50.603746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_agents",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:27.045629"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/yarl",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.525717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pkg_resources",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:50.705746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/jinja2",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.189686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sqlalchemy",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.696717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/mpmath",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.134773"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/openai",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.505669"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pygments",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.417744"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/typing_inspection",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.594717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/urllib3-2.7.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.599772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/deprecated-1.3.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.343686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/frozenlist-1.8.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.229718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/narwhals-2.22.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.579720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nltk",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:08.396689"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nltk-3.9.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.082687"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_nvshmem_cu13-3.4.5.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.733739"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tiktoken-0.13.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.610685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/click-8.4.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.394718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/wrapt-stubs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.512772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/requests",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:04.539701"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/griffecli",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.329686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sympy-1.14.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:50.598746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cufft-12.0.0.61.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:06.504695"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/numpy-2.5.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:57.129725"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index_embeddings_openai-0.6.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.545605"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/hf_xet-1.5.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.883720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cusparse-12.6.3.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:05.025700"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/packaging",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.369741"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/uvicorn-0.49.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.592717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/mypy_extensions-1.1.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.586720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tiktoken",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.601685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/markupsafe-3.0.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.627720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/markdown_it",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.131687"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cuda_cupti-13.0.85.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:55.348731"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/distro-1.9.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.270718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/rich-15.0.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:11.830678"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/aiosignal",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.581685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/aiohttp-3.14.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.307670"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/urllib3",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.542772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/typing_inspect.py",
+    "type": "file",
+    "size": 28269,
+    "mtime": "2026-06-28T17:22:59.601717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/setuptools-81.0.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.178745"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/typing_extensions.py",
+    "type": "file",
+    "size": 160429,
+    "mtime": "2026-06-28T17:22:42.600772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/colorama-0.4.6.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.323718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/numpy.libs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:55.560730"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/mdurl",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.611721"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/safetensors",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.189744"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/mpmath-1.3.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.461772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/mypy_extensions.py",
+    "type": "file",
+    "size": 7754,
+    "mtime": "2026-06-28T17:22:58.581721"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/cuda_bindings-13.3.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.466686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/joblib-1.5.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.784720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/setuptools",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:50.717746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/safetensors-0.8.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.200744"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/dataclasses_json-0.6.7.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.129670"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/jiter",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.790720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tinytag-2.2.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.348763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nest_asyncio.py",
+    "type": "file",
+    "size": 7490,
+    "mtime": "2026-06-28T17:22:58.257722"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/python_multipart-0.0.32.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:42:26.149006"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/greenlet-3.5.3.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.078719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/certifi",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.433718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/charset_normalizer-3.4.7.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.430718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_curand-10.4.0.35.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:54.171735"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/marshmallow",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.089687"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/__pycache__",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.606717"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/networkx",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:57.228725"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/threadpoolctl-3.6.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.358763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/click",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.328718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/openai-2.44.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:15.198667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pip-26.1.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:21:53.301931"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sentence_transformers-5.6.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.832604"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/python_multipart",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:42:26.136006"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/fsspec-2026.6.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.220719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/regex",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:51.216744"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.538605"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/scipy",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:01.269712"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/fsspec",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.091719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:12.759675"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tinytag",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.331763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_nvjitlink-13.0.88.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:53.161738"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/PIL",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.147741"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/idna",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.797720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/dataclasses_json",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.116671"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/idna-3.18.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.832720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/dirtyjson-1.0.8.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:42.503772"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/markdown_it_py-4.2.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.180686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/aiohappyeyeballs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.515718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index_core-0.14.23.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:28.199625"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pydantic",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:11.855678"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_nccl_cu13-2.29.7.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:53.806736"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tqdm",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.297763"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/propcache",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.010742"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tokenizers",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:27.553627"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/anyio",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.477685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/packaging-26.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.429740"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/huggingface_hub",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:27.165628"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/multidict-6.7.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.609720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/hf_xet",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.880720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/deprecated",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.338686"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/tokenizers-0.22.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:27.567627"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_nvtx-13.0.85.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.443740"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/81d243bd2c585b0f4821__mypyc.cpython-312-x86_64-linux-gnu.so",
+    "type": "file",
+    "size": 433312,
+    "mtime": "2026-06-28T17:22:59.397718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/distutils-precedence.pth",
+    "type": "file",
+    "size": 151,
+    "mtime": "2026-06-28T17:22:50.624746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/markupsafe",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.624720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/aiohttp",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.164670"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/_distutils_hack",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:50.686746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/banks-2.4.4.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:15.344666"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/aiosignal-1.4.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:09.583685"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cufile-1.15.1.6.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:54.215735"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/h11",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.888720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nvidia_cuda_runtime-13.0.96.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:54.256735"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/banks",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:15.324667"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index_llms_openai-0.7.9.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:34.536605"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/shellingham",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:50.611746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/llama_index_workflows-2.22.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:27.131629"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/nest_asyncio-1.6.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.263722"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/sniffio-1.3.1.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:50.607746"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/charset_normalizer",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.403718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/platformdirs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.020742"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/griffe",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.916719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/aiosqlite",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.494718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/pillow.libs",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:52.137741"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/httpx",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:14.061671"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/requests-2.34.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:04.570701"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/attrs-26.1.0.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.478718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/joblib",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:58.648720"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/yarl-1.24.2.dist-info",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.540718"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/lib/python3.12/site-packages/functorch",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:23:20.059651"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/include/site/python3.12",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.042719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/include/site/python3.12/greenlet",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:59.042719"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/share/man/man1",
+    "type": "dir",
+    "size": 4096,
+    "mtime": "2026-06-28T17:22:45.658762"
+  },
+  {
+    "path": "/opt/llamaindex-bakeoff/.venv/share/man/man1/isympy.1",
+    "type": "file",
+    "size": 6659,
+    "mtime": "2026-06-28T17:22:45.658762"
+  }
+]

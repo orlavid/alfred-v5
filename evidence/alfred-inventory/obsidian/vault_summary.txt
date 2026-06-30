@@ -1,0 +1,225 @@
+===== size =====
+55M	/docker/obsidian-vault
+===== md count =====
+4538
+===== top folders =====
+/docker/obsidian-vault
+/docker/obsidian-vault/00 Inbox
+/docker/obsidian-vault/00 Inbox/AI Imports
+/docker/obsidian-vault/00 Inbox/Captures
+/docker/obsidian-vault/00 Inbox/Historical Backfill
+/docker/obsidian-vault/01 Daily Logs
+/docker/obsidian-vault/02 People
+/docker/obsidian-vault/02 People/01. HR
+/docker/obsidian-vault/03 Projects
+/docker/obsidian-vault/03 Projects/0. Finance
+/docker/obsidian-vault/04 Companies
+/docker/obsidian-vault/04 Companies/IG
+/docker/obsidian-vault/04 Decisions
+/docker/obsidian-vault/05 Knowledge
+/docker/obsidian-vault/05 Knowledge/01. Compliance
+/docker/obsidian-vault/05 Knowledge/AI
+/docker/obsidian-vault/05 Open Loops
+/docker/obsidian-vault/06 Systems
+/docker/obsidian-vault/06 Systems/Entity Registry
+/docker/obsidian-vault/06 Systems/Second Brain Scripts
+/docker/obsidian-vault/07 AI Memory
+/docker/obsidian-vault/07 AI Memory/Agent Council
+/docker/obsidian-vault/07 AI Memory/Agent State
+/docker/obsidian-vault/07 AI Memory/Agents
+/docker/obsidian-vault/07 AI Memory/Alfred v2
+/docker/obsidian-vault/07 AI Memory/Delegations
+/docker/obsidian-vault/07 AI Memory/Enriched Captures
+/docker/obsidian-vault/07 AI Memory/Entities
+/docker/obsidian-vault/07 AI Memory/Entity Intelligence
+/docker/obsidian-vault/07 AI Memory/Entity Registry
+/docker/obsidian-vault/07 AI Memory/Historical Ingestion
+/docker/obsidian-vault/07 AI Memory/Reporting Evidence
+/docker/obsidian-vault/07 AI Memory/Strategic Graph
+/docker/obsidian-vault/07 AI Memory/Strategic Synthesis
+/docker/obsidian-vault/07 Executive Briefings
+/docker/obsidian-vault/08 Open Loops
+/docker/obsidian-vault/08 Open Loops/Escalation
+/docker/obsidian-vault/08 Strategic Analysis
+/docker/obsidian-vault/08 Strategic Analysis/Image Artifacts
+/docker/obsidian-vault/09 Governance
+/docker/obsidian-vault/09 Governance/AI Agent Reviews
+/docker/obsidian-vault/09 Governance/Agent Deployments
+/docker/obsidian-vault/09 Governance/Agent Governance
+/docker/obsidian-vault/09 Governance/Agent Opinions
+/docker/obsidian-vault/09 Governance/Architecture
+/docker/obsidian-vault/09 Governance/Board Packs
+/docker/obsidian-vault/09 Governance/Board Secretary
+/docker/obsidian-vault/09 Governance/Board Sessions
+/docker/obsidian-vault/09 Governance/Capture Lifecycle
+/docker/obsidian-vault/09 Governance/Capture Review
+/docker/obsidian-vault/09 Governance/Change Management
+/docker/obsidian-vault/09 Governance/Daily Governance
+/docker/obsidian-vault/09 Governance/Decision Intelligence
+/docker/obsidian-vault/09 Governance/Delegation Queue
+/docker/obsidian-vault/09 Governance/Escalations
+/docker/obsidian-vault/09 Governance/Executive Graph
+/docker/obsidian-vault/09 Governance/Executive Metrics
+/docker/obsidian-vault/09 Governance/Executive Signals
+/docker/obsidian-vault/09 Governance/Governance Intelligence
+/docker/obsidian-vault/09 Governance/Healthchecks
+/docker/obsidian-vault/09 Governance/Human Action Queue
+/docker/obsidian-vault/09 Governance/Objective Intelligence
+/docker/obsidian-vault/09 Governance/Objectives
+/docker/obsidian-vault/09 Governance/Open Loops
+/docker/obsidian-vault/09 Governance/Organisation
+/docker/obsidian-vault/09 Governance/Prompt Governance
+/docker/obsidian-vault/09 Governance/Recovery
+/docker/obsidian-vault/09 Governance/Reflection Intelligence
+/docker/obsidian-vault/09 Governance/Reports
+/docker/obsidian-vault/09 Governance/Retention Policies
+/docker/obsidian-vault/09 Governance/Reviews
+/docker/obsidian-vault/09 Governance/Runtime Registry
+/docker/obsidian-vault/09 Governance/Service Ownership
+/docker/obsidian-vault/09 Governance/State Registry
+/docker/obsidian-vault/09 Governance/Tasks
+/docker/obsidian-vault/09 Governance/Watchlists
+/docker/obsidian-vault/09 Governance/Weekly Councils
+/docker/obsidian-vault/10 Domains
+/docker/obsidian-vault/10 Domains/Personal
+/docker/obsidian-vault/10 Domains/Work
+/docker/obsidian-vault/10 Intelligence
+/docker/obsidian-vault/10 Intelligence/Agent Collaboration
+/docker/obsidian-vault/10 Intelligence/Autonomous Signals
+/docker/obsidian-vault/10 Intelligence/Entity Graphs
+/docker/obsidian-vault/10 Intelligence/Executive Intelligence
+/docker/obsidian-vault/10 Intelligence/Executive Visuals
+/docker/obsidian-vault/10 Intelligence/Reasoning Reviews
+/docker/obsidian-vault/10 Intelligence/Relationship Memory
+/docker/obsidian-vault/10 Intelligence/Retrieval Quality
+/docker/obsidian-vault/11 Strategic Intelligence
+/docker/obsidian-vault/11 Strategic Intelligence/Contradictions
+/docker/obsidian-vault/11 Strategic Intelligence/Decision Register
+/docker/obsidian-vault/11 Strategic Intelligence/Executive Narrative
+/docker/obsidian-vault/11 Strategic Intelligence/Strategic Drift
+/docker/obsidian-vault/11 Strategic Intelligence/Theme Detection
+/docker/obsidian-vault/98 Archive
+/docker/obsidian-vault/98 Archive/Captures
+/docker/obsidian-vault/98 Archive/Historical Backfill
+/docker/obsidian-vault/98 Archive/Logs
+/docker/obsidian-vault/AI
+/docker/obsidian-vault/Alfred
+/docker/obsidian-vault/Alfred/Reviews
+/docker/obsidian-vault/Attachments
+/docker/obsidian-vault/Finance
+/docker/obsidian-vault/LLM Wiki
+/docker/obsidian-vault/LLM Wiki/People
+/docker/obsidian-vault/LLM Wiki/Suppliers
+/docker/obsidian-vault/Minutes
+/docker/obsidian-vault/People
+/docker/obsidian-vault/Phillip @FML
+/docker/obsidian-vault/Phillip @FML/IG
+/docker/obsidian-vault/Phillip @FML/New Section 2
+/docker/obsidian-vault/Phillip @FML/Risk Compliance
+/docker/obsidian-vault/Phillip @FML/Strategy or Project
+/docker/obsidian-vault/Phillip @FML/Talend and Mentor
+/docker/obsidian-vault/Suppliers
+/docker/obsidian-vault/Tools
+/docker/obsidian-vault/Work import
+/docker/obsidian-vault/Work import/Apple Notes
+===== recent md =====
+Test.md
+Telegram.md
+Note.md
+Inbox.md
+Are.md
+2026-06-28 16:52 /docker/obsidian-vault/00 Inbox/Test Sync.md.md
+2026-06-28 07:10 /docker/obsidian-vault/07 Executive Briefings/2026-06-28 Executive Brief.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Reflection Intelligence/Latest Reflection Intelligence.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Objective Intelligence/Latest Objective Intelligence Report.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Objective Intelligence/2026-06-28 Objective Intelligence Report.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Governance Intelligence/Latest Governance Intelligence.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Executive Metrics/Latest Executive Metrics.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Daily Governance/Latest Daily Governance Index.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Board Secretary/Latest Board Secretary Agenda.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Board Packs/Latest Board Pack.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/Board Packs/BOARD-PACK-2026-06-28-020010-WEEKLY.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/AI Agent Reviews/Latest AI Agent Reviews.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/AI Agent Reviews/Executive Committee.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/AI Agent Reviews/Executive AI Briefing.md
+2026-06-28 02:00 /docker/obsidian-vault/09 Governance/AI Agent Reviews/AI Agent Debate.md
+2026-06-28 00:16 /docker/obsidian-vault/__.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/vCISO.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Workday.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Vyanta.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Vodafone.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Version 1.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/VCOL Website.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Upguard.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Trintech - ADRA.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Testrail.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/TRAX.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Sync.com.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Synapx.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/SwissRe - CatNet.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Softcat website.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/SoftCat.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/SoftCat portal.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Sharepoint - Lime Risk.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Serium.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/SQL Spreads.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/SES.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/SAP Ariba.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Reg Network.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/QA.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/QA service.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Power BI.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/PolicyFly.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Pluralsite.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/PlacingHub.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Pine Walk.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/PaloAlto.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/PWD Google.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/PO Consilio.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/One Communications.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Obsidian.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Nettitude - Security as a service.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Netitude.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/NAVEX.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Mudlur.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Moodys.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Monday.Com.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Model Builder.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Managed Print.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/LloydsListIntelligence.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Lloyds list.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/LWR.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Kocho group limited.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Jira -Atlassian.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Insurance Insider.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Idera.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/IBA.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Hoyle.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Hillbrooke.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Hamilton hotel.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/HP.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Gamma.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Four Seasons.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Forcepoint.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Flight Radar.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Finscan.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/EE Proposal.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Dreamix.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Docusign.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Docosoft.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Digital Realty Trust.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Digicel.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/DEX.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Cyber Chain Alliance.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Crowdstrike.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Consilio.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Co-Pilot.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/CloudBridge.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Cloud Ally.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Cardio.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Blacksun.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/BitDefender.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/BeyondFS.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/Backupify.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/BDO.md
+2026-06-28 00:16 /docker/obsidian-vault/Suppliers/BA OnBusiness.md

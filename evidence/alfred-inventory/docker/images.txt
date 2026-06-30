@@ -1,0 +1,3 @@
+WARNING: This output is designed for human readability. For machine-readable output, please use --format.
+IMAGE                                        ID             DISK USAGE   CONTENT SIZE   EXTRA
+ghcr.io/hostinger/hvps-hermes-agent:latest   97e901c56cbd       9.84GB         3.04GB   U    

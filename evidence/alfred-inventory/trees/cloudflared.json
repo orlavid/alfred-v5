@@ -1,0 +1,32 @@
+[
+  {
+    "path": "/etc/cloudflared/config.yml.bak-20260627-213408",
+    "type": "file",
+    "size": 311,
+    "mtime": "2026-06-27T21:34:08.918260"
+  },
+  {
+    "path": "/etc/cloudflared/config.yml.bak-20260616-2218",
+    "type": "file",
+    "size": 239,
+    "mtime": "2026-06-16T22:18:35.785853"
+  },
+  {
+    "path": "/etc/cloudflared/config.yml",
+    "type": "file",
+    "size": 384,
+    "mtime": "2026-06-28T19:48:12.722461"
+  },
+  {
+    "path": "/etc/cloudflared/config.yml.bak-pre-v2-20260613-223244",
+    "type": "file",
+    "size": 239,
+    "mtime": "2026-06-13T22:32:44.618762"
+  },
+  {
+    "path": "/etc/cloudflared/config.yml.bak-20260628-194812",
+    "type": "file",
+    "size": 384,
+    "mtime": "2026-06-28T19:48:12.699461"
+  }
+]

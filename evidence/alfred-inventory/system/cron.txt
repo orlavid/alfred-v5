@@ -1,0 +1,10 @@
+5 0 * * * /opt/second-brain/scripts/create_daily_log.sh >> /var/log/second-brain-daily.log 2>&1
+55 23 * * * /opt/second-brain/scripts/reflection_append.sh >> /var/log/second-brain-reflection.log 2>&1
+50 23 * * * python3 /opt/second-brain/scripts/daily_synthesis.py >> /var/log/second-brain-synthesis.log 2>&1
+10 7 * * * /docker/hermes-semantic/venv/bin/python /docker/hermes-semantic/dailybrief.py >> /var/log/second-brain-executive-brief.log 2>&1
+30 23 * * * /opt/second-brain/scripts/nightly_cycle.sh >> /var/log/second-brain-nightly.log 2>&1
+0 3 * * * /opt/second-brain/scripts/git_backup_push_only.sh >> /var/log/git-backup.log 2>&1
+#45 5 * * * /opt/second-brain/scripts/morning_briefing.py >> /root/morning-briefing.log 2>&1
+#15 6 * * * python3 /opt/second-brain/scripts/autonomous_watchlist.py >> /var/log/second-brain-watchlists.log 2>&1
+#20 6 * * * /opt/second-brain/scripts/run_daily_intelligence.sh >> /var/log/daily-intelligence.log 2>&1
+0 5 * * 1 ENTITY_CMD=refresh python3 /opt/second-brain/scripts/entity_registry_maintenance.py >> /var/log/entity-registry-maintenance.log 2>&1
