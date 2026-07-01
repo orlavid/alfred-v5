@@ -28,7 +28,11 @@ def classify(path: Path):
         return "person"
     if "compan" in p or "supplier" in p or "04 companies" in p:
         return "company"
-    if "decision" in p or "04 decisions" in p:
+    if "decision intelligence" in p:
+        return "report"
+    if "04 decisions" in p:
+        return "decision"
+    if "decision" in p:
         return "decision"
     if "open loop" in p or "open loops" in p:
         return "open_loop"
