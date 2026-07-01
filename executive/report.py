@@ -15,6 +15,7 @@ def render(result):
     objectives = vault.get("objectives", {})
     projects = vault.get("projects", {})
     companies = vault.get("companies", {})
+    people = vault.get("people", {})
     impact = vault.get("impact", [])
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
@@ -56,6 +57,8 @@ def render(result):
         f"| Companies Analysed | {companies.get('company_count', 0)} |",
         f"| Critical Companies | {companies.get('critical', 0)} |",
         f"| Important Companies | {companies.get('important', 0)} |",
+        f"| People Analysed | {people.get('people_count', 0)} |",
+        f"| High Influence People | {people.get('high', 0)} |",
         f"| Resolution Keys | {resolution.get('resolution_keys', 0)} |",
         f"| Ambiguous Entity Keys | {resolution.get('ambiguous_keys', 0)} |",
         "",
@@ -137,6 +140,26 @@ def render(result):
                 f"### {project.status}: {project.title}",
                 f"**Linked entities:** {project.linked_entities}",
                 f"**Recommendation:** {project.recommendation}",
+                "",
+            ])
+
+    if people.get("insights"):
+        lines.extend([
+            "## People Intelligence",
+            "",
+            f"People analysed: **{people.get('people_count', 0)}**",
+            f"High influence: **{people.get('high', 0)}**",
+            f"Medium influence: **{people.get('medium', 0)}**",
+            "",
+        ])
+
+        for person in people.get("insights", [])[:10]:
+            lines.extend([
+                f"### {person.risk}: {person.title}",
+                f"**Influence:** {person.influence}",
+                f"**Projects:** {person.projects}",
+                f"**Companies:** {person.companies}",
+                f"**Decisions:** {person.decisions}",
                 "",
             ])
 
