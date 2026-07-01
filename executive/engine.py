@@ -4,6 +4,7 @@ from pathlib import Path
 ANALYZERS = [
     "systemd",
     "timers",
+    "docker",
 ]
 
 def execute(evidence_root: Path):
