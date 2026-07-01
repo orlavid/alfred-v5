@@ -18,7 +18,9 @@ from executive.intelligence.risk import analyse_risk
 from executive.intelligence.reasoning import build_executive_reasoning
 from executive.intelligence.ownership import infer_ownership
 from executive.intelligence.prioritisation import build_priorities
+from executive.intelligence.safety import safe_execute
 from executive.intelligence.work_queue import build_work_queue
+from executive.intelligence.do_next import build_do_next
 from executive.knowledge.relationship_strength import score_relationships
 from executive.knowledge.executive_briefing import build_briefing
 from executive.intelligence.impact import calculate
@@ -34,7 +36,8 @@ def analyze(evidence_root):
     graph = build_graph(entities, resolution_index)
 
     consolidation = consolidate(entities)
-    graph = rewrite_graph(graph, consolidation["entity_map"])
+
+    rewrite_graph(graph, consolidation["entity_map"])
 
     unresolved = unresolved_links_with_index(entities, resolution_index)
     objective_analysis = analyze_objectives(entities, graph)
@@ -93,9 +96,15 @@ def analyze(evidence_root):
         "findings": findings,
     }
 
-    priority_analysis = build_priorities(priority_input, entities, graph)
+    priority_analysis = safe_execute(
+        lambda: build_priorities(priority_input, entities, graph),
+        fallback={"priority_count": 0, "top_priorities": []},
+        label="prioritisation"
+    )
 
     work_queue = build_work_queue(priority_input)
+
+    do_next = build_do_next(priority_input)
 
     reasoning_input = {
         "objectives": objective_analysis,
@@ -137,6 +146,7 @@ def analyze(evidence_root):
             "ownership": ownership,
             "priorities": priority_analysis,
             "work_queue": work_queue,
+            "do_next": do_next,
             "executive_reasoning": executive_reasoning,
             "relationships": relationships,
             "impact": impact,

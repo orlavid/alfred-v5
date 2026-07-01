@@ -1,34 +1,33 @@
 from collections import defaultdict
 
 def score_relationships(entities, graph):
-    scores = defaultdict(int)
-    seen_edges = set()
-
     entity_lookup = {e.id: e for e in entities}
 
-    for edge in graph["edges"]:
-        pair = tuple(sorted((edge["source"], edge["target"])))
-        raw_link = edge.get("raw_link", "")
-
-        edge_key = (pair, raw_link)
-        if edge_key in seen_edges:
-            continue
-        seen_edges.add(edge_key)
-
-        scores[pair] += 10
-
     relationships = []
+    seen = set()
 
-    for (source, target), score in scores.items():
+    for edge in graph.get("edges", []):
+        source = edge.get("source")
+        target = edge.get("target")
+
+        src = entity_lookup.get(source)
+        tgt = entity_lookup.get(target)
+
+        if not src or not tgt:
+            continue
+
+        key = tuple(sorted((source, target)))
+        if key in seen:
+            continue
+        seen.add(key)
+
         relationships.append({
             "source": source,
             "target": target,
-            "score": score,
-            "source_title": entity_lookup[source].title,
-            "target_title": entity_lookup[target].title,
+            "score": 10,
+            "source_title": src.title,
+            "target_title": tgt.title,
         })
-
-    relationships.sort(key=lambda r: r["score"], reverse=True)
 
     return {
         "relationship_count": len(relationships),
