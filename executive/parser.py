@@ -12,6 +12,8 @@ def parse_services(root):
         if ".service" not in line:
             continue
         parts = line.split()
+        if parts and parts[0] == "●":
+            parts = parts[1:]
         if len(parts) < 4:
             continue
         services.append({
