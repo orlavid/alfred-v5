@@ -14,7 +14,15 @@ def classify(path: Path):
 
     if "daily" in p or "01 daily logs" in p:
         return "daily_log"
-    if "project" in p or "03 projects" in p:
+    if "project intelligence" in p:
+        return "report"
+    if "historical capture" in p:
+        return "capture"
+    if "capture -" in p:
+        return "capture"
+    if "03 projects" in p:
+        return "project"
+    if "project" in p:
         return "project"
     if "people" in p or "02 people" in p:
         return "person"
