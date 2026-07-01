@@ -2,6 +2,10 @@
 
 from datetime import datetime
 from pathlib import Path
+from executive.parser import parse_services
+from executive.health import platform_health
+from executive.risks import build_risks
+from executive.report import render
 
 ROOT = Path(__file__).resolve().parent
 EVIDENCE = ROOT / "evidence" / "alfred-inventory"
@@ -16,24 +20,11 @@ def read(rel: str, limit: int = 20000) -> str:
 
 
 def main() -> None:
+    services = parse_services(EVIDENCE)
+    health = platform_health(services)
+    risks = build_risks(services)
     output = OUT / "Executive_Review.md"
-    review = (
-        "# Executive Review\n\n"
-        f"Generated: {datetime.now().isoformat()}\n\n"
-        "## Executive Summary\n\n"
-        "First Executive Review prototype generated from Recovery Point Alpha evidence.\n\n"
-        "## Platform Evidence\n\n"
-        "### Services\n\n"
-        "```text\n" + read("system/services.txt") + "\n```\n\n"
-        "### Telegram\n\n"
-        "```text\n" + read("telegram/status.txt") + "\n```\n\n"
-        "### Obsidian\n\n"
-        "```text\n" + read("obsidian/vault_summary.txt") + "\n```\n\n"
-        "### LlamaIndex\n\n"
-        "```text\n" + read("llamaindex/index_summary.txt") + "\n```\n\n"
-        "## Next Improvement\n\n"
-        "Replace raw evidence with structured executive intelligence.\n"
-    )
+    review = render(health, risks)
 
     output.write_text(review)
     print(output)
