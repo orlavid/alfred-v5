@@ -8,6 +8,7 @@ from executive.knowledge.resolver import (
     resolution_summary_from_index,
 )
 from executive.knowledge.objectives import analyze_objectives
+from executive.knowledge.projects import analyze_projects
 from executive.knowledge.findings import Finding
 
 VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
@@ -18,6 +19,7 @@ def analyze(evidence_root):
     graph = build_graph(entities, resolution_index)
     unresolved = unresolved_links_with_index(entities, resolution_index)
     objective_analysis = analyze_objectives(entities, graph)
+    project_analysis = analyze_projects(entities, graph)
     resolution = resolution_summary_from_index(resolution_index)
 
     findings = []
@@ -58,6 +60,7 @@ def analyze(evidence_root):
             "unresolved_link_count": len(unresolved),
             "resolution": resolution,
             "objectives": objective_analysis,
+            "projects": project_analysis,
             "findings": findings,
         }
     }

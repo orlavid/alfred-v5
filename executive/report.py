@@ -13,6 +13,7 @@ def render(result):
     docker = result.get("docker", {})
     vault = result.get("knowledge", {}).get("vault", {})
     objectives = vault.get("objectives", {})
+    projects = vault.get("projects", {})
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -45,6 +46,10 @@ def render(result):
         f"| Objectives At Risk | {objectives.get('at_risk', 0)} |",
         f"| Objectives On Watch | {objectives.get('watch', 0)} |",
         f"| Objectives Supported | {objectives.get('supported', 0)} |",
+        f"| Projects Analysed | {projects.get('project_count', 0)} |",
+        f"| Projects At Risk | {projects.get('at_risk', 0)} |",
+        f"| Projects On Watch | {projects.get('watch', 0)} |",
+        f"| Projects Supported | {projects.get('supported', 0)} |",
         f"| Resolution Keys | {resolution.get('resolution_keys', 0)} |",
         f"| Ambiguous Entity Keys | {resolution.get('ambiguous_keys', 0)} |",
         "",
@@ -88,6 +93,31 @@ def render(result):
                     f"**Recommendation:** {objective.recommendation}",
                     "",
                 ])
+
+    if projects.get("insights"):
+        notable_projects = [
+            project
+            for project in projects.get("insights", [])
+            if project.status in ("AT RISK", "WATCH")
+        ][:10]
+
+        lines.extend([
+            "## Project Intelligence",
+            "",
+            f"Projects analysed: **{projects.get('project_count', 0)}**",
+            f"At risk: **{projects.get('at_risk', 0)}**",
+            f"Watch: **{projects.get('watch', 0)}**",
+            f"Supported: **{projects.get('supported', 0)}**",
+            "",
+        ])
+
+        for project in notable_projects:
+            lines.extend([
+                f"### {project.status}: {project.title}",
+                f"**Linked entities:** {project.linked_entities}",
+                f"**Recommendation:** {project.recommendation}",
+                "",
+            ])
 
     lines.extend([
         "## Executive Priorities",
