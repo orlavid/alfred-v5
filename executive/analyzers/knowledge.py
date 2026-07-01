@@ -14,6 +14,7 @@ from executive.intelligence.people import analyse_people
 from executive.knowledge.relationship_strength import score_relationships
 from executive.knowledge.executive_briefing import build_briefing
 from executive.intelligence.impact import calculate
+from executive.intelligence.entity_consolidation import consolidate, rewrite_graph
 from executive.knowledge.findings import Finding
 
 VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
@@ -22,6 +23,9 @@ def analyze(evidence_root):
     entities = extract_entities(VAULT_ROOT)
     resolution_index = build_resolution_index(entities)
     graph = build_graph(entities, resolution_index)
+
+    consolidation = consolidate(entities)
+    graph = rewrite_graph(graph, consolidation["entity_map"])
     unresolved = unresolved_links_with_index(entities, resolution_index)
     objective_analysis = analyze_objectives(entities, graph)
     project_analysis = analyze_projects(entities, graph)
@@ -82,6 +86,7 @@ def analyze(evidence_root):
             "people": people_analysis,
             "relationships": relationships,
             "impact": impact,
+            "consolidation": consolidation,
             "briefing": briefing,
             "findings": findings,
         }
