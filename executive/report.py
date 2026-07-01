@@ -23,6 +23,7 @@ def render(result):
     reasoning = vault.get("executive_reasoning", {})
     ownership = vault.get("ownership", {})
     priorities = vault.get("priorities", {})
+    do_next = vault.get("do_next", {})
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -188,6 +189,23 @@ def render(result):
             f"Projects missing owner: **{ownership.get('missing_owners', 0)}**",
             "",
         ])
+
+    if do_next.get("top_10"):
+        lines.extend([
+            "## Do Next",
+            "",
+            f"Total actions: **{do_next.get('total_actions', 0)}**",
+            "",
+        ])
+
+        for item in do_next.get("top_10", [])[:10]:
+            lines.extend([
+                f"### {item['horizon']}: {item['title']}",
+                f"**Action:** {item['action']}",
+                f"**Score:** {item['score']}",
+                f"**Source:** {item['source']}",
+                "",
+            ])
 
     if priorities.get("top_priorities"):
         lines.extend([
