@@ -72,8 +72,13 @@ def render(result):
             "",
         ])
 
-        for objective in objectives.get("insights", [])[:10]:
-            if objective.status in ("AT RISK", "WATCH"):
+        notable_objectives = [
+            objective
+            for objective in objectives.get("insights", [])
+            if objective.status in ("AT RISK", "WATCH")
+        ][:10]
+
+        for objective in notable_objectives:
                 lines.extend([
                     f"### {objective.status}: {objective.title}",
                     f"**Linked entities:** {objective.linked_entities}",
