@@ -13,6 +13,7 @@ def render(result):
     docker = result.get("docker", {})
     vault = result.get("knowledge", {}).get("vault", {})
     recommendations = build_recommendations(risks)
+    knowledge_findings = vault.get("findings", [])
 
     lines = [
         "# Executive Review",
@@ -42,6 +43,21 @@ def render(result):
         "## Executive Priorities",
         "",
     ]
+
+    if knowledge_findings:
+        lines.extend([
+            "",
+            "## Knowledge Findings",
+            "",
+        ])
+        for f in knowledge_findings:
+            lines.extend([
+                f"### {f.severity}: {f.title}",
+                f"**Category:** {f.category}",
+                f"**Evidence:** {f.evidence}",
+                f"**Recommendation:** {f.recommendation}",
+                "",
+            ])
 
     if recommendations:
         for r in recommendations:
