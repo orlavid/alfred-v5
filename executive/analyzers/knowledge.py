@@ -1,40 +1,44 @@
 from pathlib import Path
-from executive.knowledge.vault import load_vault
+
+from executive.knowledge.extractor import extract_entities
+from executive.knowledge.graph import build_graph
+from executive.knowledge.resolver import unresolved_links
 from executive.knowledge.findings import Finding
 
 VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
 
 def analyze(evidence_root):
-    notes = load_vault(VAULT_ROOT)
-
-    counts = {}
-    for note in notes:
-        counts[note.kind] = counts.get(note.kind, 0) + 1
+    entities = extract_entities(VAULT_ROOT)
+    graph = build_graph(entities)
+    unresolved = unresolved_links(entities)
 
     findings = []
 
-    if counts.get("project", 0) == 0:
+    if graph["entities_by_type"].get("project", 0) == 0:
         findings.append(Finding(
             category="Knowledge",
             severity="HIGH",
             title="No projects detected in vault",
-            evidence="The vault scan did not classify any project notes.",
+            evidence="The vault scan did not classify any project entities.",
             recommendation="Review project folder naming or classification rules.",
         ))
 
-    if counts.get("objective", 0) == 0:
+    if graph["entities_by_type"].get("objective", 0) == 0:
         findings.append(Finding(
             category="Knowledge",
             severity="HIGH",
             title="No objectives detected in vault",
-            evidence="The vault scan did not classify any objective notes.",
+            evidence="The vault scan did not classify any objective entities.",
             recommendation="Create or tag objective notes so Alfred can track strategic drift.",
         ))
 
     return {
         "vault": {
-            "note_count": len(notes),
-            "kind_counts": counts,
+            "note_count": graph["entity_count"],
+            "kind_counts": graph["entities_by_type"],
+            "graph": graph,
+            "unresolved_links": unresolved[:50],
+            "unresolved_link_count": len(unresolved),
             "findings": findings,
         }
     }
