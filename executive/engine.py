@@ -14,6 +14,10 @@ def execute(evidence_root: Path):
         output = module.analyze(evidence_root)
 
         if isinstance(output, dict):
-            result.update(output)
+            result[name] = output
+
+            if name == "systemd":
+                result["health"] = output["health"]
+                result["risks"] = output["risks"]
 
     return result
