@@ -18,6 +18,7 @@ def render(result):
     people = vault.get("people", {})
     impact = vault.get("impact", [])
     dependencies = vault.get("dependency_analysis", {})
+    decisions = vault.get("decisions", {})
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -172,6 +173,25 @@ def render(result):
                 f"**Projects:** {person.projects}",
                 f"**Companies:** {person.companies}",
                 f"**Decisions:** {person.decisions}",
+                "",
+            ])
+
+    if decisions.get("top_decisions"):
+        lines.extend([
+            "## Decision Intelligence",
+            "",
+            f"Decisions analysed: **{decisions.get('decision_count', 0)}**",
+            "",
+        ])
+
+        for decision in decisions.get("top_decisions", [])[:10]:
+            lines.extend([
+                f"### {decision['title']}",
+                f"**Importance:** {decision['importance']}",
+                f"**Projects:** {decision['projects']}",
+                f"**Objectives:** {decision['objectives']}",
+                f"**Companies:** {decision['companies']}",
+                f"**People:** {decision['people']}",
                 "",
             ])
 
