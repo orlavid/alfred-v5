@@ -59,6 +59,7 @@ def render(result):
         f"| Important Companies | {companies.get('important', 0)} |",
         f"| People Analysed | {people.get('people_count', 0)} |",
         f"| High Influence People | {people.get('high', 0)} |",
+        f"| Duplicate People Groups | {people.get('duplicate_people', 0)} |",
         f"| Resolution Keys | {resolution.get('resolution_keys', 0)} |",
         f"| Ambiguous Entity Keys | {resolution.get('ambiguous_keys', 0)} |",
         "",
@@ -150,8 +151,18 @@ def render(result):
             f"People analysed: **{people.get('people_count', 0)}**",
             f"High influence: **{people.get('high', 0)}**",
             f"Medium influence: **{people.get('medium', 0)}**",
+            f"Duplicate people groups: **{people.get('duplicate_people', 0)}**",
             "",
         ])
+
+        if people.get("duplicate_examples"):
+            lines.extend([
+                "### Duplicate people detected",
+                "",
+            ])
+            for key, variants in list(people.get("duplicate_examples", {}).items())[:10]:
+                lines.append(f"- **{key}**: {', '.join(variants)}")
+            lines.append("")
 
         for person in people.get("insights", [])[:10]:
             lines.extend([
