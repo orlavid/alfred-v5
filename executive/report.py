@@ -17,6 +17,7 @@ def render(result):
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
+    briefing = vault.get("briefing", [])
 
     lines = [
         "# Executive Review",
@@ -54,6 +55,21 @@ def render(result):
         f"| Ambiguous Entity Keys | {resolution.get('ambiguous_keys', 0)} |",
         "",
     ]
+
+
+    if briefing:
+        lines.extend([
+            "## Executive Briefing",
+            "",
+        ])
+
+        for item in briefing:
+            lines.extend([
+                f"### {item['headline']}",
+                f"**Category:** {item['category']}",
+                f"{item['detail']}",
+                "",
+            ])
 
     if knowledge_findings:
         lines.extend([

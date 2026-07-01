@@ -10,6 +10,7 @@ from executive.knowledge.resolver import (
 from executive.knowledge.objectives import analyze_objectives
 from executive.knowledge.projects import analyze_projects
 from executive.knowledge.relationship_strength import score_relationships
+from executive.knowledge.executive_briefing import build_briefing
 from executive.knowledge.findings import Finding
 
 VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
@@ -53,6 +54,12 @@ def analyze(evidence_root):
             recommendation="Prioritise entity resolution and alias handling so Alfred can reason more accurately across people, projects, suppliers and objectives.",
         ))
 
+    briefing = build_briefing({
+        "objectives": objective_analysis,
+        "projects": project_analysis,
+        "findings": findings,
+    })
+
     return {
         "vault": {
             "note_count": graph["entity_count"],
@@ -64,6 +71,7 @@ def analyze(evidence_root):
             "objectives": objective_analysis,
             "projects": project_analysis,
             "relationships": relationships,
+            "briefing": briefing,
             "findings": findings,
         }
     }
