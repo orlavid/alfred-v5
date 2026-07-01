@@ -36,6 +36,8 @@ def render(result):
         f"| Companies | {vault.get('kind_counts', {}).get('company', 0)} |",
         f"| People | {vault.get('kind_counts', {}).get('person', 0)} |",
         f"| Open Loops | {vault.get('kind_counts', {}).get('open_loop', 0)} |",
+        f"| Knowledge Graph Edges | {vault.get('graph', {}).get('edge_count', 0)} |",
+        f"| Unresolved Links | {vault.get('unresolved_link_count', 0)} |",
         "",
         "## Executive Priorities",
         "",

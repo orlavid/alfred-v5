@@ -39,5 +39,7 @@ assert "FAILED: hermes-5am-check.service" in engine_result["risks"]
 report = render(engine_result)
 assert "Timers Detected | 25" in report
 assert "Docker Containers | 2" in report
+assert "Knowledge Graph Edges | 21310" in report
+assert "Unresolved Links | 4890" in report
 
 print("PASS: Executive Review pipeline")
