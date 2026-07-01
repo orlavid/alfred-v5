@@ -15,6 +15,7 @@ def render(result):
     objectives = vault.get("objectives", {})
     projects = vault.get("projects", {})
     companies = vault.get("companies", {})
+    impact = vault.get("impact", [])
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -136,6 +137,20 @@ def render(result):
                 f"### {project.status}: {project.title}",
                 f"**Linked entities:** {project.linked_entities}",
                 f"**Recommendation:** {project.recommendation}",
+                "",
+            ])
+
+    if impact:
+        lines.extend([
+            "## Top Executive Impact",
+            "",
+        ])
+
+        for item in impact[:10]:
+            lines.extend([
+                f"### {item['title']}",
+                f"**Type:** {item['type']}",
+                f"**Impact score:** {item['impact']}",
                 "",
             ])
 
