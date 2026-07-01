@@ -24,6 +24,7 @@ from executive.knowledge.findings import Finding
 
 VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
 
+
 def analyze(evidence_root):
     entities = extract_entities(VAULT_ROOT)
     resolution_index = build_resolution_index(entities)
@@ -31,6 +32,7 @@ def analyze(evidence_root):
 
     consolidation = consolidate(entities)
     graph = rewrite_graph(graph, consolidation["entity_map"])
+
     unresolved = unresolved_links_with_index(entities, resolution_index)
     objective_analysis = analyze_objectives(entities, graph)
     project_analysis = analyze_projects(entities, graph)
@@ -73,16 +75,24 @@ def analyze(evidence_root):
             recommendation="Prioritise entity resolution and alias handling so Alfred can reason more accurately across people, projects, suppliers and objectives.",
         ))
 
+    reasoning_input = {
+        "objectives": objective_analysis,
+        "projects": project_analysis,
+        "companies": company_analysis,
+        "people": people_analysis,
+        "decisions": decision_analysis,
+        "dependency_analysis": dependency_analysis,
+        "impact": impact,
+        "risk": risk_analysis,
+        "resolution": resolution,
+        "findings": findings,
+    }
+
+    executive_reasoning = build_executive_reasoning(reasoning_input)
+
     briefing = build_briefing({
         "objectives": objective_analysis,
         "projects": project_analysis,
-            "companies": company_analysis,
-            "people": people_analysis,
-            "relationship_analysis": relationship_analysis,
-            "dependency_analysis": dependency_analysis,
-            "decisions": decision_analysis,
-            "risk": risk_analysis,
-            "executive_reasoning": executive_reasoning,
         "findings": findings,
     })
 
