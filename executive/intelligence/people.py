@@ -1,4 +1,5 @@
 from collections import defaultdict
+from executive.knowledge.resolver import normalise_name
 from dataclasses import dataclass
 
 @dataclass
@@ -72,8 +73,20 @@ def analyse_people(entities, graph):
 
     insights.sort(key=lambda p: p.influence, reverse=True)
 
+    duplicate_groups = defaultdict(list)
+    for person in insights:
+        duplicate_groups[normalise_name(person.title)].append(person.title)
+
+    duplicates = {
+        key: sorted(set(values))
+        for key, values in duplicate_groups.items()
+        if len(set(values)) > 1
+    }
+
     return {
         "people_count": len(insights),
+        "duplicate_people": len(duplicates),
+        "duplicate_examples": dict(list(duplicates.items())[:10]),
         "critical": sum(p.risk == "CRITICAL" for p in insights),
         "high": sum(p.risk == "HIGH" for p in insights),
         "medium": sum(p.risk == "MEDIUM" for p in insights),
