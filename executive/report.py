@@ -1,5 +1,7 @@
+from executive.recommendations import build_recommendations
+
 def render(health, risks):
-    lines = []
+    recommendations = build_recommendations(risks)
 
     score = health["score"]
 
@@ -10,39 +12,32 @@ def render(health, risks):
     else:
         status = "🔴 RED"
 
-    lines.append("# Executive Review")
-    lines.append("")
-    lines.append("## Executive Health")
-    lines.append("")
-    lines.append(f"Overall Score: **{score} / 100**")
-    lines.append(f"Overall Status: **{status}**")
-    lines.append("")
-    lines.append("| Metric | Value |")
-    lines.append("|-------|------:|")
-    lines.append(f"| Running Services | {health['running']} |")
-    lines.append(f"| Failed Services | {health['failed']} |")
-    lines.append("")
+    lines = [
+        "# Executive Review",
+        "",
+        "## Executive Health",
+        "",
+        f"Overall Score: **{score} / 100**",
+        f"Overall Status: **{status}**",
+        "",
+        "| Metric | Value |",
+        "|-------|------:|",
+        f"| Running Services | {health['running']} |",
+        f"| Failed Services | {health['failed']} |",
+        "",
+        "## Executive Priorities",
+        ""
+    ]
 
-    lines.append("## Executive Priorities")
-    lines.append("")
-
-    if risks:
-        for i, risk in enumerate(risks, start=1):
-            lines.append(f"{i}. {risk}")
+    if recommendations:
+        for r in recommendations:
+            lines.extend([
+                f"### Priority {r['priority']}",
+                f"**Action:** {r['action']}",
+                f"**Impact:** {r['impact']}",
+                ""
+            ])
     else:
         lines.append("No immediate platform risks detected.")
-
-    lines.append("")
-    lines.append("## Executive Assessment")
-    lines.append("")
-
-    if health["failed"] == 0:
-        lines.append(
-            "Platform is healthy with no failed services detected."
-        )
-    else:
-        lines.append(
-            f"{health['failed']} failed services require investigation before production deployment."
-        )
 
     return "\n".join(lines)
