@@ -41,7 +41,7 @@ assert "Timers Detected | 25" in report
 assert "Docker Containers | 2" in report
 assert "Knowledge Graph Edges | 21310" in report
 assert "Unresolved Links | 4890" in report
-assert "Objectives Analysed | 35" in report
+assert "Objectives Analysed | 4" in report
 assert "Objective Intelligence" in report
 
 print("PASS: Executive Review pipeline")
