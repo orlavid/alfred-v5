@@ -12,6 +12,7 @@ def render(result):
     timers = result.get("timers", {})
     docker = result.get("docker", {})
     vault = result.get("knowledge", {}).get("vault", {})
+    objectives = vault.get("objectives", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
 
@@ -39,6 +40,10 @@ def render(result):
         f"| Open Loops | {vault.get('kind_counts', {}).get('open_loop', 0)} |",
         f"| Knowledge Graph Edges | {vault.get('graph', {}).get('edge_count', 0)} |",
         f"| Unresolved Links | {vault.get('unresolved_link_count', 0)} |",
+        f"| Objectives Analysed | {objectives.get('objective_count', 0)} |",
+        f"| Objectives At Risk | {objectives.get('at_risk', 0)} |",
+        f"| Objectives On Watch | {objectives.get('watch', 0)} |",
+        f"| Objectives Supported | {objectives.get('supported', 0)} |",
         "",
     ]
 
@@ -55,6 +60,26 @@ def render(result):
                 f"**Recommendation:** {f.recommendation}",
                 "",
             ])
+
+    if objectives.get("insights"):
+        lines.extend([
+            "## Objective Intelligence",
+            "",
+            f"Objectives analysed: **{objectives.get('objective_count', 0)}**",
+            f"At risk: **{objectives.get('at_risk', 0)}**",
+            f"Watch: **{objectives.get('watch', 0)}**",
+            f"Supported: **{objectives.get('supported', 0)}**",
+            "",
+        ])
+
+        for objective in objectives.get("insights", [])[:10]:
+            if objective.status in ("AT RISK", "WATCH"):
+                lines.extend([
+                    f"### {objective.status}: {objective.title}",
+                    f"**Linked entities:** {objective.linked_entities}",
+                    f"**Recommendation:** {objective.recommendation}",
+                    "",
+                ])
 
     lines.extend([
         "## Executive Priorities",
