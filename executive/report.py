@@ -40,13 +40,10 @@ def render(result):
         f"| Knowledge Graph Edges | {vault.get('graph', {}).get('edge_count', 0)} |",
         f"| Unresolved Links | {vault.get('unresolved_link_count', 0)} |",
         "",
-        "## Executive Priorities",
-        "",
     ]
 
     if knowledge_findings:
         lines.extend([
-            "",
             "## Knowledge Findings",
             "",
         ])
@@ -58,6 +55,11 @@ def render(result):
                 f"**Recommendation:** {f.recommendation}",
                 "",
             ])
+
+    lines.extend([
+        "## Executive Priorities",
+        "",
+    ])
 
     if recommendations:
         for r in recommendations:
