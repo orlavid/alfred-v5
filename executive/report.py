@@ -21,6 +21,7 @@ def render(result):
     decisions = vault.get("decisions", {})
     risk = vault.get("risk", {})
     reasoning = vault.get("executive_reasoning", {})
+    ownership = vault.get("ownership", {})
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -180,7 +181,12 @@ def render(result):
 
     if reasoning.get("conclusions"):
         lines.extend([
-            "## Executive Reasoning",
+            "## Ownership Intelligence
+
+Projects with inferred owner: **{ownership.get('owned_projects',0)}**
+Projects missing owner: **{ownership.get('missing_owners',0)}**
+
+## Executive Reasoning",
             "",
             f"Conclusions: **{reasoning.get('conclusion_count', 0)}**",
             "",

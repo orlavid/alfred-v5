@@ -16,6 +16,7 @@ from executive.intelligence.dependencies import analyse_dependencies
 from executive.intelligence.decisions import analyse_decisions
 from executive.intelligence.risk import analyse_risk
 from executive.intelligence.reasoning import build_executive_reasoning
+from executive.intelligence.ownership import infer_ownership
 from executive.knowledge.relationship_strength import score_relationships
 from executive.knowledge.executive_briefing import build_briefing
 from executive.intelligence.impact import calculate
@@ -42,6 +43,7 @@ def analyze(evidence_root):
     dependency_analysis = analyse_dependencies(graph, entities)
     decision_analysis = analyse_decisions(graph, entities)
     risk_analysis = analyse_risk(graph, entities)
+    ownership = infer_ownership(graph, entities)
     relationships = score_relationships(entities, graph)
     impact = calculate(graph, entities)
     resolution = resolution_summary_from_index(resolution_index)
@@ -112,6 +114,7 @@ def analyze(evidence_root):
             "dependency_analysis": dependency_analysis,
             "decisions": decision_analysis,
             "risk": risk_analysis,
+            "ownership": ownership,
             "executive_reasoning": executive_reasoning,
             "relationships": relationships,
             "impact": impact,
