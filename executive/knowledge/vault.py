@@ -26,6 +26,8 @@ def classify(path: Path):
         return "open_loop"
     if "follow" in p:
         return "follow_up"
+    if "objective intelligence" in p:
+        return "report"
     if "objective" in p:
         return "objective"
 
