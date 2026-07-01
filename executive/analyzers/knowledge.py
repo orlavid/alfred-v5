@@ -2,7 +2,7 @@ from pathlib import Path
 
 from executive.knowledge.extractor import extract_entities
 from executive.knowledge.graph import build_graph
-from executive.knowledge.resolver import unresolved_links
+from executive.knowledge.resolver import unresolved_links, resolution_summary
 from executive.knowledge.objectives import analyze_objectives
 from executive.knowledge.findings import Finding
 
@@ -13,6 +13,7 @@ def analyze(evidence_root):
     graph = build_graph(entities)
     unresolved = unresolved_links(entities)
     objective_analysis = analyze_objectives(entities, graph)
+    resolution = resolution_summary(entities)
 
     findings = []
 
@@ -50,6 +51,7 @@ def analyze(evidence_root):
             "graph": graph,
             "unresolved_links": unresolved[:50],
             "unresolved_link_count": len(unresolved),
+            "resolution": resolution,
             "objectives": objective_analysis,
             "findings": findings,
         }
