@@ -1,17 +1,19 @@
 from collections import defaultdict
 
-def build_graph(entities):
-    by_title = {e.title: e for e in entities}
+from executive.knowledge.resolver import resolve_link_with_index
+
+def build_graph(entities, resolution_index):
     edges = []
 
     for entity in entities:
         for link in entity.links:
-            target = by_title.get(link)
+            target = resolve_link_with_index(link, resolution_index)
             if target:
                 edges.append({
                     "source": entity.id,
                     "target": target.id,
                     "type": "links_to",
+                    "raw_link": link,
                 })
 
     return {

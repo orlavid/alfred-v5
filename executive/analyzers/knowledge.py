@@ -2,7 +2,11 @@ from pathlib import Path
 
 from executive.knowledge.extractor import extract_entities
 from executive.knowledge.graph import build_graph
-from executive.knowledge.resolver import unresolved_links, resolution_summary
+from executive.knowledge.resolver import (
+    build_resolution_index,
+    unresolved_links_with_index,
+    resolution_summary_from_index,
+)
 from executive.knowledge.objectives import analyze_objectives
 from executive.knowledge.findings import Finding
 
@@ -10,10 +14,11 @@ VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
 
 def analyze(evidence_root):
     entities = extract_entities(VAULT_ROOT)
-    graph = build_graph(entities)
-    unresolved = unresolved_links(entities)
+    resolution_index = build_resolution_index(entities)
+    graph = build_graph(entities, resolution_index)
+    unresolved = unresolved_links_with_index(entities, resolution_index)
     objective_analysis = analyze_objectives(entities, graph)
-    resolution = resolution_summary(entities)
+    resolution = resolution_summary_from_index(resolution_index)
 
     findings = []
 
