@@ -36,6 +36,14 @@ def build_recommendations(risks):
         service = risk.replace("FAILED: ", "")
         if service in mapping:
             recommendations.append(mapping[service])
+        else:
+            recommendations.append({
+                "priority": 99,
+                "severity": "MEDIUM",
+                "owner": "Platform Engineering",
+                "action": f"Investigate failed service: {service}",
+                "impact": "A failed service may reduce platform reliability."
+            })
 
     recommendations.sort(key=lambda r: r["priority"])
     return recommendations
