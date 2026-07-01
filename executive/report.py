@@ -22,6 +22,7 @@ def render(result):
     risk = vault.get("risk", {})
     reasoning = vault.get("executive_reasoning", {})
     ownership = vault.get("ownership", {})
+    priorities = vault.get("priorities", {})
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -187,6 +188,32 @@ def render(result):
             f"Projects missing owner: **{ownership.get('missing_owners', 0)}**",
             "",
         ])
+
+    if priorities.get("top_priorities"):
+        lines.extend([
+            "## Top Executive Priorities",
+            "",
+            f"Priorities analysed: **{priorities.get('priority_count', 0)}**",
+            f"Critical: **{priorities.get('critical', 0)}**",
+            f"High: **{priorities.get('high', 0)}**",
+            "",
+        ])
+
+        for item in priorities.get("top_priorities", [])[:10]:
+            lines.extend([
+                f"### {item['priority']}: {item['title']}",
+                f"**Type:** {item['type']}",
+                f"**Executive priority score:** {item['priority_score']}",
+                "**Why this matters:**",
+            ])
+            for reason in item.get("reasons", []):
+                lines.append(f"- {reason}")
+            lines.extend([
+                "**Recommended actions:**",
+            ])
+            for action in item.get("recommended_actions", []):
+                lines.append(f"- {action}")
+            lines.append("")
 
     if reasoning.get("conclusions"):
         lines.extend([

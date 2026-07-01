@@ -10,6 +10,17 @@ def build_executive_reasoning(vault):
     impact = vault.get("impact", [])
     risk = vault.get("risk", {})
     resolution = vault.get("resolution", {})
+    priorities = vault.get("priorities", {})
+
+    if priorities.get("top_priorities"):
+        top = priorities["top_priorities"][0]
+        conclusions.append({
+            "priority": 0,
+            "theme": "Executive Prioritisation",
+            "headline": f"{priorities.get('critical', 0)} critical executive priorities identified",
+            "detail": f"Top priority is {top['title']} with executive priority score {top['priority_score']}.",
+            "recommendation": "Use the Top Executive Priorities section as the primary action list for executive attention.",
+        })
 
     if risk.get("high_risk"):
         top = risk["high_risk"][0]
