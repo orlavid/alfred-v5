@@ -15,7 +15,7 @@ def main() -> None:
     result = execute(EVIDENCE)
 
     output = OUT / "Executive_Review.md"
-    output.write_text(render(result["health"], result["risks"]))
+    output.write_text(render(result))
     print(output)
 
 

@@ -6,7 +6,10 @@ STATUS_ICON = {
     "RED": "🔴",
 }
 
-def render(health, risks):
+def render(result):
+    health = result["health"]
+    risks = result["risks"]
+    timers = result.get("timers", {})
     recommendations = build_recommendations(risks)
 
     lines = [
@@ -21,6 +24,7 @@ def render(health, risks):
         "|---|---:|",
         f"| Running Services | {health['running']} |",
         f"| Failed Services | {health['failed']} |",
+        f"| Timers Detected | {timers.get('timer_count', 0)} |",
         "",
         "## Executive Priorities",
         "",
