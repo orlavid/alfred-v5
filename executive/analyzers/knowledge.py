@@ -18,6 +18,7 @@ from executive.intelligence.risk import analyse_risk
 from executive.intelligence.reasoning import build_executive_reasoning
 from executive.intelligence.ownership import infer_ownership
 from executive.intelligence.prioritisation import build_priorities
+from executive.intelligence.work_queue import build_work_queue
 from executive.knowledge.relationship_strength import score_relationships
 from executive.knowledge.executive_briefing import build_briefing
 from executive.intelligence.impact import calculate
@@ -94,6 +95,8 @@ def analyze(evidence_root):
 
     priority_analysis = build_priorities(priority_input, entities, graph)
 
+    work_queue = build_work_queue(priority_input)
+
     reasoning_input = {
         "objectives": objective_analysis,
         "projects": project_analysis,
@@ -133,6 +136,7 @@ def analyze(evidence_root):
             "risk": risk_analysis,
             "ownership": ownership,
             "priorities": priority_analysis,
+            "work_queue": work_queue,
             "executive_reasoning": executive_reasoning,
             "relationships": relationships,
             "impact": impact,

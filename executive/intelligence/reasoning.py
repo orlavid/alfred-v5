@@ -1,5 +1,16 @@
 def build_executive_reasoning(vault):
     conclusions = []
+    # Executive Work Queue Signal
+    if work_queue.get("top_actions"):
+        top = work_queue["top_actions"][0]
+        conclusions.append({
+            "priority": 0,
+            "theme": "Executive Execution",
+            "headline": f"{work_queue.get('critical', 0)} critical actions require attention",
+            "detail": f"Top action: {top['title']} → {top['action']}",
+            "recommendation": "Use Executive Work Queue as primary execution layer.",
+        })
+
 
     objectives = vault.get("objectives", {})
     projects = vault.get("projects", {})
@@ -11,6 +22,7 @@ def build_executive_reasoning(vault):
     risk = vault.get("risk", {})
     resolution = vault.get("resolution", {})
     priorities = vault.get("priorities", {})
+    work_queue = vault.get("work_queue", {})
 
     if priorities.get("top_priorities"):
         top = priorities["top_priorities"][0]
