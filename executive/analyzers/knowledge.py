@@ -12,6 +12,7 @@ from executive.knowledge.projects import analyze_projects
 from executive.knowledge.companies import analyze_companies
 from executive.intelligence.people import analyse_people
 from executive.intelligence.relationships import analyse_relationships
+from executive.intelligence.dependencies import analyse_dependencies
 from executive.knowledge.relationship_strength import score_relationships
 from executive.knowledge.executive_briefing import build_briefing
 from executive.intelligence.impact import calculate
@@ -33,6 +34,7 @@ def analyze(evidence_root):
     company_analysis = analyze_companies(entities, graph)
     people_analysis = analyse_people(entities, graph)
     relationship_analysis = analyse_relationships(graph, entities)
+    dependency_analysis = analyse_dependencies(graph, entities)
     relationships = score_relationships(entities, graph)
     impact = calculate(graph, entities)
     resolution = resolution_summary_from_index(resolution_index)
@@ -72,6 +74,7 @@ def analyze(evidence_root):
             "companies": company_analysis,
             "people": people_analysis,
             "relationship_analysis": relationship_analysis,
+            "dependency_analysis": dependency_analysis,
         "findings": findings,
     })
 
@@ -88,6 +91,7 @@ def analyze(evidence_root):
             "companies": company_analysis,
             "people": people_analysis,
             "relationship_analysis": relationship_analysis,
+            "dependency_analysis": dependency_analysis,
             "relationships": relationships,
             "impact": impact,
             "consolidation": consolidation,
