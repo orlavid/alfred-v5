@@ -13,6 +13,7 @@ def render(result):
     docker = result.get("docker", {})
     vault = result.get("knowledge", {}).get("vault", {})
     objectives = vault.get("objectives", {})
+    resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
 
@@ -44,6 +45,8 @@ def render(result):
         f"| Objectives At Risk | {objectives.get('at_risk', 0)} |",
         f"| Objectives On Watch | {objectives.get('watch', 0)} |",
         f"| Objectives Supported | {objectives.get('supported', 0)} |",
+        f"| Resolution Keys | {resolution.get('resolution_keys', 0)} |",
+        f"| Ambiguous Entity Keys | {resolution.get('ambiguous_keys', 0)} |",
         "",
     ]
 
