@@ -1,11 +1,19 @@
-from executive.analyzers import systemd, timers
+from importlib import import_module
+from pathlib import Path
 
-def execute(evidence_root):
-    systemd_result = systemd.analyze(evidence_root)
-    timers_result = timers.analyze(evidence_root)
+ANALYZERS = [
+    "systemd",
+    "timers",
+]
 
-    return {
-        "health": systemd_result["health"],
-        "risks": systemd_result["risks"],
-        "timers": timers_result,
-    }
+def execute(evidence_root: Path):
+    result = {}
+
+    for name in ANALYZERS:
+        module = import_module(f"executive.analyzers.{name}")
+        output = module.analyze(evidence_root)
+
+        if isinstance(output, dict):
+            result.update(output)
+
+    return result
