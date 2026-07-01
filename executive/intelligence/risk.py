@@ -26,29 +26,47 @@ def analyse_risk(graph, entities):
         score = 0
         reasons = []
 
-        if "person" not in linked_types:
-            score += 30
-            reasons.append("No owner or person linked")
+        if entity.type == "project":
+            if "person" not in linked_types:
+                score += 30
+                reasons.append("No owner or person linked")
+            if "objective" not in linked_types:
+                score += 25
+                reasons.append("No objective linked")
+            if "company" not in linked_types:
+                score += 20
+                reasons.append("No supplier/company linked")
+            if len(linked) < 3:
+                score += 25
+                reasons.append("Weak graph connectivity")
 
-        if entity.type == "project" and "objective" not in linked_types:
-            score += 25
-            reasons.append("No objective linked")
+        elif entity.type == "objective":
+            if "project" not in linked_types:
+                score += 50
+                reasons.append("No supporting project linked")
+            if len(linked) < 3:
+                score += 25
+                reasons.append("Weak graph connectivity")
 
-        if entity.type == "project" and "company" not in linked_types:
-            score += 20
-            reasons.append("No supplier/company linked")
+        elif entity.type == "company":
+            if len(linked) >= 10 and "person" not in linked_types:
+                score += 40
+                reasons.append("Important company has no linked owner/person")
+            if len(linked) >= 10 and "project" not in linked_types:
+                score += 20
+                reasons.append("Important company has no linked project")
+            if len(linked) < 2:
+                score += 15
+                reasons.append("Low evidence company record")
 
-        if len(linked) < 3:
-            score += 25
-            reasons.append("Weak graph connectivity")
-
-        risks.append({
-            "title": entity.title,
-            "type": entity.type,
-            "risk_score": score,
-            "reasons": reasons,
-            "connections": len(linked),
-        })
+        if score > 0:
+            risks.append({
+                "title": entity.title,
+                "type": entity.type,
+                "risk_score": score,
+                "reasons": reasons,
+                "connections": len(linked),
+            })
 
     risks.sort(key=lambda r: r["risk_score"], reverse=True)
 
