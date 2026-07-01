@@ -12,6 +12,7 @@ from executive.knowledge.projects import analyze_projects
 from executive.knowledge.companies import analyze_companies
 from executive.knowledge.relationship_strength import score_relationships
 from executive.knowledge.executive_briefing import build_briefing
+from executive.intelligence.impact import calculate
 from executive.knowledge.findings import Finding
 
 VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
@@ -25,6 +26,7 @@ def analyze(evidence_root):
     project_analysis = analyze_projects(entities, graph)
     company_analysis = analyze_companies(entities, graph)
     relationships = score_relationships(entities, graph)
+    impact = calculate(graph, entities)
     resolution = resolution_summary_from_index(resolution_index)
 
     findings = []
@@ -75,6 +77,7 @@ def analyze(evidence_root):
             "projects": project_analysis,
             "companies": company_analysis,
             "relationships": relationships,
+            "impact": impact,
             "briefing": briefing,
             "findings": findings,
         }

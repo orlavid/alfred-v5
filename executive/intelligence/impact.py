@@ -1,0 +1,40 @@
+from collections import defaultdict
+
+WEIGHTS = {
+    "objective": 100,
+    "project": 40,
+    "company": 25,
+    "person": 10,
+    "decision": 15,
+    "open_loop": 20,
+    "note": 1,
+}
+
+def calculate(graph, entities):
+    lookup = {e.id: e for e in entities}
+
+    score = defaultdict(int)
+
+    for edge in graph["edges"]:
+        source = lookup.get(edge["source"])
+        target = lookup.get(edge["target"])
+
+        if source:
+            score[source.id] += WEIGHTS.get(target.type, 5)
+
+        if target:
+            score[target.id] += WEIGHTS.get(source.type, 5)
+
+    ranked = []
+
+    for entity in entities:
+        ranked.append({
+            "id": entity.id,
+            "title": entity.title,
+            "type": entity.type,
+            "impact": score[entity.id],
+        })
+
+    ranked.sort(key=lambda x: x["impact"], reverse=True)
+
+    return ranked
