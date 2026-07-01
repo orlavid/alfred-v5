@@ -32,6 +32,15 @@ def analyze(evidence_root):
             recommendation="Create or tag objective notes so Alfred can track strategic drift.",
         ))
 
+    if len(unresolved) > 1000:
+        findings.append(Finding(
+            category="Knowledge Graph",
+            severity="MEDIUM",
+            title="High unresolved link count",
+            evidence=f"{len(unresolved)} wikilinks do not currently resolve to known vault entities.",
+            recommendation="Prioritise entity resolution and alias handling so Alfred can reason more accurately across people, projects, suppliers and objectives.",
+        ))
+
     return {
         "vault": {
             "note_count": graph["entity_count"],
