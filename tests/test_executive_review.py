@@ -22,4 +22,8 @@ assert "FAILED: hermes-5am-check.service" in risks
 
 assert len(recommendations) == 4
 
+fallback = build_recommendations(["FAILED: unknown-test.service"])
+assert fallback[0]["priority"] == 99
+assert fallback[0]["action"] == "Investigate failed service: unknown-test.service"
+
 print("PASS: Executive Review pipeline")
