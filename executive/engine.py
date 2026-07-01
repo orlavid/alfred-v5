@@ -5,6 +5,7 @@ ANALYZERS = [
     "systemd",
     "timers",
     "docker",
+    "knowledge",
 ]
 
 def execute(evidence_root: Path):

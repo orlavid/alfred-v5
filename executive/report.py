@@ -11,6 +11,7 @@ def render(result):
     risks = result["risks"]
     timers = result.get("timers", {})
     docker = result.get("docker", {})
+    vault = result.get("knowledge", {}).get("vault", {})
     recommendations = build_recommendations(risks)
 
     lines = [
@@ -29,6 +30,12 @@ def render(result):
         f"| Docker Containers | {docker.get('container_count', 0)} |",
         f"| Running Containers | {docker.get('running', 0)} |",
         f"| Exited Containers | {docker.get('exited', 0)} |",
+        f"| Vault Notes | {vault.get('note_count', 0)} |",
+        f"| Projects | {vault.get('kind_counts', {}).get('project', 0)} |",
+        f"| Objectives | {vault.get('kind_counts', {}).get('objective', 0)} |",
+        f"| Companies | {vault.get('kind_counts', {}).get('company', 0)} |",
+        f"| People | {vault.get('kind_counts', {}).get('person', 0)} |",
+        f"| Open Loops | {vault.get('kind_counts', {}).get('open_loop', 0)} |",
         "",
         "## Executive Priorities",
         "",
