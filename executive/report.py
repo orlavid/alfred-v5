@@ -19,6 +19,7 @@ def render(result):
     impact = vault.get("impact", [])
     dependencies = vault.get("dependency_analysis", {})
     decisions = vault.get("decisions", {})
+    risk = vault.get("risk", {})
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -175,6 +176,25 @@ def render(result):
                 f"**Decisions:** {person.decisions}",
                 "",
             ])
+
+    if risk.get("high_risk"):
+        lines.extend([
+            "## Executive Risk Intelligence",
+            "",
+            f"High risk items: **{len(risk.get('high_risk', []))}**",
+            "",
+        ])
+
+        for item in risk.get("high_risk", [])[:10]:
+            lines.extend([
+                f"### {item['risk_score']}: {item['title']}",
+                f"**Type:** {item['type']}",
+                f"**Connections:** {item['connections']}",
+                "**Drivers:**",
+            ])
+            for reason in item.get("reasons", []):
+                lines.append(f"- {reason}")
+            lines.append("")
 
     if decisions.get("top_decisions"):
         lines.extend([
