@@ -136,7 +136,7 @@ def render(result):
             ])
 
     lines.extend([
-        "## Executive Priorities",
+        "## Platform Priorities",
         "",
     ])
 
