@@ -179,14 +179,18 @@ def render(result):
                 "",
             ])
 
+    if ownership:
+        lines.extend([
+            "## Ownership Intelligence",
+            "",
+            f"Projects with inferred owner: **{ownership.get('owned_projects', 0)}**",
+            f"Projects missing owner: **{ownership.get('missing_owners', 0)}**",
+            "",
+        ])
+
     if reasoning.get("conclusions"):
         lines.extend([
-            "## Ownership Intelligence
-
-Projects with inferred owner: **{ownership.get('owned_projects',0)}**
-Projects missing owner: **{ownership.get('missing_owners',0)}**
-
-## Executive Reasoning",
+            "## Executive Reasoning",
             "",
             f"Conclusions: **{reasoning.get('conclusion_count', 0)}**",
             "",
