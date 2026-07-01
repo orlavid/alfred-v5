@@ -23,3 +23,17 @@ def parse_services(root):
             "state": parts[3],
         })
     return services
+
+def parse_timers(root):
+    timers = []
+    for line in read("system/timers.txt", root).splitlines():
+        if ".timer" not in line:
+            continue
+        parts = line.split()
+        if len(parts) < 5:
+            continue
+        timers.append({
+            "name": parts[-1],
+            "raw": line,
+        })
+    return timers
