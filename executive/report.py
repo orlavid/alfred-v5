@@ -20,6 +20,7 @@ def render(result):
     dependencies = vault.get("dependency_analysis", {})
     decisions = vault.get("decisions", {})
     risk = vault.get("risk", {})
+    reasoning = vault.get("executive_reasoning", {})
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -174,6 +175,23 @@ def render(result):
                 f"**Projects:** {person.projects}",
                 f"**Companies:** {person.companies}",
                 f"**Decisions:** {person.decisions}",
+                "",
+            ])
+
+    if reasoning.get("conclusions"):
+        lines.extend([
+            "## Executive Reasoning",
+            "",
+            f"Conclusions: **{reasoning.get('conclusion_count', 0)}**",
+            "",
+        ])
+
+        for item in reasoning.get("conclusions", [])[:10]:
+            lines.extend([
+                f"### {item['headline']}",
+                f"**Theme:** {item['theme']}",
+                f"**Detail:** {item['detail']}",
+                f"**Recommendation:** {item['recommendation']}",
                 "",
             ])
 

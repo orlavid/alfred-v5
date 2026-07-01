@@ -15,6 +15,7 @@ from executive.intelligence.relationships import analyse_relationships
 from executive.intelligence.dependencies import analyse_dependencies
 from executive.intelligence.decisions import analyse_decisions
 from executive.intelligence.risk import analyse_risk
+from executive.intelligence.reasoning import build_executive_reasoning
 from executive.knowledge.relationship_strength import score_relationships
 from executive.knowledge.executive_briefing import build_briefing
 from executive.intelligence.impact import calculate
@@ -81,6 +82,7 @@ def analyze(evidence_root):
             "dependency_analysis": dependency_analysis,
             "decisions": decision_analysis,
             "risk": risk_analysis,
+            "executive_reasoning": executive_reasoning,
         "findings": findings,
     })
 
@@ -100,6 +102,7 @@ def analyze(evidence_root):
             "dependency_analysis": dependency_analysis,
             "decisions": decision_analysis,
             "risk": risk_analysis,
+            "executive_reasoning": executive_reasoning,
             "relationships": relationships,
             "impact": impact,
             "consolidation": consolidation,
