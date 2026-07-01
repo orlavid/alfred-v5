@@ -14,6 +14,7 @@ def render(result):
     vault = result.get("knowledge", {}).get("vault", {})
     objectives = vault.get("objectives", {})
     projects = vault.get("projects", {})
+    companies = vault.get("companies", {})
     resolution = vault.get("resolution", {})
     recommendations = build_recommendations(risks)
     knowledge_findings = vault.get("findings", [])
@@ -51,6 +52,9 @@ def render(result):
         f"| Projects At Risk | {projects.get('at_risk', 0)} |",
         f"| Projects On Watch | {projects.get('watch', 0)} |",
         f"| Projects Supported | {projects.get('supported', 0)} |",
+        f"| Companies Analysed | {companies.get('company_count', 0)} |",
+        f"| Critical Companies | {companies.get('critical', 0)} |",
+        f"| Important Companies | {companies.get('important', 0)} |",
         f"| Resolution Keys | {resolution.get('resolution_keys', 0)} |",
         f"| Ambiguous Entity Keys | {resolution.get('ambiguous_keys', 0)} |",
         "",
@@ -132,6 +136,25 @@ def render(result):
                 f"### {project.status}: {project.title}",
                 f"**Linked entities:** {project.linked_entities}",
                 f"**Recommendation:** {project.recommendation}",
+                "",
+            ])
+
+    if companies.get("insights"):
+        lines.extend([
+            "## Company Intelligence",
+            "",
+            f"Companies analysed: **{companies.get('company_count', 0)}**",
+            f"Critical: **{companies.get('critical', 0)}**",
+            f"Important: **{companies.get('important', 0)}**",
+            "",
+        ])
+
+        for company in companies.get("insights", [])[:10]:
+            lines.extend([
+                f"### {company.status}: {company.title}",
+                f"**Score:** {company.score}",
+                f"**Projects:** {company.projects}",
+                f"**People:** {company.people}",
                 "",
             ])
 

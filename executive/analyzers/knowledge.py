@@ -9,6 +9,7 @@ from executive.knowledge.resolver import (
 )
 from executive.knowledge.objectives import analyze_objectives
 from executive.knowledge.projects import analyze_projects
+from executive.knowledge.companies import analyze_companies
 from executive.knowledge.relationship_strength import score_relationships
 from executive.knowledge.executive_briefing import build_briefing
 from executive.knowledge.findings import Finding
@@ -22,6 +23,7 @@ def analyze(evidence_root):
     unresolved = unresolved_links_with_index(entities, resolution_index)
     objective_analysis = analyze_objectives(entities, graph)
     project_analysis = analyze_projects(entities, graph)
+    company_analysis = analyze_companies(entities, graph)
     relationships = score_relationships(entities, graph)
     resolution = resolution_summary_from_index(resolution_index)
 
@@ -57,6 +59,7 @@ def analyze(evidence_root):
     briefing = build_briefing({
         "objectives": objective_analysis,
         "projects": project_analysis,
+            "companies": company_analysis,
         "findings": findings,
     })
 
@@ -70,6 +73,7 @@ def analyze(evidence_root):
             "resolution": resolution,
             "objectives": objective_analysis,
             "projects": project_analysis,
+            "companies": company_analysis,
             "relationships": relationships,
             "briefing": briefing,
             "findings": findings,
