@@ -1,4 +1,5 @@
 def build_executive_reasoning(vault):
+    work_queue = vault.get("work_queue", {})
     conclusions = []
     # Executive Work Queue Signal
     if work_queue.get("top_actions"):
@@ -22,7 +23,6 @@ def build_executive_reasoning(vault):
     risk = vault.get("risk", {})
     resolution = vault.get("resolution", {})
     priorities = vault.get("priorities", {})
-    work_queue = vault.get("work_queue", {})
 
     if priorities.get("top_priorities"):
         top = priorities["top_priorities"][0]
