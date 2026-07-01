@@ -10,6 +10,15 @@ WEIGHTS = {
     "note": 1,
 }
 
+EXECUTIVE_TYPES = {
+    "objective",
+    "project",
+    "company",
+    "person",
+    "decision",
+    "open_loop",
+}
+
 def calculate(graph, entities):
     lookup = {e.id: e for e in entities}
 
@@ -19,15 +28,16 @@ def calculate(graph, entities):
         source = lookup.get(edge["source"])
         target = lookup.get(edge["target"])
 
-        if source:
+        if source and target:
             score[source.id] += WEIGHTS.get(target.type, 5)
-
-        if target:
             score[target.id] += WEIGHTS.get(source.type, 5)
 
     ranked = []
 
     for entity in entities:
+        if entity.type not in EXECUTIVE_TYPES:
+            continue
+
         ranked.append({
             "id": entity.id,
             "title": entity.title,
