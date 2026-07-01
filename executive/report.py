@@ -29,7 +29,8 @@ def render(health, risks):
     if recommendations:
         for r in recommendations:
             lines.extend([
-                f"### Priority {r['priority']}",
+                f"### Priority {r['priority']} — {r['severity']}",
+                f"**Owner:** {r['owner']}",
                 f"**Action:** {r['action']}",
                 f"**Impact:** {r['impact']}",
                 "",
