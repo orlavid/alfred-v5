@@ -1,5 +1,3 @@
-
-
 #!/usr/bin/env python3
 
 import subprocess
@@ -15,7 +13,7 @@ STEPS = [
 ]
 
 
-def run_step(name, cmd):
+def run_step(name: str, cmd: list[str]) -> None:
     print(f"\n{'=' * 60}")
     print(f"BUILD: {name}")
     print(f"{'=' * 60}")
