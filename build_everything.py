@@ -11,6 +11,7 @@ STEPS = [
     ("Architecture", [sys.executable, "build_architecture.py"]),
     ("Executive Review", [sys.executable, "build_executive_review.py"]),
     ("Follow-up Intelligence", [sys.executable, "build_followups.py"]),
+    ("Open Loop Intelligence", [sys.executable, "build_open_loops.py"]),
 ]
 
 
