@@ -14,6 +14,7 @@ STEPS = [
     ("Follow-up Intelligence", [sys.executable, "build_followups.py"]),
     ("Open Loop Intelligence", [sys.executable, "build_open_loops.py"]),
     ("Executive Intelligence", [sys.executable, "build_executive_intelligence.py"]),
+    ("Objective Intelligence", [sys.executable, "build_objective_intelligence.py"]),
     ("Executive Reasoning", [sys.executable, "build_executive_reasoning.py"]),
     ("Ask Alfred", [sys.executable, "build_ask_alfred.py", "What should I do today?"]),
     ("Daily Briefing", [sys.executable, "build_daily_brief.py"]),

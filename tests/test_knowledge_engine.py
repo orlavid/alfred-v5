@@ -22,3 +22,5 @@ def test_build_executive_state_returns_normalised_state():
     assert state.confidence in {"HIGH", "MEDIUM", "LOW"}
     assert isinstance(state.engine_result, dict)
     assert isinstance(state.vault, dict)
+    assert isinstance(state.entities, list)
+    assert isinstance(state.neighbours, dict)

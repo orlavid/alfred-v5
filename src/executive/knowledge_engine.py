@@ -29,6 +29,8 @@ class ExecutiveState:
     confidence: str
     engine_result: dict
     vault: dict
+    entities: list
+    neighbours: dict[str, tuple[str, ...]]
 
 
 def build_executive_state(
@@ -50,6 +52,7 @@ def build_executive_state(
     )
 
     confidence = _derive_confidence(engine_result, followups, open_loops)
+    neighbours = _build_neighbours(vault["graph"]["edges"])
 
     return ExecutiveState(
         executive_health=engine_result["health"],
@@ -66,6 +69,8 @@ def build_executive_state(
         confidence=confidence,
         engine_result=engine_result,
         vault=vault,
+        entities=vault.get("entities", []),
+        neighbours=neighbours,
     )
 
 
@@ -106,3 +111,16 @@ def _dedupe(*groups) -> list[str]:
         seen.add(value)
         deduped.append(value)
     return deduped[:10]
+
+
+def _build_neighbours(edges: list[dict]) -> dict[str, tuple[str, ...]]:
+    neighbours: dict[str, set[str]] = {}
+    for edge in edges:
+        source = edge["source"]
+        target = edge["target"]
+        neighbours.setdefault(source, set()).add(target)
+        neighbours.setdefault(target, set()).add(source)
+    return {
+        entity_id: tuple(sorted(linked))
+        for entity_id, linked in sorted(neighbours.items())
+    }

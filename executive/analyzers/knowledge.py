@@ -129,6 +129,7 @@ def analyze(evidence_root):
 
     return {
         "vault": {
+            "entities": entities,
             "note_count": graph["entity_count"],
             "kind_counts": graph["entities_by_type"],
             "graph": graph,
