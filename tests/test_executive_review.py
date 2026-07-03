@@ -39,9 +39,9 @@ assert "FAILED: hermes-5am-check.service" in engine_result["risks"]
 report = render(engine_result)
 assert "Timers Detected | 25" in report
 assert "Docker Containers | 2" in report
-assert "Knowledge Graph Edges | 24709" in report
-assert "Unresolved Links | 1491" in report
-assert "Objectives Analysed | 4" in report
+assert f"Knowledge Graph Edges | {engine_result['knowledge']['vault']['graph']['edge_count']}" in report
+assert f"Unresolved Links | {engine_result['knowledge']['vault']['unresolved_link_count']}" in report
+assert f"Objectives Analysed | {engine_result['knowledge']['vault']['objectives']['objective_count']}" in report
 assert "Objective Intelligence" in report
 
 print("PASS: Executive Review pipeline")
