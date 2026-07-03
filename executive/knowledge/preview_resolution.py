@@ -1,5 +1,5 @@
 from executive.knowledge.canonical_resolution import canonicalise_resolution_index
-from executive.knowledge.resolution_rule_policy import get_resolution_rule
+import executive.knowledge.resolution_rule_policy as resolution_rule_policy
 from executive.knowledge.resolver import resolve_link_with_index
 
 APPROVE_RULES = {
@@ -15,7 +15,7 @@ def normalise_link_key(link: str) -> str:
     return key
 
 def apply_preview_rule(raw_link, current_resolved, canonical_match):
-    rule = get_resolution_rule(raw_link)
+    rule = resolution_rule_policy.get_resolution_rule(raw_link)
     if rule in APPROVE_RULES and canonical_match is not None:
         return canonical_match
     return current_resolved
