@@ -90,6 +90,13 @@ def test_build_objective_intelligence_from_state_links_records():
     assert any(item.title == "Objective Approval" for item in report.decisions_linked_to_objectives)
     assert any(item.title == "2026 Executive Objectives" for item in report.followups_linked_to_objectives)
     assert any(item.title == "2026 Executive Objectives" for item in report.objectives_with_stale_evidence)
+    strategic = report.strategic_objectives[0]
+    assert strategic.status == "At Risk"
+    assert strategic.confidence == "HIGH"
+    assert strategic.supporting_projects == ("Objective Delivery",)
+    assert strategic.linked_decisions == ("Objective Approval",)
+    assert strategic.stale_evidence is True
+    assert "Review objective linkage" in strategic.recommended_next_action
 
 
 def test_build_objective_intelligence_generates_report():
@@ -109,3 +116,9 @@ def test_build_objective_intelligence_generates_report():
     assert "# Objective Intelligence" in content
     for heading in SECTION_HEADINGS:
         assert f"## {heading}" in content
+    assert "- Status:" in content
+    assert "- Confidence:" in content
+    assert "- Supporting Projects:" in content
+    assert "- Linked Decisions:" in content
+    assert "- Stale Evidence:" in content
+    assert "- Recommended Next Action:" in content

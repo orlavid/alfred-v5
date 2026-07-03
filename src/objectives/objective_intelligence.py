@@ -36,9 +36,20 @@ class ObjectiveLineItem:
 
 
 @dataclass(frozen=True)
+class StrategicObjectiveRecord:
+    title: str
+    status: str
+    confidence: str
+    supporting_projects: tuple[str, ...]
+    linked_decisions: tuple[str, ...]
+    stale_evidence: bool
+    recommended_next_action: str
+
+
+@dataclass(frozen=True)
 class ObjectiveIntelligence:
     executive_summary: list[str]
-    strategic_objectives: list[ObjectiveLineItem]
+    strategic_objectives: list[StrategicObjectiveRecord]
     objectives_at_risk: list[ObjectiveLineItem]
     objectives_without_supporting_projects: list[ObjectiveLineItem]
     objectives_with_stale_evidence: list[ObjectiveLineItem]
@@ -63,15 +74,9 @@ def build_objective_intelligence_from_state(
     today: date | None = None,
 ) -> ObjectiveIntelligence:
     effective_today = today or date.today()
-    objective_views = _build_objective_views(state, effective_today)
+    objective_views = build_objective_views_from_state(state, today=effective_today)
 
-    strategic = [
-        ObjectiveLineItem(
-            view.objective.title,
-            f"{view.objective.status}; linked entities {view.objective.linked_entities}; path {view.objective.path}.",
-        )
-        for view in objective_views
-    ][:10]
+    strategic = [_build_strategic_record(view) for view in objective_views][:10]
     at_risk = [
         ObjectiveLineItem(view.objective.title, f"{view.objective.status}. {view.objective.recommendation}")
         for view in objective_views
@@ -91,7 +96,7 @@ def build_objective_intelligence_from_state(
             f"Latest dated supporting evidence is {view.latest_evidence_date.isoformat()}, which is older than {STALE_AFTER_DAYS} days.",
         )
         for view in objective_views
-        if view.latest_evidence_date is not None and (effective_today - view.latest_evidence_date).days >= STALE_AFTER_DAYS
+        if view.stale_evidence and view.latest_evidence_date is not None
     ][:10]
     supporting_projects = _build_supporting_projects(objective_views)
     decisions = _build_linked_decisions(objective_views, state)
@@ -117,7 +122,7 @@ def render_objective_intelligence(report: ObjectiveIntelligence) -> str:
     parts.extend(["## Executive Summary", ""])
     parts.extend(_render_bullets(report.executive_summary))
     parts.extend(["", "## Strategic Objectives", ""])
-    parts.extend(_render_items(report.strategic_objectives))
+    parts.extend(_render_strategic_objectives(report.strategic_objectives))
     parts.extend(["", "## Objectives At Risk", ""])
     parts.extend(_render_items(report.objectives_at_risk))
     parts.extend(["", "## Objectives Without Supporting Projects", ""])
@@ -144,9 +149,15 @@ class ObjectiveView:
     decision_entities: tuple[object, ...]
     followups: tuple[FollowupItem, ...]
     latest_evidence_date: date | None
+    stale_evidence: bool
 
 
-def _build_objective_views(state: ExecutiveState, today: date) -> list[ObjectiveView]:
+def build_objective_views_from_state(
+    state: ExecutiveState,
+    *,
+    today: date | None = None,
+) -> list[ObjectiveView]:
+    effective_today = today or date.today()
     entity_lookup = {entity.id: entity for entity in state.entities}
     followups = _all_followups(state)
     views = []
@@ -165,6 +176,7 @@ def _build_objective_views(state: ExecutiveState, today: date) -> list[Objective
             if item.path == objective.path or _mentions_objective(item, objective.title)
         )
         latest_evidence_date = _latest_date(objective, linked_entities, related_followups)
+        stale_evidence = latest_evidence_date is not None and (effective_today - latest_evidence_date).days >= STALE_AFTER_DAYS
         views.append(
             ObjectiveView(
                 objective=objective,
@@ -173,6 +185,7 @@ def _build_objective_views(state: ExecutiveState, today: date) -> list[Objective
                 decision_entities=decision_entities,
                 followups=related_followups,
                 latest_evidence_date=latest_evidence_date,
+                stale_evidence=stale_evidence,
             )
         )
     return views
@@ -189,6 +202,21 @@ def _build_supporting_projects(objective_views: list[ObjectiveView]) -> list[Obj
                 )
             )
     return _dedupe_items(items)[:10]
+
+
+def _build_strategic_record(view: ObjectiveView) -> StrategicObjectiveRecord:
+    supporting_projects = tuple(entity.title for entity in view.project_entities)
+    linked_decisions = tuple(entity.title for entity in view.decision_entities)
+    lifecycle_status = _classify_lifecycle(view)
+    return StrategicObjectiveRecord(
+        title=view.objective.title,
+        status=lifecycle_status,
+        confidence=_derive_objective_confidence(view),
+        supporting_projects=supporting_projects,
+        linked_decisions=linked_decisions,
+        stale_evidence=view.stale_evidence,
+        recommended_next_action=_recommended_next_action(view, lifecycle_status),
+    )
 
 
 def _build_linked_decisions(objective_views: list[ObjectiveView], state: ExecutiveState) -> list[ObjectiveLineItem]:
@@ -257,6 +285,58 @@ def _build_summary(
         f"Objectives without linked projects: {len(without_projects)}; stale evidence: {len(stale)}.",
         f"Linked follow-ups found: {len(followups)}; overall objective confidence: {state.confidence}.",
     ]
+
+
+def _classify_lifecycle(view: ObjectiveView) -> str:
+    lowered = f"{view.objective.title} {view.objective.path} {view.objective.recommendation}".lower()
+    if "archive" in lowered or "histor" in lowered or "legacy" in lowered:
+        return "Archived Candidate"
+    if any(marker in lowered for marker in ("complete", "completed", "closed", "done", "delivered")):
+        return "Completed"
+    if view.objective.status == "AT RISK":
+        return "At Risk"
+    if view.objective.status == "WATCH":
+        return "Watch"
+    if view.stale_evidence and not view.followups:
+        return "Dormant"
+    if view.linked_entities and not view.project_entities and not view.decision_entities and not view.followups:
+        return "Review Required"
+    if view.latest_evidence_date is not None and (view.latest_evidence_date.year >= 2026) and view.objective.linked_entities <= 1:
+        return "New"
+    if view.project_entities or view.decision_entities or view.followups:
+        return "Active"
+    if view.objective.status == "SUPPORTED":
+        return "Active"
+    return "Review Required"
+
+
+def _derive_objective_confidence(view: ObjectiveView) -> str:
+    if view.objective.status == "AT RISK":
+        return "HIGH"
+    signal_count = len(view.project_entities) + len(view.decision_entities) + len(view.followups)
+    if signal_count >= 2 and not view.stale_evidence:
+        return "HIGH"
+    if signal_count >= 1 or view.objective.linked_entities >= 3:
+        return "MEDIUM"
+    return "LOW"
+
+
+def _recommended_next_action(view: ObjectiveView, lifecycle_status: str) -> str:
+    if lifecycle_status == "At Risk":
+        return view.objective.recommendation
+    if lifecycle_status == "Watch":
+        return "Review whether the objective still has an active owner, project plan, and near-term checkpoint."
+    if lifecycle_status == "Dormant":
+        return "Refresh the latest evidence and decide whether to reactivate or archive the objective."
+    if lifecycle_status == "Review Required":
+        return "Validate whether the objective should be linked to projects, decisions, or follow-ups before promotion."
+    if lifecycle_status == "Completed":
+        return "Confirm the completion criteria and archive the objective once evidence is captured."
+    if lifecycle_status == "Archived Candidate":
+        return "Confirm the objective is no longer active and move it to archived governance records."
+    if lifecycle_status == "New":
+        return "Assign the first supporting project, owner, and decision checkpoints."
+    return "Maintain current objective support and keep evidence current."
 
 
 def _all_followups(state: ExecutiveState) -> tuple[FollowupItem, ...]:
@@ -334,6 +414,27 @@ def _normalise(value: str) -> str:
 
 def _render_items(values: Iterable[ObjectiveLineItem]) -> list[str]:
     rendered = [f"- {value.title}: {value.detail}" for value in values]
+    return rendered or ["_None found._"]
+
+
+def _render_strategic_objectives(values: Iterable[StrategicObjectiveRecord]) -> list[str]:
+    rendered = []
+    for value in values:
+        projects = ", ".join(value.supporting_projects) if value.supporting_projects else "None"
+        decisions = ", ".join(value.linked_decisions) if value.linked_decisions else "None"
+        stale_flag = "YES" if value.stale_evidence else "NO"
+        rendered.extend(
+            [
+                f"### {value.title}",
+                f"- Status: {value.status}",
+                f"- Confidence: {value.confidence}",
+                f"- Supporting Projects: {projects}",
+                f"- Linked Decisions: {decisions}",
+                f"- Stale Evidence: {stale_flag}",
+                f"- Recommended Next Action: {value.recommended_next_action}",
+                "",
+            ]
+        )
     return rendered or ["_None found._"]
 
 
