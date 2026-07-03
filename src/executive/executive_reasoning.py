@@ -6,16 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from executive.engine import execute
 from executive.report import render as render_executive_review
-from src.executive.executive_intelligence import (
-    DEFAULT_MEETING_SUBJECT,
-    ExecutiveIntelligence,
-    build_executive_intelligence,
-)
-from src.followups.followup_intelligence import build_followup_intelligence
-from src.meeting.meeting_intelligence import build_meeting_brief
-from src.openloops.open_loop_intelligence import build_open_loop_intelligence
+from src.executive.executive_intelligence import ExecutiveIntelligence, build_executive_intelligence_from_state
+from src.executive.knowledge_engine import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
 
 SECTION_HEADINGS = [
     "Executive Assessment",
@@ -57,12 +50,17 @@ def build_executive_reasoning(
     *,
     meeting_subject: str = DEFAULT_MEETING_SUBJECT,
 ) -> ExecutiveReasoning:
-    engine_result = execute(evidence_root)
+    state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
+    return build_executive_reasoning_from_state(state)
+
+
+def build_executive_reasoning_from_state(state: ExecutiveState) -> ExecutiveReasoning:
+    engine_result = state.engine_result
     executive_review = render_executive_review(engine_result)
-    intelligence = build_executive_intelligence(evidence_root, meeting_subject=meeting_subject)
-    meeting = build_meeting_brief(meeting_subject)
-    followups = build_followup_intelligence()
-    open_loops = build_open_loop_intelligence()
+    intelligence = build_executive_intelligence_from_state(state)
+    meeting = state.meetings[0]
+    followups = state.followups
+    open_loops = state.open_loops
 
     themes = _build_key_themes(intelligence, followups, open_loops)
     actions = _build_actions(intelligence, meeting, followups, open_loops)

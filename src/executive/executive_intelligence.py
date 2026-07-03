@@ -6,12 +6,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from executive.engine import execute
-from src.followups.followup_intelligence import FollowupItem, build_followup_intelligence
-from src.meeting.meeting_intelligence import MeetingBrief, build_meeting_brief
-from src.openloops.open_loop_intelligence import OpenLoopItem, build_open_loop_intelligence
-
-DEFAULT_MEETING_SUBJECT = "Barclays"
+from src.executive.knowledge_engine import (
+    DEFAULT_MEETING_SUBJECT,
+    ExecutiveState,
+    build_executive_state,
+)
+from src.followups.followup_intelligence import FollowupItem
+from src.openloops.open_loop_intelligence import OpenLoopItem
 
 SECTION_HEADINGS = [
     "Executive Health",
@@ -56,29 +57,28 @@ def build_executive_intelligence(
     *,
     meeting_subject: str = DEFAULT_MEETING_SUBJECT,
 ) -> ExecutiveIntelligence:
-    result = execute(evidence_root)
-    vault = result["knowledge"]["vault"]
+    state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
+    return build_executive_intelligence_from_state(state)
 
-    meeting = build_meeting_brief(meeting_subject)
-    followups = build_followup_intelligence()
-    open_loops = build_open_loop_intelligence()
 
-    health = _build_health_lines(result, vault, meeting_subject)
-    top_priorities = _build_top_priorities(vault)
-    objectives = _build_objectives(vault)
-    meetings = _build_meetings(meeting)
-    projects = _build_projects(vault)
+def build_executive_intelligence_from_state(state: ExecutiveState) -> ExecutiveIntelligence:
+    meeting = state.meetings[0]
+    followups = state.followups
+    open_loops = state.open_loops
+
+    health = _build_health_lines(state, meeting.subject)
+    top_priorities = _build_top_priorities(state)
+    objectives = _build_objectives(state)
+    meetings = _build_meetings(state)
+    projects = _build_projects(state)
     followup_items = _build_followups(followups)
     open_loop_items = _build_open_loops(open_loops)
-    people = _build_people(vault)
-    supplier_risks = _build_supplier_risks(vault)
-    decisions = _build_decisions(vault, open_loops)
-    actions = _build_actions(vault, meeting, followups, open_loops)
+    people = _build_people(state)
+    supplier_risks = _build_supplier_risks(state)
+    decisions = _build_decisions(state)
+    actions = _build_actions(state)
     summary = _build_summary(
-        result=result,
-        meeting=meeting,
-        followups=followups,
-        open_loops=open_loops,
+        state=state,
         top_priorities=top_priorities,
         projects=projects,
         supplier_risks=supplier_risks,
@@ -145,36 +145,37 @@ def _render_items(values: Iterable[ExecutiveLineItem]) -> list[str]:
     return items or ["_None found._"]
 
 
-def _build_health_lines(result: dict, vault: dict, meeting_subject: str) -> list[str]:
-    health = result["health"]
-    projects = vault["projects"]
-    objectives = vault["objectives"]
+def _build_health_lines(state: ExecutiveState, meeting_subject: str) -> list[str]:
+    health = state.executive_health
+    projects = state.vault["projects"]
+    objectives = state.vault["objectives"]
     return [
         f"Platform health is {health['status']} with score {health['score']} / 100 and {health['failed']} failed services.",
-        f"Knowledge graph covers {vault['graph']['entity_count']} entities and {vault['graph']['edge_count']} edges.",
+        f"Knowledge graph covers {state.vault['graph']['entity_count']} entities and {state.vault['graph']['edge_count']} edges.",
         f"Projects at risk: {projects.get('at_risk', 0)}; objectives at risk: {objectives.get('at_risk', 0)}.",
         f"Meeting intelligence is currently anchored on {meeting_subject}.",
     ]
 
 
-def _build_top_priorities(vault: dict) -> list[ExecutiveLineItem]:
+def _build_top_priorities(state: ExecutiveState) -> list[ExecutiveLineItem]:
     items = []
-    for priority in vault["priorities"].get("top_priorities", [])[:10]:
+    for priority in state.priorities[:10]:
         detail = f"{priority['priority']} score {priority['priority_score']}. {priority['recommended_actions'][0]}"
         items.append(ExecutiveLineItem(priority["title"], detail))
     return items
 
 
-def _build_objectives(vault: dict) -> list[ExecutiveLineItem]:
+def _build_objectives(state: ExecutiveState) -> list[ExecutiveLineItem]:
     items = []
-    for objective in vault["objectives"].get("insights", []):
+    for objective in state.objectives:
         if objective.status not in {"AT RISK", "WATCH"}:
             continue
         items.append(ExecutiveLineItem(objective.title, f"{objective.status}. {objective.recommendation}"))
     return items[:10]
 
 
-def _build_meetings(meeting: MeetingBrief) -> list[ExecutiveLineItem]:
+def _build_meetings(state: ExecutiveState) -> list[ExecutiveLineItem]:
+    meeting = state.meetings[0]
     items = [
         ExecutiveLineItem(
             meeting.subject,
@@ -186,9 +187,9 @@ def _build_meetings(meeting: MeetingBrief) -> list[ExecutiveLineItem]:
     return items[:10]
 
 
-def _build_projects(vault: dict) -> list[ExecutiveLineItem]:
+def _build_projects(state: ExecutiveState) -> list[ExecutiveLineItem]:
     items = []
-    for project in vault["projects"].get("insights", []):
+    for project in state.projects:
         if project.status not in {"AT RISK", "WATCH"}:
             continue
         items.append(ExecutiveLineItem(project.title, f"{project.status}. {project.recommendation}"))
@@ -245,29 +246,25 @@ def _merge_open_loop_lists(*groups: list[OpenLoopItem]) -> list[OpenLoopItem]:
     return merged
 
 
-def _build_people(vault: dict) -> list[ExecutiveLineItem]:
+def _build_people(state: ExecutiveState) -> list[ExecutiveLineItem]:
     items = []
-    for person in vault["people"].get("insights", [])[:10]:
+    for person in state.people[:10]:
         items.append(ExecutiveLineItem(person.title, f"{person.risk} influence {person.influence}; companies {person.companies}; projects {person.projects}."))
     return items
 
 
-def _build_supplier_risks(vault: dict) -> list[ExecutiveLineItem]:
+def _build_supplier_risks(state: ExecutiveState) -> list[ExecutiveLineItem]:
     items = []
-    for company in vault["companies"].get("insights", []):
-        if company.status not in {"CRITICAL", "IMPORTANT"}:
-            continue
-        if not company.path.startswith("04 Companies/"):
-            continue
+    for company in state.suppliers:
         items.append(ExecutiveLineItem(company.title, f"{company.status}; links {company.links}; projects {company.projects}; people {company.people}."))
     return items[:10]
 
 
-def _build_decisions(vault: dict, open_loops) -> list[ExecutiveLineItem]:
+def _build_decisions(state: ExecutiveState) -> list[ExecutiveLineItem]:
     items = []
-    for item in open_loops.missing_decisions[:5]:
+    for item in state.open_loops.missing_decisions[:5]:
         items.append(ExecutiveLineItem(item.title, f"{item.summary} Owner: {item.owner}."))
-    for decision in vault["decisions"].get("top_decisions", [])[:5]:
+    for decision in state.vault["decisions"].get("top_decisions", [])[:5]:
         items.append(
             ExecutiveLineItem(
                 decision["title"],
@@ -285,36 +282,22 @@ def _build_decisions(vault: dict, open_loops) -> list[ExecutiveLineItem]:
     return deduped[:10]
 
 
-def _build_actions(vault: dict, meeting: MeetingBrief, followups, open_loops) -> list[str]:
-    actions = []
-    for item in vault["do_next"].get("top_10", [])[:3]:
-        actions.append(item["action"])
-    actions.extend(meeting.recommended_discussion[:2])
-    actions.extend(followups.recommendations[:2])
-    actions.extend(open_loops.recommended_actions[:2])
-
-    deduped = []
-    seen = set()
-    for action in actions:
-        if action in seen:
-            continue
-        seen.add(action)
-        deduped.append(action)
-    return deduped[:10]
+def _build_actions(state: ExecutiveState) -> list[str]:
+    return state.recommendations[:10]
 
 
 def _build_summary(
     *,
-    result: dict,
-    meeting: MeetingBrief,
-    followups,
-    open_loops,
+    state: ExecutiveState,
     top_priorities: list[ExecutiveLineItem],
     projects: list[ExecutiveLineItem],
     supplier_risks: list[ExecutiveLineItem],
     decisions: list[ExecutiveLineItem],
 ) -> list[str]:
-    health = result["health"]
+    health = state.executive_health
+    meeting = state.meetings[0]
+    followups = state.followups
+    open_loops = state.open_loops
     return [
         f"Overall posture is {health['status']} with {health['failed']} failed services and score {health['score']} / 100.",
         f"Top executive pressure points: {len(top_priorities)} priorities, {len(projects)} projects at risk, and {len(open_loops.critical_open_loops)} critical open loops.",

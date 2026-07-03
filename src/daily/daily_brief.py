@@ -6,13 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from src.executive.executive_intelligence import build_executive_intelligence
-from src.executive.executive_reasoning import build_executive_reasoning
-from src.followups.followup_intelligence import build_followup_intelligence
-from src.meeting.meeting_intelligence import build_meeting_brief
-from src.openloops.open_loop_intelligence import build_open_loop_intelligence
-
-DEFAULT_MEETING_SUBJECT = "Barclays"
+from src.executive.executive_reasoning import build_executive_reasoning_from_state
+from src.executive.knowledge_engine import DEFAULT_MEETING_SUBJECT, build_executive_state
 
 SECTION_HEADINGS = [
     "Executive Health",
@@ -48,11 +43,11 @@ def build_daily_brief(
     *,
     meeting_subject: str = DEFAULT_MEETING_SUBJECT,
 ) -> DailyBrief:
-    reasoning = build_executive_reasoning(evidence_root, meeting_subject=meeting_subject)
-    intelligence = build_executive_intelligence(evidence_root, meeting_subject=meeting_subject)
-    meeting = build_meeting_brief(meeting_subject)
-    followups = build_followup_intelligence()
-    open_loops = build_open_loop_intelligence()
+    state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
+    reasoning = build_executive_reasoning_from_state(state)
+    meeting = state.meetings[0]
+    followups = state.followups
+    open_loops = state.open_loops
 
     executive_health = [
         f"Overall health: {reasoning.overall_health}.",

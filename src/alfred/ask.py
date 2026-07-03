@@ -5,13 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.executive.executive_intelligence import build_executive_intelligence
-from src.executive.executive_reasoning import ExecutiveAction, build_executive_reasoning
-from src.followups.followup_intelligence import build_followup_intelligence
-from src.meeting.meeting_intelligence import build_meeting_brief
-from src.openloops.open_loop_intelligence import build_open_loop_intelligence
-
-DEFAULT_MEETING_SUBJECT = "Barclays"
+from src.executive.executive_intelligence import build_executive_intelligence_from_state
+from src.executive.executive_reasoning import build_executive_reasoning_from_state
+from src.executive.knowledge_engine import DEFAULT_MEETING_SUBJECT, build_executive_state
 
 
 @dataclass(frozen=True)
@@ -33,11 +29,12 @@ def ask_alfred(
     if not cleaned_question:
         raise ValueError("Question is required.")
 
-    reasoning = build_executive_reasoning(evidence_root, meeting_subject=meeting_subject)
-    intelligence = build_executive_intelligence(evidence_root, meeting_subject=meeting_subject)
-    meeting = build_meeting_brief(meeting_subject)
-    followups = build_followup_intelligence()
-    open_loops = build_open_loop_intelligence()
+    state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
+    reasoning = build_executive_reasoning_from_state(state)
+    intelligence = build_executive_intelligence_from_state(state)
+    meeting = state.meetings[0]
+    followups = state.followups
+    open_loops = state.open_loops
 
     focus = _detect_focus(cleaned_question)
     answer = _build_answer(cleaned_question, focus, reasoning, intelligence, meeting, followups, open_loops)
