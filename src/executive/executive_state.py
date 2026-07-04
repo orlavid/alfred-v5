@@ -13,6 +13,7 @@ from src.knowledge.executive_knowledge_builder import ExecutiveKnowledgeModel, b
 from src.knowledge.knowledge_graph import KnowledgeGraphModel, build_knowledge_graph_from_model
 from src.meeting.meeting_intelligence import MeetingBrief, build_meeting_brief
 from src.openloops.open_loop_intelligence import OpenLoopIntelligence, build_open_loop_intelligence
+from src.planning.executive_planner import ExecutivePlan, build_executive_plans_from_state
 
 DEFAULT_MEETING_SUBJECT = "Barclays"
 
@@ -33,6 +34,7 @@ class ExecutiveState:
     executive_health: dict[str, Any] = field(default_factory=dict)
     objective_health: dict[str, Any] = field(default_factory=dict)
     project_health: dict[str, Any] = field(default_factory=dict)
+    executive_plans: tuple[ExecutivePlan, ...] = ()
     recommendations: tuple[str, ...] = ()
     relationship_graph: KnowledgeGraphModel | None = None
     confidence: str = "LOW"
@@ -84,6 +86,34 @@ def build_executive_state(
 
     objective_health = _build_objective_health(objectives, vault)
     project_health = _build_project_health(projects, vault)
+    draft_state = ExecutiveState(
+        board=board,
+        objectives=objectives,
+        projects=projects,
+        companies=companies,
+        people=people,
+        meetings=(meeting,),
+        decisions=decisions,
+        risks=risks,
+        policies=policies,
+        followups=followups,
+        open_loops=open_loops,
+        executive_health=engine_result["health"],
+        objective_health=objective_health,
+        project_health=project_health,
+        recommendations=(),
+        relationship_graph=relationship_graph,
+        confidence="LOW",
+        summary=(),
+        priorities=priorities,
+        suppliers=suppliers,
+        engine_result=engine_result,
+        vault=vault,
+        entities=entities,
+        neighbours=neighbours,
+        knowledge_model=knowledge_model,
+    )
+    executive_plans = build_executive_plans_from_state(draft_state).plans
     recommendations = _dedupe(
         priorities[:3],
         [meeting.recommended_discussion[0]] if meeting.recommended_discussion else [],
@@ -123,6 +153,7 @@ def build_executive_state(
         executive_health=engine_result["health"],
         objective_health=objective_health,
         project_health=project_health,
+        executive_plans=executive_plans,
         recommendations=recommendations,
         relationship_graph=relationship_graph,
         confidence=confidence,
@@ -170,6 +201,7 @@ def render_executive_state_summary(state: ExecutiveState) -> str:
         f"Executive health: {state.executive_health.get('status', 'UNKNOWN')} ({state.executive_health.get('score', 0)} / 100).",
         f"Objective health: supported {state.objective_health.get('supported', 0)}, at risk {state.objective_health.get('at_risk', 0)}, watch {state.objective_health.get('watch', 0)}.",
         f"Project health: supported {state.project_health.get('supported', 0)}, at risk {state.project_health.get('at_risk', 0)}, watch {state.project_health.get('watch', 0)}.",
+        f"Draft executive plans: {len(state.executive_plans)}.",
     ]))
     parts.extend(["", "## Graph Detail", ""])
     parts.extend(_render_bullets([

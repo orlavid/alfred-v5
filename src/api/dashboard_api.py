@@ -218,6 +218,10 @@ def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
                 "objective_linkage": linked_titles,
                 "risk": getattr(project, "risk", "Unknown"),
                 "recommendation": project.recommendation,
+                "plan_status": next(
+                    (plan.status for plan in state.executive_plans if plan.project_title == project.title),
+                    "No Plan",
+                ),
             }
         )
     return {
