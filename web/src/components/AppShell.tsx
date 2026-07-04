@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { PropsWithChildren, useLayoutEffect, useRef, useState } from "react";
+import { KeyboardEvent, PropsWithChildren, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CONTROL_SECTIONS, findNavigationEntry } from "@/navigation";
 
@@ -10,6 +10,7 @@ type AppShellProps = PropsWithChildren<{
 
 const FLYOUT_SAFE_MARGIN = 16;
 const DEFAULT_FLYOUT_HEIGHT = 280;
+const RAIL_TOP_OFFSET = 88;
 
 export function getViewportSafeFlyoutTop(
   anchorCenterY: number,
@@ -24,7 +25,7 @@ export function getViewportSafeFlyoutTop(
 
 export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [flyoutPosition, setFlyoutPosition] = useState({ left: 88, top: FLYOUT_SAFE_MARGIN });
+  const [flyoutPosition, setFlyoutPosition] = useState({ left: 96, top: FLYOUT_SAFE_MARGIN });
   const navigate = useNavigate();
   const location = useLocation();
   const activeEntry = findNavigationEntry(location.pathname);
@@ -34,6 +35,16 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
 
   function submitAsk() {
     navigate("/ask-alfred");
+  }
+
+  function closeFlyout() {
+    setActiveSection(null);
+  }
+
+  function handleShellKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      closeFlyout();
+    }
   }
 
   useLayoutEffect(() => {
@@ -50,59 +61,86 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
       const anchorRect = anchor.getBoundingClientRect();
       const flyoutHeight = flyoutRef.current?.offsetHeight ?? DEFAULT_FLYOUT_HEIGHT;
       setFlyoutPosition({
-        left: anchorRect.right + 12,
+        left: anchorRect.right + 14,
         top: getViewportSafeFlyoutTop(anchorRect.top + anchorRect.height / 2, flyoutHeight, window.innerHeight),
       });
     };
 
     updatePosition();
     window.addEventListener("resize", updatePosition);
-    return () => window.removeEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, { passive: true });
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition);
+    };
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (!activeSection) {
+      return;
+    }
+
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeFlyout();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
   }, [activeSection]);
 
   const visibleSection = activeSection ? CONTROL_SECTIONS.find((section) => section.title === activeSection) : null;
 
   return (
-    <div className="min-h-screen bg-canvas text-ink">
+    <div className="min-h-screen bg-canvas text-ink" onKeyDown={handleShellKeyDown}>
       <div className="mx-auto min-h-screen max-w-[1600px] px-4 py-4 md:px-6">
-        <aside
-          onMouseLeave={() => setActiveSection(null)}
-          className="relative rounded-[1.5rem] border border-white/60 bg-ink px-1.5 py-2 text-white shadow-panel md:fixed md:left-6 md:top-1/2 md:w-[3.5rem] md:-translate-y-1/2 md:px-1.5 md:py-2"
+        <div
+          className="hidden md:block"
+          onMouseLeave={closeFlyout}
         >
-          <div className="flex w-8 flex-col items-center gap-1">
-            {CONTROL_SECTIONS.map((section) => (
-              <div key={section.title} className="relative flex items-center">
-                <NavLink
-                  to={section.items[0].path}
-                  onMouseEnter={() => setActiveSection(section.title)}
-                  onFocus={() => setActiveSection(section.title)}
-                  ref={(element) => {
-                    buttonRefs.current[section.title] = element;
-                  }}
-                  aria-label={`Open ${section.title}`}
-                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-semibold shadow-sm transition hover:scale-105 ${
-                    section.color
-                  } ${highlightedSection === section.title ? "ring-2 ring-white ring-offset-2 ring-offset-ink" : ""}`}
-                  title={section.title}
-                >
-                  {section.rail}
-                </NavLink>
-              </div>
-            ))}
-          </div>
+          <aside
+            aria-label="CONTROL navigation"
+            className="fixed left-6 top-[88px] z-30 rounded-[1.5rem] border border-white/70 bg-ink/96 px-2 py-2 text-white shadow-panel backdrop-blur"
+            style={{ top: `${RAIL_TOP_OFFSET}px` }}
+          >
+            <nav className="flex flex-col items-center gap-1.5" aria-label="CONTROL rail">
+              {CONTROL_SECTIONS.map((section) => (
+                <div key={section.title} className="relative flex items-center">
+                  <NavLink
+                    to={section.items[0].path}
+                    onMouseEnter={() => setActiveSection(section.title)}
+                    onFocus={() => setActiveSection(section.title)}
+                    ref={(element) => {
+                      buttonRefs.current[section.title] = element;
+                    }}
+                    aria-label={`Open ${section.title}`}
+                    aria-expanded={activeSection === section.title}
+                    className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-semibold shadow-sm transition duration-150 hover:-translate-y-0.5 ${
+                      section.color
+                    } ${highlightedSection === section.title ? "ring-2 ring-white ring-offset-2 ring-offset-ink" : ""}`}
+                    title={section.title}
+                  >
+                    {section.rail}
+                  </NavLink>
+                </div>
+              ))}
+            </nav>
+          </aside>
           {visibleSection ? (
             <div
               ref={flyoutRef}
-              className="absolute left-full top-0 z-30 ml-3 hidden w-56 rounded-[1.5rem] border border-white/60 bg-ink/95 p-3.5 text-white shadow-panel backdrop-blur md:block"
-              style={{ left: `${flyoutPosition.left}px`, top: `${flyoutPosition.top}px`, position: "fixed" }}
+              className="fixed z-40 hidden w-60 rounded-[1.5rem] border border-ink/15 bg-white/96 p-3.5 text-ink shadow-panel backdrop-blur md:block"
+              style={{ left: `${flyoutPosition.left}px`, top: `${flyoutPosition.top}px` }}
+              onMouseEnter={() => setActiveSection(visibleSection.title)}
             >
-              <div className="mb-3 flex items-center gap-2.5">
-                <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-semibold ${visibleSection.color}`}>
+              <div className="mb-3 flex items-center gap-2.5 border-b border-ink/10 pb-3">
+                <span className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-semibold ${visibleSection.color}`}>
                   {visibleSection.rail}
                 </span>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-white/60">CONTROL</p>
-                  <NavLink to={visibleSection.items[0].path} className="font-serif text-lg leading-none text-white">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-ink/45">CONTROL</p>
+                  <NavLink to={visibleSection.items[0].path} className="font-serif text-lg leading-none text-ink">
                     {visibleSection.title}
                   </NavLink>
                 </div>
@@ -115,7 +153,7 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
                     end={item.path === "/"}
                     className={({ isActive }) =>
                       `block rounded-xl px-3 py-2 text-sm font-medium transition ${
-                        isActive ? "bg-white text-ink" : "text-white/75 hover:bg-white/10 hover:text-white"
+                        isActive ? "bg-ink text-white" : "text-ink/75 hover:bg-ink/5 hover:text-ink"
                       }`
                     }
                   >
@@ -125,8 +163,8 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
               </nav>
             </div>
           ) : null}
-        </aside>
-        <main className="pb-32 md:pl-[6.25rem]">
+        </div>
+        <main className="pb-32 md:pl-[6.75rem]">
           <Breadcrumbs />
           {children}
         </main>
