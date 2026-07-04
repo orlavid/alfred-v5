@@ -8,10 +8,11 @@ import os
 import shutil
 import sys
 
-from src.obsidian.live_vault import detect_configured_vault_path
+from src.knowledge.executive_knowledge_builder import DEFAULT_VAULT_ROOT
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output"
+VAULT_ENV_VAR = "ALFRED_OBSIDIAN_VAULT"
 
 
 @dataclass(frozen=True)
@@ -68,7 +69,7 @@ def build_configuration_registry(
 ) -> ConfigurationRegistry:
     effective_root = root or ROOT
     effective_output_dir = output_dir or (effective_root / "output")
-    configured_vault_path = vault_path or detect_configured_vault_path()
+    configured_vault_path = vault_path or _detect_configured_vault_path()
     return ConfigurationRegistry(
         root_dir=str(effective_root),
         output_dir=str(effective_output_dir),
@@ -147,3 +148,10 @@ def _expected_outputs() -> tuple[str, ...]:
         "Executive_Pipeline_Report.md",
         "Live_Vault_Status.md",
     )
+
+
+def _detect_configured_vault_path() -> Path:
+    override = os.environ.get(VAULT_ENV_VAR)
+    if override:
+        return Path(override).expanduser()
+    return DEFAULT_VAULT_ROOT
