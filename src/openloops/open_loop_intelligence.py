@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 import re
 from typing import Iterable
@@ -103,7 +103,7 @@ def build_open_loop_intelligence(vault_root: Path | None = None) -> OpenLoopInte
     executive_summary = _build_summary(items, critical_open_loops, waiting_for, stalled_projects, missing_decisions, missing_owners)
 
     return OpenLoopIntelligence(
-        generated_at=datetime.utcnow().isoformat() + "Z",
+        generated_at=datetime.now(UTC).isoformat(),
         open_loop_count=len(items),
         critical_open_loops=critical_open_loops,
         waiting_for=waiting_for,

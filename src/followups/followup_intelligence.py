@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 import re
 from typing import Iterable
@@ -115,7 +115,7 @@ def build_followup_intelligence(vault_root: Path | None = None, today: date | No
     executive_summary = _build_executive_summary(items, overdue, due_today, due_this_week, waiting_on_others, high_priority)
 
     return FollowupIntelligence(
-        generated_at=datetime.utcnow().isoformat() + "Z",
+        generated_at=datetime.now(UTC).isoformat(),
         followup_count=len(items),
         overdue=overdue,
         due_today=due_today,
