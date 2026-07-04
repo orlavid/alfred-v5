@@ -30,11 +30,13 @@ from src.knowledge.knowledge_graph import (
     render_knowledge_graph,
     render_knowledge_graph_json,
 )
+from src.obsidian.live_vault import detect_live_vault_status, render_live_vault_status
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output"
 PUBLIC_API = ROOT / "web" / "public" / "api"
 PIPELINE_REPORT = OUT / "Executive_Pipeline_Report.md"
+LIVE_VAULT_STATUS_REPORT = OUT / "Live_Vault_Status.md"
 
 
 @dataclass(frozen=True)
@@ -54,6 +56,7 @@ class ExecutivePipelineReport:
     summary: tuple[str, ...]
     source_mode: str
     source_root: str
+    artifacts_summary: dict[str, object]
 
 
 @dataclass(frozen=True)
@@ -72,6 +75,7 @@ def build_executive_pipeline(
     evidence_root: Path | None = None,
     *,
     vault_root: Path | None = None,
+    require_live_vault: bool = False,
 ) -> ExecutivePipelineReport:
     OUT.mkdir(exist_ok=True)
     PUBLIC_API.mkdir(parents=True, exist_ok=True)
@@ -81,6 +85,7 @@ def build_executive_pipeline(
     context: dict[str, Any] = {
       "evidence_root": effective_evidence_root,
       "vault_root": effective_vault_root,
+      "require_live_vault": require_live_vault,
       "warnings": [],
       "artifacts": {},
     }
@@ -118,12 +123,14 @@ def build_executive_pipeline(
     overall_health = _derive_overall_health(results)
     scan_context: _ScanContext | None = context["artifacts"].get("scan")
     summary = _build_summary(results, overall_health, scan_context)
+    artifacts_summary = _build_artifacts_summary(context)
     return ExecutivePipelineReport(
         stages=tuple(results),
         overall_health=overall_health,
         summary=summary,
         source_mode=scan_context.source_mode if scan_context else "unknown",
         source_root=str(scan_context.source_root if scan_context else effective_evidence_root),
+        artifacts_summary=artifacts_summary,
     )
 
 
@@ -182,7 +189,10 @@ def _execute_stage(
 def _run_vault_scan(context: dict[str, Any]) -> tuple[int, list[str]]:
     vault_root: Path = context["vault_root"]
     evidence_root: Path = context["evidence_root"]
+    require_live_vault: bool = context["require_live_vault"]
     warnings: list[str] = []
+    vault_status = detect_live_vault_status(vault_root)
+    LIVE_VAULT_STATUS_REPORT.write_text(render_live_vault_status(vault_status))
 
     if vault_root.exists() and any(vault_root.rglob("*.md")):
         notes = tuple(load_vault(vault_root))
@@ -195,6 +205,10 @@ def _run_vault_scan(context: dict[str, Any]) -> tuple[int, list[str]]:
             warnings=(),
         )
     else:
+        if require_live_vault:
+            raise RuntimeError(
+                f"Live vault certification requires a readable markdown vault at {vault_root}."
+            )
         notes = tuple(_load_evidence_notes(evidence_root))
         entities = tuple(_build_entities_from_notes(list(notes)))
         warnings.append(f"Live vault unavailable. Fell back to evidence inventory at {evidence_root}.")
@@ -240,7 +254,11 @@ def _run_knowledge_graph(context: dict[str, Any]) -> tuple[int, list[str]]:
 
 
 def _run_executive_state_stage(context: dict[str, Any]) -> tuple[int, list[str]]:
-    state = build_executive_state(context["evidence_root"])
+    scan: _ScanContext = context["artifacts"]["scan"]
+    state = build_executive_state(
+        context["evidence_root"],
+        vault_root=scan.source_root if scan.source_mode == "live_vault" else None,
+    )
     context["artifacts"]["executive_state"] = state
     (OUT / "ExecutiveState_Summary.md").write_text(render_executive_state_summary(state))
     count = (
@@ -272,7 +290,11 @@ def _run_daily_brief(context: dict[str, Any]) -> tuple[int, list[str]]:
 
 
 def _run_dashboard_api_refresh(context: dict[str, Any]) -> tuple[int, list[str]]:
-    payload = get_dashboard_home(context["evidence_root"])
+    scan: _ScanContext = context["artifacts"]["scan"]
+    payload = get_dashboard_home(
+        context["evidence_root"],
+        vault_root=scan.source_root if scan.source_mode == "live_vault" else None,
+    )
     context["artifacts"]["dashboard_api"] = payload
     output = OUT / "Dashboard_Home.json"
     public_output = PUBLIC_API / "dashboard-home.json"
@@ -315,3 +337,36 @@ def _build_summary(
         f"Stages skipped: {skipped}.",
         f"Overall pipeline health: {overall_health}.",
     )
+
+
+def _build_artifacts_summary(context: dict[str, Any]) -> dict[str, object]:
+    scan: _ScanContext | None = context["artifacts"].get("scan")
+    knowledge_model: ExecutiveKnowledgeModel | None = context["artifacts"].get("knowledge_model")
+    knowledge_graph = context["artifacts"].get("knowledge_graph")
+    state = context["artifacts"].get("executive_state")
+    dashboard_payload = context["artifacts"].get("dashboard_api")
+    daily_brief = context["artifacts"].get("daily_brief")
+
+    inventory = knowledge_model.entity_inventory if knowledge_model is not None else {}
+    graph_stats = knowledge_graph.statistics if knowledge_graph is not None else {}
+
+    return {
+        "vault_path": str(scan.source_root) if scan else "",
+        "markdown_files_processed": len(scan.notes) if scan else 0,
+        "objectives_discovered": inventory.get("objective", 0),
+        "projects_discovered": inventory.get("project", 0),
+        "people_discovered": inventory.get("person", 0),
+        "companies_discovered": inventory.get("company", 0),
+        "meetings_discovered": inventory.get("meeting", 0),
+        "daily_logs_discovered": inventory.get("daily_log", 0),
+        "decisions_discovered": inventory.get("decision", 0),
+        "risks_discovered": inventory.get("risk", 0),
+        "executive_briefings_discovered": inventory.get("executive_briefing", 0),
+        "open_loops_discovered": state.open_loops.open_loop_count if state and state.open_loops else 0,
+        "followups_discovered": state.followups.followup_count if state and state.followups else 0,
+        "knowledge_graph_node_count": graph_stats.get("node_count", 0),
+        "knowledge_graph_edge_count": graph_stats.get("edge_count", 0),
+        "executive_state_generated": state is not None,
+        "daily_brief_generated": daily_brief is not None,
+        "dashboard_api_generated": dashboard_payload is not None,
+    }

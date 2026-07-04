@@ -50,15 +50,16 @@ def build_executive_state(
     evidence_root: Path,
     *,
     meeting_subject: str = DEFAULT_MEETING_SUBJECT,
+    vault_root: Path | None = None,
 ) -> ExecutiveState:
-    engine_result = execute(evidence_root)
+    engine_result = execute(evidence_root, vault_root=vault_root)
     vault = engine_result["knowledge"]["vault"]
-    knowledge_model = build_executive_knowledge(evidence_root)
+    knowledge_model = build_executive_knowledge(evidence_root, vault_root=vault_root)
     relationship_graph = build_knowledge_graph_from_model(knowledge_model)
     board = build_board_governance()
-    meeting = build_meeting_brief(meeting_subject)
-    followups = build_followup_intelligence()
-    open_loops = build_open_loop_intelligence()
+    meeting = build_meeting_brief(meeting_subject, vault_root=vault_root)
+    followups = build_followup_intelligence(vault_root=vault_root)
+    open_loops = build_open_loop_intelligence(vault_root=vault_root)
 
     objectives = tuple(sorted(vault.get("objectives", {}).get("insights", []), key=_title_key))
     projects = tuple(sorted(vault.get("projects", {}).get("insights", []), key=_title_key))

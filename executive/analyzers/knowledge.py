@@ -32,8 +32,9 @@ from executive.knowledge.findings import Finding
 VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
 
 
-def analyze(evidence_root):
-    entities = extract_entities(VAULT_ROOT)
+def analyze(evidence_root, vault_root=None):
+    effective_vault_root = vault_root or VAULT_ROOT
+    entities = extract_entities(effective_vault_root)
     resolution_model = build_entity_resolution(entities)
     resolution_index = resolution_model.index
     graph = build_graph(entities, resolution_index)

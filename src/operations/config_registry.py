@@ -8,12 +8,10 @@ import os
 import shutil
 import sys
 
-from src.knowledge.executive_knowledge_builder import DEFAULT_VAULT_ROOT
+from src.obsidian.live_vault import LEGACY_VAULT_ENV_VAR, LIVE_VAULT_ENV_VAR, resolve_live_vault_path
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output"
-VAULT_ENV_VAR = "ALFRED_OBSIDIAN_VAULT"
-
 
 @dataclass(frozen=True)
 class OptionalService:
@@ -42,6 +40,7 @@ class ConfigurationRegistry:
     package_json_present: bool
     node_modules_present: bool
     configured_vault_path: str
+    live_vault_env_var: str
     expected_outputs: tuple[str, ...]
     optional_services: tuple[OptionalService, ...]
     deployment_profiles: tuple[DeploymentProfile, ...]
@@ -55,6 +54,7 @@ class ConfigurationRegistry:
             "package_json_present": self.package_json_present,
             "node_modules_present": self.node_modules_present,
             "configured_vault_path": self.configured_vault_path,
+            "live_vault_env_var": self.live_vault_env_var,
             "expected_outputs": list(self.expected_outputs),
             "optional_services": [asdict(service) for service in self.optional_services],
             "deployment_profiles": [asdict(profile) for profile in self.deployment_profiles],
@@ -78,6 +78,7 @@ def build_configuration_registry(
         package_json_present=(effective_root / "package.json").exists(),
         node_modules_present=(effective_root / "node_modules").exists(),
         configured_vault_path=str(configured_vault_path),
+        live_vault_env_var=LIVE_VAULT_ENV_VAR,
         expected_outputs=_expected_outputs(),
         optional_services=build_optional_service_registry(),
         deployment_profiles=build_deployment_profiles(),
@@ -166,11 +167,15 @@ def _expected_outputs() -> tuple[str, ...]:
         "Knowledge_Graph.json",
         "Executive_Pipeline_Report.md",
         "Live_Vault_Status.md",
+        "LIVE_KNOWLEDGE_CERTIFICATION.md",
     )
 
 
 def _detect_configured_vault_path() -> Path:
-    override = os.environ.get(VAULT_ENV_VAR)
-    if override:
-        return Path(override).expanduser()
-    return DEFAULT_VAULT_ROOT
+    explicit = os.environ.get(LIVE_VAULT_ENV_VAR)
+    if explicit:
+        return Path(explicit).expanduser()
+    legacy = os.environ.get(LEGACY_VAULT_ENV_VAR)
+    if legacy:
+        return Path(legacy).expanduser()
+    return resolve_live_vault_path()

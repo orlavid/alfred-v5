@@ -20,6 +20,10 @@ def classify(path: Path):
         return "capture"
     if "capture -" in p:
         return "capture"
+    if "briefing" in p or "executive review" in p or "board pack" in p:
+        return "executive_briefing"
+    if "meeting" in p or "minutes" in p or "agenda" in p:
+        return "meeting"
     if "03 projects" in p:
         return "project"
     if "project" in p:
@@ -28,12 +32,16 @@ def classify(path: Path):
         return "person"
     if "compan" in p or "supplier" in p or "04 companies" in p:
         return "company"
+    if "risk" in p or "issue" in p or "escalation" in p:
+        return "risk"
     if "decision intelligence" in p:
         return "report"
     if "04 decisions" in p:
         return "decision"
     if "decision" in p:
         return "decision"
+    if "policy" in p or "framework" in p or "standard" in p:
+        return "policy"
     if "open loop" in p or "open loops" in p:
         return "open_loop"
     if "follow" in p:

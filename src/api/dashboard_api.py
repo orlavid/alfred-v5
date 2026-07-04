@@ -26,8 +26,13 @@ def get_dashboard_home(
     evidence_root: Path | None = None,
     *,
     meeting_subject: str = DEFAULT_MEETING_SUBJECT,
+    vault_root: Path | None = None,
 ) -> dict[str, Any]:
-    state = build_executive_state(evidence_root or DEFAULT_EVIDENCE_ROOT, meeting_subject=meeting_subject)
+    state = build_executive_state(
+        evidence_root or DEFAULT_EVIDENCE_ROOT,
+        meeting_subject=meeting_subject,
+        vault_root=vault_root,
+    )
     reasoning = build_executive_reasoning_from_state(state)
     brief = build_daily_brief_from_state(state, reasoning=reasoning)
 

@@ -55,6 +55,7 @@ def test_build_operational_readiness_reports_freshness_and_services(tmp_path):
         "Knowledge_Graph.json",
         "Executive_Pipeline_Report.md",
         "Live_Vault_Status.md",
+        "LIVE_KNOWLEDGE_CERTIFICATION.md",
     ):
         (output / name).write_text("ok")
 

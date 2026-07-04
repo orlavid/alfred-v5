@@ -15,6 +15,7 @@ def test_build_executive_pipeline_runs_all_stages():
     assert report.overall_health in {"GREEN", "AMBER", "RED"}
     assert any(stage.stage == "ExecutiveState" and stage.status == "PASS" for stage in report.stages)
     assert any(stage.stage == "Daily Brief" and stage.status == "PASS" for stage in report.stages)
+    assert "markdown_files_processed" in report.artifacts_summary
 
 
 def test_pipeline_continues_after_recoverable_entity_resolution_failure(monkeypatch):
@@ -28,6 +29,18 @@ def test_pipeline_continues_after_recoverable_entity_resolution_failure(monkeypa
 
     assert stages["Entity Resolution"].status == "FAIL"
     assert stages["Executive Knowledge Builder"].status == "PASS"
+
+
+def test_pipeline_fails_cleanly_when_live_vault_is_required_and_missing(tmp_path):
+    report = build_executive_pipeline(
+        Path("evidence/alfred-inventory"),
+        vault_root=tmp_path / "missing-vault",
+        require_live_vault=True,
+    )
+    stages = {stage.stage: stage for stage in report.stages}
+
+    assert stages["Vault Scan"].status == "FAIL"
+    assert report.source_mode == "unknown"
 
 
 def test_build_executive_pipeline_generates_report():
