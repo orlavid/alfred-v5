@@ -11,6 +11,7 @@ from src.daily.daily_brief import DailyBrief, build_daily_brief_from_state
 from src.executive.executive_reasoning import ExecutiveReasoning, build_executive_reasoning_from_state
 from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
 from src.objectives.objective_intelligence import build_objective_intelligence_from_state
+from src.planning.executive_planner import build_project_planning_contexts
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EVIDENCE_ROOT = ROOT / "evidence" / "alfred-inventory"
@@ -203,25 +204,26 @@ def _build_objectives_page(state: ExecutiveState) -> dict[str, Any]:
 
 
 def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
-    entity_lookup = {entity.id: entity for entity in state.entities}
+    contexts = {
+        context.project.path: context
+        for context in build_project_planning_contexts(
+            projects=state.projects,
+            entities=state.entities,
+            neighbours=state.neighbours,
+        )
+    }
+    plan_status_by_project = {plan.project_title: plan.status for plan in state.executive_plans}
     items = []
     for project in state.projects:
-        linked_titles = sorted(
-            entity_lookup[entity_id].title
-            for entity_id in state.neighbours.get(project.path, ())
-            if entity_id in entity_lookup and getattr(entity_lookup[entity_id], "type", None) == "objective"
-        )
+        context = contexts.get(project.path)
         items.append(
             {
                 "title": project.title,
                 "status": project.status,
-                "objective_linkage": linked_titles,
+                "objective_linkage": list(context.objective_titles) if context else [],
                 "risk": getattr(project, "risk", "Unknown"),
                 "recommendation": project.recommendation,
-                "plan_status": next(
-                    (plan.status for plan in state.executive_plans if plan.project_title == project.title),
-                    "No Plan",
-                ),
+                "plan_status": plan_status_by_project.get(project.title, "No Plan"),
             }
         )
     return {
@@ -254,12 +256,15 @@ def _build_meetings_page(state: ExecutiveState) -> dict[str, Any]:
 
 def _build_board_page(state: ExecutiveState) -> dict[str, Any]:
     board = state.board
+    board_intelligence = state.board_intelligence
     return {
         "summary": list(board.registry_summary),
         "members": [_serialize_board_member(member) for member in board.board_members],
         "weekly_meeting": list(board.weekly_board_meeting),
         "monthly_meeting": list(board.monthly_board_meeting),
         "standing_agenda": list(board.standing_agenda),
+        "proposed_executive_updates": list(board_intelligence.monthly_review.proposed_executive_updates) if board_intelligence else [],
+        "approval_required": board_intelligence.monthly_review.approval_required if board_intelligence else True,
     }
 
 

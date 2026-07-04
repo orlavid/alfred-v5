@@ -78,6 +78,8 @@ def _render_bullets(values: list[str]) -> list[str]:
 
 def _detect_focus(question: str) -> str:
     lowered = question.lower()
+    if any(token in lowered for token in ("board", "committee", "governance", "director")):
+        return "board"
     if any(token in lowered for token in ("meeting", "barclays", "discuss")):
         return "meeting"
     if any(token in lowered for token in ("follow-up", "follow up", "overdue", "due today")):
@@ -94,6 +96,12 @@ def _detect_focus(question: str) -> str:
 
 
 def _build_answer(question, focus, reasoning, intelligence, meeting, followups, open_loops) -> list[str]:
+    if focus == "board":
+        return [
+            "Board intelligence can propose executive updates, but no board recommendation should execute automatically.",
+            "Use the ad hoc or monthly board review to inspect findings, risks, decisions, and proposed actions.",
+            "Any ExecutiveState change requires explicit user approval first.",
+        ]
     if focus == "meeting":
         return [
             f"Use the {meeting.subject} meeting to resolve ownership, objective linkage, and the next dated action.",
@@ -137,7 +145,9 @@ def _build_supporting_evidence(focus, reasoning, intelligence, meeting, followup
         f"Key theme: {reasoning.key_themes[0]}" if reasoning.key_themes else "",
     ]
 
-    if focus == "meeting":
+    if focus == "board":
+        evidence.append("Board Registry is active and Board Intelligence produces approval-gated proposed executive updates.")
+    elif focus == "meeting":
         evidence.extend(meeting.executive_summary[:2])
     elif focus == "followups":
         evidence.append(f"Overdue follow-ups: {len(followups.overdue)}; high priority follow-ups: {len(followups.high_priority)}.")

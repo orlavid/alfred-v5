@@ -7,13 +7,14 @@ from pathlib import Path
 from typing import Any
 
 from executive.engine import execute
+from src.board.board_intelligence import BoardIntelligence, build_board_intelligence_from_state
 from src.board.board_registry import BoardGovernance, build_board_governance
 from src.followups.followup_intelligence import FollowupIntelligence, build_followup_intelligence
 from src.knowledge.executive_knowledge_builder import ExecutiveKnowledgeModel, build_executive_knowledge
 from src.knowledge.knowledge_graph import KnowledgeGraphModel, build_knowledge_graph_from_model
 from src.meeting.meeting_intelligence import MeetingBrief, build_meeting_brief
 from src.openloops.open_loop_intelligence import OpenLoopIntelligence, build_open_loop_intelligence
-from src.planning.executive_planner import ExecutivePlan, build_executive_plans_from_state
+from src.planning.executive_planner import ExecutivePlan, build_executive_plans_from_inputs
 
 DEFAULT_MEETING_SUBJECT = "Barclays"
 
@@ -21,6 +22,7 @@ DEFAULT_MEETING_SUBJECT = "Barclays"
 @dataclass(frozen=True)
 class ExecutiveState:
     board: BoardGovernance | None = None
+    board_intelligence: BoardIntelligence | None = None
     objectives: tuple[Any, ...] = ()
     projects: tuple[Any, ...] = ()
     companies: tuple[Any, ...] = ()
@@ -86,8 +88,16 @@ def build_executive_state(
 
     objective_health = _build_objective_health(objectives, vault)
     project_health = _build_project_health(projects, vault)
+    executive_plans = build_executive_plans_from_inputs(
+        projects=projects,
+        people=people,
+        entities=entities,
+        neighbours=neighbours,
+        project_health=project_health,
+    ).plans
     draft_state = ExecutiveState(
         board=board,
+        board_intelligence=None,
         objectives=objectives,
         projects=projects,
         companies=companies,
@@ -101,6 +111,7 @@ def build_executive_state(
         executive_health=engine_result["health"],
         objective_health=objective_health,
         project_health=project_health,
+        executive_plans=executive_plans,
         recommendations=(),
         relationship_graph=relationship_graph,
         confidence="LOW",
@@ -113,7 +124,7 @@ def build_executive_state(
         neighbours=neighbours,
         knowledge_model=knowledge_model,
     )
-    executive_plans = build_executive_plans_from_state(draft_state).plans
+    board_intelligence = build_board_intelligence_from_state(draft_state)
     recommendations = _dedupe(
         priorities[:3],
         [meeting.recommended_discussion[0]] if meeting.recommended_discussion else [],
@@ -124,6 +135,7 @@ def build_executive_state(
     confidence = _derive_confidence(engine_result, followups, open_loops, relationship_graph)
     summary = _build_summary(
         board=board,
+        board_intelligence=board_intelligence,
         objectives=objectives,
         projects=projects,
         companies=companies,
@@ -140,6 +152,7 @@ def build_executive_state(
 
     return ExecutiveState(
         board=board,
+        board_intelligence=board_intelligence,
         objectives=objectives,
         projects=projects,
         companies=companies,
@@ -184,6 +197,7 @@ def render_executive_state_summary(state: ExecutiveState) -> str:
     parts.extend(_render_bullets([
         f"Board members: {len(state.board.board_members) if state.board else 0}.",
         f"Weekly board agenda items: {len(state.board.standing_agenda) if state.board else 0}.",
+        f"Board proposed updates: {len(state.board_intelligence.monthly_review.proposed_executive_updates) if state.board_intelligence else 0}.",
     ]))
     parts.extend(["", "## Entity Coverage", ""])
     parts.extend(_render_bullets([
@@ -242,6 +256,7 @@ def _status_count(items: tuple[Any, ...], target: str) -> int:
 def _build_summary(
     *,
     board: BoardGovernance,
+    board_intelligence: BoardIntelligence,
     objectives: tuple[Any, ...],
     projects: tuple[Any, ...],
     companies: tuple[Any, ...],
@@ -258,6 +273,7 @@ def _build_summary(
     return (
         f"Executive health is {executive_health['status']} with score {executive_health['score']} / 100.",
         f"Board registry contains {len(board.board_members)} members and {len(board.decision_rights)} explicit decision rights.",
+        f"Board intelligence currently proposes {len(board_intelligence.monthly_review.proposed_executive_updates)} approval-gated executive updates.",
         f"Canonical graph covers {relationship_graph.statistics['node_count']} nodes and {relationship_graph.statistics['edge_count']} edges.",
         f"Runtime state includes {len(objectives)} objectives, {len(projects)} projects, {len(companies)} companies, {len(people)} people, {len(decisions)} decisions, and {len(policies)} policies.",
         f"Operational pressure includes {len(followups.overdue)} overdue follow-ups and {len(open_loops.critical_open_loops)} critical open loops.",
