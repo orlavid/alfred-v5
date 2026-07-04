@@ -37,6 +37,16 @@ class ExecutivePlanningReport:
     plans: tuple[ExecutivePlan, ...]
 
 
+@dataclass(frozen=True)
+class ProjectPlanningContext:
+    project: Any
+    objective_titles: tuple[str, ...]
+    person_titles: tuple[str, ...]
+    decision_titles: tuple[str, ...]
+    risk_titles: tuple[str, ...]
+    dependency_titles: tuple[str, ...]
+
+
 def build_executive_plans(
     evidence_root: Path,
     *,
@@ -53,19 +63,35 @@ def build_executive_plans_from_state(
     *,
     today: date | None = None,
 ) -> ExecutivePlanningReport:
+    return build_executive_plans_from_inputs(
+        projects=state.projects,
+        people=state.people,
+        entities=state.entities,
+        neighbours=state.neighbours,
+        project_health=state.project_health,
+        today=today,
+    )
+
+
+def build_executive_plans_from_inputs(
+    *,
+    projects: tuple[Any, ...],
+    people: tuple[Any, ...],
+    entities: tuple[Any, ...],
+    neighbours: dict[str, tuple[str, ...]],
+    project_health: dict[str, Any],
+    today: date | None = None,
+) -> ExecutivePlanningReport:
     effective_today = today or date.today()
-    entity_lookup = {entity.id: entity for entity in state.entities}
+    contexts = build_project_planning_contexts(
+        projects=projects,
+        entities=entities,
+        neighbours=neighbours,
+    )
     plans = []
 
-    for index, project in enumerate(sorted(state.projects, key=lambda item: getattr(item, "title", "").lower())):
-        linked_ids = state.neighbours.get(project.path, ())
-        linked_entities = tuple(entity_lookup[entity_id] for entity_id in linked_ids if entity_id in entity_lookup)
-        objective_titles = tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") == "objective"))
-        person_titles = tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") == "person"))
-        decision_titles = tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") == "decision"))
-        risk_titles = tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") == "risk"))
-        dependency_titles = tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") in {"project", "company", "policy"}))
-
+    for index, context in enumerate(contexts):
+        project = context.project
         phases = (
             "Frame the executive goal and confirm scope.",
             "Assign accountable owners and resolve dependencies.",
@@ -77,11 +103,11 @@ def build_executive_plans_from_state(
             f"Owner and dependency review complete by {target_dates[1]}",
             f"Executive progress checkpoint held by {target_dates[2]}",
         )
-        suggested_owners = person_titles or _fallback_owners(state)
-        dependencies = objective_titles + decision_titles + dependency_titles
-        risks = risk_titles or _fallback_risks(project, state)
+        suggested_owners = context.person_titles or _fallback_owners(people)
+        dependencies = context.objective_titles + context.decision_titles + context.dependency_titles
+        risks = context.risk_titles or _fallback_risks(project, project_health)
         success_measures = (
-            f"Objective linkage confirmed for {project.title}" if objective_titles else f"Objective linkage created for {project.title}",
+            f"Objective linkage confirmed for {project.title}" if context.objective_titles else f"Objective linkage created for {project.title}",
             "Named owner accepts delivery accountability.",
             "Risk and dependency review stays within executive tolerance.",
         )
@@ -89,7 +115,7 @@ def build_executive_plans_from_state(
         plans.append(
             ExecutivePlan(
                 project_title=project.title,
-                goal=_goal_for_project(project, objective_titles),
+                goal=_goal_for_project(project, context.objective_titles),
                 phases=phases,
                 milestones=milestones,
                 suggested_owners=suggested_owners,
@@ -101,11 +127,41 @@ def build_executive_plans_from_state(
         )
 
     summary = (
-        f"Projects discovered: {len(state.projects)}.",
+        f"Projects discovered: {len(projects)}.",
         f"Draft executive plans proposed: {len(plans)}.",
         "Only approved plans become active.",
     )
     return ExecutivePlanningReport(summary=summary, plans=tuple(plans))
+
+
+def build_project_planning_contexts(
+    *,
+    projects: tuple[Any, ...],
+    entities: tuple[Any, ...],
+    neighbours: dict[str, tuple[str, ...]],
+) -> tuple[ProjectPlanningContext, ...]:
+    entity_lookup = {entity.id: entity for entity in entities}
+    contexts: list[ProjectPlanningContext] = []
+    for project in sorted(projects, key=lambda item: getattr(item, "title", "").lower()):
+        linked_ids = neighbours.get(project.path, ())
+        linked_entities = tuple(entity_lookup[entity_id] for entity_id in linked_ids if entity_id in entity_lookup)
+        contexts.append(
+            ProjectPlanningContext(
+                project=project,
+                objective_titles=tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") == "objective")),
+                person_titles=tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") == "person")),
+                decision_titles=tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") == "decision")),
+                risk_titles=tuple(sorted(entity.title for entity in linked_entities if getattr(entity, "type", "") == "risk")),
+                dependency_titles=tuple(
+                    sorted(
+                        entity.title
+                        for entity in linked_entities
+                        if getattr(entity, "type", "") in {"project", "company", "policy"}
+                    )
+                ),
+            )
+        )
+    return tuple(contexts)
 
 
 def render_executive_plans(report: ExecutivePlanningReport) -> str:
@@ -151,15 +207,15 @@ def _target_dates(today: date, offset: int) -> tuple[str, ...]:
     )
 
 
-def _fallback_owners(state: ExecutiveState) -> tuple[str, ...]:
-    owners = sorted(getattr(person, "title", "") for person in state.people[:2] if getattr(person, "title", ""))
+def _fallback_owners(people: tuple[Any, ...]) -> tuple[str, ...]:
+    owners = sorted(getattr(person, "title", "") for person in people[:2] if getattr(person, "title", ""))
     return tuple(owners) or ("Owner to be confirmed",)
 
 
-def _fallback_risks(project: Any, state: ExecutiveState) -> tuple[str, ...]:
+def _fallback_risks(project: Any, project_health: dict[str, Any]) -> tuple[str, ...]:
     project_status = getattr(project, "status", "UNKNOWN")
     risks = [f"Project status is {project_status}."]
-    if state.project_health.get("at_risk", 0) > 0:
+    if project_health.get("at_risk", 0) > 0:
         risks.append("Portfolio already contains at-risk delivery items.")
     recommendation = getattr(project, "recommendation", "")
     if recommendation:
