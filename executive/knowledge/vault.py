@@ -1,6 +1,8 @@
 from pathlib import Path
 from dataclasses import dataclass
 
+from src.knowledge.executive_understanding import classify_executive_note
+
 @dataclass
 class VaultNote:
     path: str
@@ -9,41 +11,9 @@ class VaultNote:
     text: str
     kind: str
 
-def classify(path: Path):
-    p = str(path).lower()
-
-    if "daily" in p or "01 daily logs" in p:
-        return "daily_log"
-    if "project intelligence" in p:
-        return "report"
-    if "historical capture" in p:
-        return "capture"
-    if "capture -" in p:
-        return "capture"
-    if "03 projects" in p:
-        return "project"
-    if "project" in p:
-        return "project"
-    if "people" in p or "02 people" in p:
-        return "person"
-    if "compan" in p or "supplier" in p or "04 companies" in p:
-        return "company"
-    if "decision intelligence" in p:
-        return "report"
-    if "04 decisions" in p:
-        return "decision"
-    if "decision" in p:
-        return "decision"
-    if "open loop" in p or "open loops" in p:
-        return "open_loop"
-    if "follow" in p:
-        return "follow_up"
-    if "objective intelligence" in p:
-        return "report"
-    if "objective" in p:
-        return "objective"
-
-    return "note"
+def classify(path: Path, text: str = ""):
+    result = classify_executive_note(path, text)
+    return result.entity_type if result.entity_type != "note" else "note"
 
 def load_vault(vault_root: Path):
     notes = []
@@ -62,7 +32,7 @@ def load_vault(vault_root: Path):
                 title=path.stem,
                 folder=rel.parts[0] if rel.parts else "",
                 text=text,
-                kind=classify(path),
+                kind=classify(path, text),
             )
         )
 

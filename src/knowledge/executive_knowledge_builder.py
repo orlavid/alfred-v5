@@ -14,6 +14,7 @@ from executive.knowledge.extractor import extract_entities, extract_links, extra
 from executive.knowledge.graph import build_graph
 from executive.knowledge.resolver import build_entity_resolution, build_resolution_index, resolve_link_with_index
 from executive.knowledge.vault import VaultNote, load_vault
+from src.knowledge.executive_understanding import classify_executive_note, extract_aliases
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EVIDENCE_ROOT = ROOT / "evidence" / "alfred-inventory"
@@ -219,28 +220,7 @@ def _load_evidence_notes(evidence_root: Path) -> list[VaultNote]:
 
 
 def _classify_evidence_path(path: Path, text: str) -> str:
-    lowered = f"{str(path).lower()}\n{text.lower()}"
-    if "objective" in lowered or "okr" in lowered or "goal" in lowered:
-        return "objective"
-    if "project" in lowered or "programme" in lowered or "initiative" in lowered:
-        return "project"
-    if "compan" in lowered or "supplier" in lowered or "vendor" in lowered:
-        return "company"
-    if "people" in lowered or "stakeholder" in lowered or "owner" in lowered:
-        return "person"
-    if "decision" in lowered or "approval" in lowered:
-        return "decision"
-    if "meeting" in lowered or "agenda" in lowered or "minutes" in lowered:
-        return "meeting"
-    if "risk" in lowered or "issue" in lowered or "escalation" in lowered:
-        return "risk"
-    if "policy" in lowered or "framework" in lowered or "standard" in lowered:
-        return "policy"
-    if "daily" in lowered or "log" in lowered:
-        return "daily_log"
-    if "briefing" in lowered or "executive review" in lowered:
-        return "executive_briefing"
-    return "note"
+    return classify_executive_note(path, text).entity_type
 
 
 def _build_entities_from_notes(notes: list[VaultNote]) -> list[VaultEntity]:
@@ -254,6 +234,7 @@ def _build_entities_from_notes(notes: list[VaultNote]) -> list[VaultEntity]:
                 type=note.kind,
                 title=note.title,
                 path=note.path,
+                aliases=extract_aliases(classify_executive_note(note.path, note.text).frontmatter),
                 tags=extract_tags(note.text),
                 links=extract_links(note.text),
             )
