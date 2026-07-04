@@ -44,7 +44,15 @@ def build_daily_brief(
     meeting_subject: str = DEFAULT_MEETING_SUBJECT,
 ) -> DailyBrief:
     state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
-    reasoning = build_executive_reasoning_from_state(state)
+    return build_daily_brief_from_state(state)
+
+
+def build_daily_brief_from_state(
+    state,
+    *,
+    reasoning=None,
+) -> DailyBrief:
+    reasoning = reasoning or build_executive_reasoning_from_state(state)
     meeting = state.meetings[0]
     followups = state.followups
     open_loops = state.open_loops

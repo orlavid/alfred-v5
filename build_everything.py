@@ -21,6 +21,7 @@ STEPS = [
     ("Executive Reasoning", [sys.executable, "build_executive_reasoning.py"]),
     ("Ask Alfred", [sys.executable, "build_ask_alfred.py", "What should I do today?"]),
     ("Daily Briefing", [sys.executable, "build_daily_brief.py"]),
+    ("Dashboard API", [sys.executable, "build_dashboard_api.py"]),
     ("Knowledge Mining", [sys.executable, "build_knowledge_mining_report.py"]),
     ("Alfred Archaeology", [sys.executable, "build_archaeology_report.py"]),
     ("Knowledge Housekeeping", [sys.executable, "build_knowledge_housekeeping.py"]),
