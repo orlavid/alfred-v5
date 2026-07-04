@@ -12,7 +12,7 @@ from typing import Iterable
 from executive.knowledge.entity import VaultEntity
 from executive.knowledge.extractor import extract_entities, extract_links, extract_tags
 from executive.knowledge.graph import build_graph
-from executive.knowledge.resolver import build_resolution_index, resolve_link_with_index
+from executive.knowledge.resolver import build_entity_resolution, build_resolution_index, resolve_link_with_index
 from executive.knowledge.vault import VaultNote, load_vault
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -83,6 +83,8 @@ class ExecutiveKnowledgeModel:
     source_root: str
     entity_inventory: dict[str, int]
     entities: tuple[KnowledgeEntity, ...]
+    canonical_entities: tuple[dict, ...]
+    aliases: tuple[dict, ...]
     relationship_graph: tuple[KnowledgeRelationship, ...]
     orphans: tuple[KnowledgeEntity, ...]
     stale_evidence: tuple[KnowledgeEntity, ...]
@@ -142,6 +144,9 @@ def render_executive_knowledge_json(report: ExecutiveKnowledgeModel) -> str:
         "source_root": report.source_root,
         "entity_inventory": report.entity_inventory,
         "entities": [asdict(entity) for entity in report.entities],
+        "canonical_entities": list(report.canonical_entities),
+        "aliases": list(report.aliases),
+        "relationships": [asdict(edge) for edge in report.relationship_graph],
         "relationship_graph": [asdict(edge) for edge in report.relationship_graph],
         "orphans": [asdict(entity) for entity in report.orphans],
         "stale_evidence": [asdict(entity) for entity in report.stale_evidence],
@@ -153,13 +158,14 @@ def render_executive_knowledge_json(report: ExecutiveKnowledgeModel) -> str:
 
 def _build_from_live_vault(vault_root: Path, today: date) -> ExecutiveKnowledgeModel:
     entities = extract_entities(vault_root)
-    resolution_index = build_resolution_index(entities)
+    resolution_model = build_entity_resolution(entities)
+    resolution_index = resolution_model.index
     graph = build_graph(entities, resolution_index)
     entity_lookup = {entity.id: entity for entity in entities}
     neighbours = _build_neighbours(graph["edges"])
     knowledge_entities = _build_knowledge_entities_from_vault(entities, neighbours, today)
     relationships = _build_relationships(graph["edges"], entity_lookup)
-    return _assemble_model("live_vault", vault_root, knowledge_entities, relationships)
+    return _assemble_model("live_vault", vault_root, knowledge_entities, relationships, resolution_model)
 
 
 def _build_from_evidence_inventory(evidence_root: Path, today: date) -> ExecutiveKnowledgeModel:
@@ -169,6 +175,8 @@ def _build_from_evidence_inventory(evidence_root: Path, today: date) -> Executiv
             source_root=str(evidence_root),
             entity_inventory={entity_type: 0 for entity_type in ENTITY_TYPES},
             entities=(),
+            canonical_entities=(),
+            aliases=(),
             relationship_graph=(),
             orphans=(),
             stale_evidence=(),
@@ -178,11 +186,12 @@ def _build_from_evidence_inventory(evidence_root: Path, today: date) -> Executiv
 
     notes = _load_evidence_notes(evidence_root)
     entities = _build_entities_from_notes(notes)
-    resolution_index = build_resolution_index(entities)
+    resolution_model = build_entity_resolution(entities)
+    resolution_index = resolution_model.index
     relationships = _build_inventory_relationships(entities, notes, resolution_index)
     neighbours = _build_neighbours([asdict(edge) for edge in relationships])
     knowledge_entities = _build_knowledge_entities_from_vault(entities, neighbours, today)
-    return _assemble_model("evidence_inventory", evidence_root, knowledge_entities, relationships)
+    return _assemble_model("evidence_inventory", evidence_root, knowledge_entities, relationships, resolution_model)
 
 
 def _load_evidence_notes(evidence_root: Path) -> list[VaultNote]:
@@ -335,6 +344,7 @@ def _assemble_model(
     source_root: Path,
     entities: tuple[KnowledgeEntity, ...],
     relationships: tuple[KnowledgeRelationship, ...],
+    resolution_model,
 ) -> ExecutiveKnowledgeModel:
     entity_inventory = {entity_type: 0 for entity_type in ENTITY_TYPES}
     for entity in entities:
@@ -353,6 +363,8 @@ def _assemble_model(
         source_root=str(source_root),
         entity_inventory=entity_inventory,
         entities=entities,
+        canonical_entities=tuple(asdict(entity) for entity in resolution_model.canonical_entities),
+        aliases=tuple(asdict(alias) for alias in resolution_model.aliases),
         relationship_graph=relationships,
         orphans=orphans[:50],
         stale_evidence=stale_evidence[:50],

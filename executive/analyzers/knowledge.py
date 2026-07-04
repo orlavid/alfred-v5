@@ -1,8 +1,10 @@
 from pathlib import Path
+from dataclasses import asdict
 
 from executive.knowledge.extractor import extract_entities
 from executive.knowledge.graph import build_graph
 from executive.knowledge.resolver import (
+    build_entity_resolution,
     build_resolution_index,
     unresolved_links_with_index,
     resolution_summary_from_index,
@@ -32,7 +34,8 @@ VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
 
 def analyze(evidence_root):
     entities = extract_entities(VAULT_ROOT)
-    resolution_index = build_resolution_index(entities)
+    resolution_model = build_entity_resolution(entities)
+    resolution_index = resolution_model.index
     graph = build_graph(entities, resolution_index)
 
     consolidation = consolidate(entities)
@@ -136,6 +139,9 @@ def analyze(evidence_root):
             "unresolved_links": unresolved[:50],
             "unresolved_link_count": len(unresolved),
             "resolution": resolution,
+            "canonical_entities": [asdict(entity) for entity in resolution_model.canonical_entities],
+            "aliases": [asdict(alias) for alias in resolution_model.aliases],
+            "relationships": list(resolution_model.relationships),
             "objectives": objective_analysis,
             "projects": project_analysis,
             "companies": company_analysis,
