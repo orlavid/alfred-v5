@@ -25,3 +25,9 @@ output/
 .env
 .env.*
 secrets/
+
+# Frontend
+node_modules/
+dist/
+coverage/
+web/public/api/

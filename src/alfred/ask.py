@@ -7,7 +7,7 @@ from pathlib import Path
 
 from src.executive.executive_intelligence import build_executive_intelligence_from_state
 from src.executive.executive_reasoning import build_executive_reasoning_from_state
-from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, build_executive_state
+from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
 
 
 @dataclass(frozen=True)
@@ -25,11 +25,18 @@ def ask_alfred(
     *,
     meeting_subject: str = DEFAULT_MEETING_SUBJECT,
 ) -> AskAlfredResponse:
+    state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
+    return ask_alfred_from_state(question, state)
+
+
+def ask_alfred_from_state(
+    question: str,
+    state: ExecutiveState,
+) -> AskAlfredResponse:
     cleaned_question = question.strip()
     if not cleaned_question:
         raise ValueError("Question is required.")
 
-    state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
     reasoning = build_executive_reasoning_from_state(state)
     intelligence = build_executive_intelligence_from_state(state)
     meeting = state.meetings[0]

@@ -5,12 +5,21 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from src.alfred.ask import ask_alfred_from_state
+from src.board.board_registry import BoardMember
 from src.daily.daily_brief import DailyBrief, build_daily_brief_from_state
 from src.executive.executive_reasoning import ExecutiveReasoning, build_executive_reasoning_from_state
 from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
+from src.objectives.objective_intelligence import build_objective_intelligence_from_state
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EVIDENCE_ROOT = ROOT / "evidence" / "alfred-inventory"
+ASK_ALFRED_QUESTIONS = (
+    "What should I do today?",
+    "What follow-ups are overdue?",
+    "What is blocked right now?",
+    "What meetings require preparation?",
+)
 
 
 def get_dashboard_home(
@@ -35,6 +44,13 @@ def get_dashboard_home(
         "operating_picture": operating_picture,
         "navigation_priorities": navigation_priorities,
         "interruption_policy": _build_interruption_policy(state, burning_fires, next_best_action),
+        "objectives": _build_objectives_page(state),
+        "projects": _build_projects_page(state),
+        "meetings": _build_meetings_page(state),
+        "board": _build_board_page(state),
+        "ask_alfred": _build_ask_alfred_page(state),
+        "daily_brief": _build_daily_brief_page(brief),
+        "knowledge": _build_knowledge_page(state),
         "generated_from": {
             "meeting_subject": meeting_subject,
             "runtime_model": "ExecutiveState",
@@ -166,6 +182,138 @@ def get_navigation_priorities(
     return items
 
 
+def _build_objectives_page(state: ExecutiveState) -> dict[str, Any]:
+    report = build_objective_intelligence_from_state(state)
+    return {
+        "health": state.objective_health,
+        "items": [
+            {
+                "title": item.title,
+                "lifecycle": item.status,
+                "confidence": item.confidence,
+                "supporting_projects": list(item.supporting_projects),
+                "linked_decisions": list(item.linked_decisions),
+                "stale_evidence": item.stale_evidence,
+                "recommended_next_action": item.recommended_next_action,
+            }
+            for item in report.strategic_objectives
+        ],
+        "summary": report.executive_summary,
+    }
+
+
+def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
+    entity_lookup = {entity.id: entity for entity in state.entities}
+    items = []
+    for project in state.projects:
+        linked_titles = sorted(
+            entity_lookup[entity_id].title
+            for entity_id in state.neighbours.get(project.path, ())
+            if entity_id in entity_lookup and getattr(entity_lookup[entity_id], "type", None) == "objective"
+        )
+        items.append(
+            {
+                "title": project.title,
+                "status": project.status,
+                "objective_linkage": linked_titles,
+                "risk": getattr(project, "risk", "Unknown"),
+                "recommendation": project.recommendation,
+            }
+        )
+    return {
+        "health": state.project_health,
+        "items": items[:12],
+        "summary": [
+            f"Projects tracked: {len(state.projects)}.",
+            f"Projects at risk: {state.project_health.get('at_risk', 0)}.",
+        ],
+    }
+
+
+def _build_meetings_page(state: ExecutiveState) -> dict[str, Any]:
+    meeting = state.meetings[0]
+    return {
+        "subject": meeting.subject,
+        "executive_summary": meeting.executive_summary,
+        "related_people": [item.title for item in meeting.related_people],
+        "related_projects": [item.title for item in meeting.related_projects],
+        "related_companies": [item.title for item in meeting.related_companies],
+        "related_objectives": [item.title for item in meeting.related_objectives],
+        "related_decisions": [item.title for item in meeting.related_decisions],
+        "risks": meeting.risks,
+        "open_loops": [item.title for item in meeting.open_loops],
+        "follow_ups": [item.title for item in meeting.follow_ups],
+        "recommended_discussion": meeting.recommended_discussion,
+        "confidence": meeting.confidence,
+    }
+
+
+def _build_board_page(state: ExecutiveState) -> dict[str, Any]:
+    board = state.board
+    return {
+        "summary": list(board.registry_summary),
+        "members": [_serialize_board_member(member) for member in board.board_members],
+        "weekly_meeting": list(board.weekly_board_meeting),
+        "monthly_meeting": list(board.monthly_board_meeting),
+        "standing_agenda": list(board.standing_agenda),
+    }
+
+
+def _build_ask_alfred_page(state: ExecutiveState) -> dict[str, Any]:
+    responses = []
+    for question in ASK_ALFRED_QUESTIONS:
+        response = ask_alfred_from_state(question, state)
+        responses.append(
+            {
+                "question": question,
+                "executive_answer": response.executive_answer,
+                "supporting_evidence": response.supporting_evidence,
+                "confidence": response.confidence,
+                "recommended_next_actions": response.recommended_next_actions,
+            }
+        )
+    return {
+        "questions": list(ASK_ALFRED_QUESTIONS),
+        "responses": responses,
+    }
+
+
+def _build_daily_brief_page(brief: DailyBrief) -> dict[str, Any]:
+    return {
+        "executive_health": brief.executive_health,
+        "overnight_changes": brief.overnight_changes,
+        "top_three_priorities": brief.top_three_priorities,
+        "meetings_requiring_preparation": brief.meetings_requiring_preparation,
+        "followups_due_today": brief.followups_due_today,
+        "open_loops_blocking_progress": brief.open_loops_blocking_progress,
+        "risks_escalating": brief.risks_escalating,
+        "decisions_awaiting_you": brief.decisions_awaiting_you,
+        "recommended_agenda": brief.recommended_agenda,
+        "one_page_executive_summary": brief.one_page_executive_summary,
+        "confidence": brief.confidence,
+    }
+
+
+def _build_knowledge_page(state: ExecutiveState) -> dict[str, Any]:
+    graph = state.relationship_graph
+    return {
+        "summary": list(state.summary),
+        "entity_counts": {
+            "objectives": len(state.objectives),
+            "projects": len(state.projects),
+            "companies": len(state.companies),
+            "people": len(state.people),
+            "decisions": len(state.decisions),
+            "policies": len(state.policies),
+        },
+        "graph": {
+            "node_count": graph.statistics["node_count"],
+            "edge_count": graph.statistics["edge_count"],
+            "top_nodes": [node.label for node in graph.highest_connectivity[:5]],
+        },
+    }
+
+
 def _build_interruption_policy(
     state: ExecutiveState,
     burning_fires: list[dict[str, str]],
@@ -206,3 +354,20 @@ def _dedupe_dicts(values: list[dict[str, str]], *, key_fields: tuple[str, ...]) 
         seen.add(key)
         deduped.append(value)
     return deduped
+
+
+def _serialize_board_member(member: BoardMember) -> dict[str, Any]:
+    return {
+        "name": member.name,
+        "role": member.role,
+        "purpose": member.purpose,
+        "responsibilities": list(member.responsibilities),
+        "authority": member.authority,
+        "meeting_role": member.meeting_role,
+        "weekly_board_contribution": member.weekly_board_contribution,
+        "monthly_board_contribution": member.monthly_board_contribution,
+        "prompt_profile": member.prompt_profile,
+        "communication_style": member.communication_style,
+        "portrait_placeholder": member.portrait_placeholder,
+        "status": member.status,
+    }
