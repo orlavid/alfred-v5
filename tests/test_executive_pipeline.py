@@ -6,8 +6,11 @@ from src.pipeline import executive_pipeline
 from src.pipeline.executive_pipeline import build_executive_pipeline
 
 
-def test_build_executive_pipeline_runs_all_stages():
-    report = build_executive_pipeline(Path("evidence/alfred-inventory"))
+def test_build_executive_pipeline_runs_all_stages(tmp_path):
+    report = build_executive_pipeline(
+        Path("evidence/alfred-inventory"),
+        refresh_state_path=tmp_path / "refresh.json",
+    )
 
     assert len(report.stages) == 8
     assert report.stages[0].stage == "Vault Scan"
@@ -17,13 +20,16 @@ def test_build_executive_pipeline_runs_all_stages():
     assert any(stage.stage == "Daily Brief" and stage.status == "PASS" for stage in report.stages)
 
 
-def test_pipeline_continues_after_recoverable_entity_resolution_failure(monkeypatch):
+def test_pipeline_continues_after_recoverable_entity_resolution_failure(monkeypatch, tmp_path):
     def broken_resolution(_entities):
         raise RuntimeError("resolution failed")
 
     monkeypatch.setattr(executive_pipeline, "build_entity_resolution", broken_resolution)
 
-    report = build_executive_pipeline(Path("evidence/alfred-inventory"))
+    report = build_executive_pipeline(
+        Path("evidence/alfred-inventory"),
+        refresh_state_path=tmp_path / "refresh.json",
+    )
     stages = {stage.stage: stage for stage in report.stages}
 
     assert stages["Entity Resolution"].status == "FAIL"

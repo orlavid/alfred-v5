@@ -30,6 +30,8 @@ from src.knowledge.knowledge_graph import (
     render_knowledge_graph,
     render_knowledge_graph_json,
 )
+from src.obsidian.file_watcher import FileWatchState, build_file_manifest, save_watch_state, utc_now_iso
+from src.obsidian.live_vault import LIVE_VAULT_STATE_PATH, build_live_vault_status, write_live_vault_status
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output"
@@ -62,6 +64,11 @@ class _ScanContext:
     source_root: Path
     notes: tuple[Any, ...]
     entities: tuple[Any, ...]
+    files: tuple[Path, ...]
+    changed_files: tuple[str, ...]
+    refresh_required: bool
+    startup_refresh_required: bool
+    last_successful_refresh_at: str | None
     warnings: tuple[str, ...]
 
 
@@ -72,34 +79,43 @@ def build_executive_pipeline(
     evidence_root: Path | None = None,
     *,
     vault_root: Path | None = None,
+    refresh_state_path: Path = LIVE_VAULT_STATE_PATH,
 ) -> ExecutivePipelineReport:
     OUT.mkdir(exist_ok=True)
     PUBLIC_API.mkdir(parents=True, exist_ok=True)
 
     effective_evidence_root = evidence_root or DEFAULT_EVIDENCE_ROOT
     effective_vault_root = vault_root or DEFAULT_VAULT_ROOT
+    live_status = build_live_vault_status(
+        evidence_root=effective_evidence_root,
+        vault_root=effective_vault_root,
+        refresh_state_path=refresh_state_path,
+    )
+    write_live_vault_status(live_status)
     context: dict[str, Any] = {
-      "evidence_root": effective_evidence_root,
-      "vault_root": effective_vault_root,
-      "warnings": [],
-      "artifacts": {},
+        "evidence_root": effective_evidence_root,
+        "vault_root": effective_vault_root,
+        "warnings": [],
+        "artifacts": {},
+        "live_vault_status": live_status,
+        "refresh_state_path": refresh_state_path,
     }
 
     stage_specs = [
-        ("Vault Scan", (), _run_vault_scan),
-        ("Entity Resolution", ("Vault Scan",), _run_entity_resolution),
-        ("Executive Knowledge Builder", ("Vault Scan",), _run_executive_knowledge_builder),
-        ("Knowledge Graph", ("Executive Knowledge Builder",), _run_knowledge_graph),
-        ("ExecutiveState", ("Executive Knowledge Builder",), _run_executive_state_stage),
-        ("Executive Reasoning", ("ExecutiveState",), _run_executive_reasoning),
-        ("Daily Brief", ("ExecutiveState",), _run_daily_brief),
-        ("Dashboard API Refresh", ("ExecutiveState",), _run_dashboard_api_refresh),
+        ("Vault Scan", (), _run_vault_scan, False),
+        ("Entity Resolution", ("Vault Scan",), _run_entity_resolution, True),
+        ("Executive Knowledge Builder", ("Vault Scan",), _run_executive_knowledge_builder, True),
+        ("Knowledge Graph", ("Executive Knowledge Builder",), _run_knowledge_graph, True),
+        ("ExecutiveState", ("Executive Knowledge Builder",), _run_executive_state_stage, True),
+        ("Executive Reasoning", ("ExecutiveState",), _run_executive_reasoning, True),
+        ("Daily Brief", ("ExecutiveState",), _run_daily_brief, True),
+        ("Dashboard API Refresh", ("ExecutiveState",), _run_dashboard_api_refresh, True),
     ]
 
     results: list[PipelineStageResult] = []
     status_by_stage: dict[str, str] = {}
 
-    for stage_name, dependencies, runner in stage_specs:
+    for stage_name, dependencies, runner, requires_refresh in stage_specs:
         blocked = [dependency for dependency in dependencies if status_by_stage.get(dependency) != "PASS"]
         if blocked:
             result = PipelineStageResult(
@@ -110,6 +126,15 @@ def build_executive_pipeline(
                 warnings=(),
                 errors=(f"Blocked by failed or skipped dependency: {', '.join(blocked)}.",),
             )
+        elif requires_refresh and not context.get("refresh_required", True):
+            result = PipelineStageResult(
+                stage=stage_name,
+                status="SKIPPED",
+                duration_seconds=0.0,
+                records_processed=0,
+                warnings=("No changed markdown files since last successful refresh.",),
+                errors=(),
+            )
         else:
             result = _execute_stage(stage_name, context, runner)
         results.append(result)
@@ -117,13 +142,20 @@ def build_executive_pipeline(
 
     overall_health = _derive_overall_health(results)
     scan_context: _ScanContext | None = context["artifacts"].get("scan")
+    _persist_refresh_state_if_successful(context, results, scan_context)
+    refreshed_status = build_live_vault_status(
+        evidence_root=effective_evidence_root,
+        vault_root=effective_vault_root,
+        refresh_state_path=refresh_state_path,
+    )
+    write_live_vault_status(refreshed_status)
     summary = _build_summary(results, overall_health, scan_context)
     return ExecutivePipelineReport(
         stages=tuple(results),
         overall_health=overall_health,
         summary=summary,
-        source_mode=scan_context.source_mode if scan_context else "unknown",
-        source_root=str(scan_context.source_root if scan_context else effective_evidence_root),
+        source_mode=refreshed_status.source_mode if refreshed_status else (scan_context.source_mode if scan_context else "unknown"),
+        source_root=refreshed_status.active_source_root if refreshed_status else str(scan_context.source_root if scan_context else effective_evidence_root),
     )
 
 
@@ -180,33 +212,45 @@ def _execute_stage(
 
 
 def _run_vault_scan(context: dict[str, Any]) -> tuple[int, list[str]]:
-    vault_root: Path = context["vault_root"]
-    evidence_root: Path = context["evidence_root"]
-    warnings: list[str] = []
+    status = context["live_vault_status"]
+    warnings = list(status.warnings)
+    source_root = Path(status.active_source_root)
+    context["refresh_required"] = status.refresh_required
 
-    if vault_root.exists() and any(vault_root.rglob("*.md")):
-        notes = tuple(load_vault(vault_root))
-        entities = tuple(extract_entities(vault_root))
+    if status.source_mode == "live_vault":
+        notes = tuple(load_vault(source_root))
+        entities = tuple(extract_entities(source_root))
+        files = tuple(sorted(path for path in source_root.rglob("*.md") if path.is_file()))
         scan = _ScanContext(
             source_mode="live_vault",
-            source_root=vault_root,
+            source_root=source_root,
             notes=notes,
             entities=entities,
-            warnings=(),
+            files=files,
+            changed_files=status.changed_files,
+            refresh_required=status.refresh_required,
+            startup_refresh_required=status.startup_refresh_required,
+            last_successful_refresh_at=status.last_successful_refresh_at,
+            warnings=tuple(warnings),
         )
     else:
-        notes = tuple(_load_evidence_notes(evidence_root))
+        notes = tuple(_load_evidence_notes(source_root))
         entities = tuple(_build_entities_from_notes(list(notes)))
-        warnings.append(f"Live vault unavailable. Fell back to evidence inventory at {evidence_root}.")
         scan = _ScanContext(
             source_mode="evidence_inventory",
-            source_root=evidence_root,
+            source_root=source_root,
             notes=notes,
             entities=entities,
+            files=tuple(sorted(path for path in source_root.rglob("*.md") if path.is_file())),
+            changed_files=status.changed_files,
+            refresh_required=status.refresh_required,
+            startup_refresh_required=status.startup_refresh_required,
+            last_successful_refresh_at=status.last_successful_refresh_at,
             warnings=tuple(warnings),
         )
 
     context["artifacts"]["scan"] = scan
+    records_processed = len(scan.changed_files) if scan.changed_files else len(scan.notes)
     return len(scan.notes), warnings
 
 
@@ -310,8 +354,31 @@ def _build_summary(
     )
     return (
         source_line,
+        f"Changed files detected: {len(scan_context.changed_files) if scan_context else 0}.",
+        f"Last successful refresh: {scan_context.last_successful_refresh_at or 'NONE' if scan_context else 'NONE'}.",
         f"Stages passed: {passed}.",
         f"Stages failed: {failed}.",
         f"Stages skipped: {skipped}.",
         f"Overall pipeline health: {overall_health}.",
     )
+
+
+def _persist_refresh_state_if_successful(
+    context: dict[str, Any],
+    results: list[PipelineStageResult],
+    scan_context: _ScanContext | None,
+) -> None:
+    if scan_context is None:
+        return
+    if any(result.status == "FAIL" for result in results):
+        return
+    if not scan_context.refresh_required and scan_context.last_successful_refresh_at is not None:
+        return
+
+    state = FileWatchState(
+        source_root=str(scan_context.source_root),
+        last_checked_at=utc_now_iso(),
+        last_successful_refresh_at=utc_now_iso(),
+        file_manifest=build_file_manifest(scan_context.source_root, scan_context.files),
+    )
+    save_watch_state(context["refresh_state_path"], state)
