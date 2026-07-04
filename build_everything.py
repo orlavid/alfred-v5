@@ -31,6 +31,7 @@ STEPS = [
     ("Board Governance", [sys.executable, "build_board_governance.py"]),
     ("Board Intelligence", [sys.executable, "build_board_intelligence.py"]),
     ("Executive State", [sys.executable, "build_executive_state.py"]),
+    ("Operational Readiness", [sys.executable, "build_operational_readiness.py"]),
 ]
 
 
