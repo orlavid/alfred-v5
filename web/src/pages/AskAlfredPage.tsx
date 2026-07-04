@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
 import type { DashboardPayload } from "@/types";
@@ -7,8 +7,16 @@ function normalise(value: string) {
   return value.trim().toLowerCase();
 }
 
-export function AskAlfredPage({ data }: { data: DashboardPayload }) {
-  const [query, setQuery] = useState(data.ask_alfred.questions[0] ?? "");
+export function AskAlfredPage({
+  data,
+  query,
+  onQueryChange,
+}: {
+  data: DashboardPayload;
+  query: string;
+  onQueryChange: (value: string) => void;
+}) {
+  const hasExactMatch = data.ask_alfred.responses.some((item) => normalise(item.question) === normalise(query));
 
   const selected = useMemo(() => {
     const exact = data.ask_alfred.responses.find((item) => normalise(item.question) === normalise(query));
@@ -28,7 +36,7 @@ export function AskAlfredPage({ data }: { data: DashboardPayload }) {
           id="question-input"
           className="mt-3 w-full rounded-2xl border border-ink/15 bg-white/80 px-4 py-3 text-sm text-ink outline-none transition focus:border-accent"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => onQueryChange(event.target.value)}
           placeholder="Type one of the recommended questions"
         />
         <div className="mt-4 flex flex-wrap gap-2">
@@ -36,7 +44,7 @@ export function AskAlfredPage({ data }: { data: DashboardPayload }) {
             <button
               key={question}
               type="button"
-              onClick={() => setQuery(question)}
+              onClick={() => onQueryChange(question)}
               className="rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm text-ink transition hover:border-accent/40"
             >
               {question}
@@ -46,6 +54,11 @@ export function AskAlfredPage({ data }: { data: DashboardPayload }) {
         <p className="mt-4 text-sm leading-6 text-ink/65">
           This v1 panel is read-only and resolves against precomputed Dashboard API responses.
         </p>
+        {!hasExactMatch ? (
+          <p className="mt-3 rounded-2xl bg-accent/10 px-4 py-3 text-sm leading-6 text-ink/70">
+            Custom questions are not executed yet. Alfred is showing the closest precomputed executive answer in this phase.
+          </p>
+        ) : null}
       </SectionCard>
       <SectionCard title={selected.question} kicker="Executive Answer" action={<StatusPill value={selected.confidence} />}>
         <div className="space-y-5">
