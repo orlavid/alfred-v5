@@ -48,11 +48,34 @@ Supported package profiles:
 
 ## Install Flow
 
-1. Run `install_alfred_platform.sh` to create the target directory structure and copy the Alfred app into `/opt/alfred/app`.
+1. Run `install_alfred_platform.sh` with an explicit source mode to create the target directory structure and copy the Alfred app into `/opt/alfred/app`.
 2. Run `configure_alfred.sh` to seed `/opt/alfred/config/config.yaml` if it does not already exist.
 3. Review deployment profile, vault path, Python path, Node path, and runtime output locations in `config.yaml`.
 4. Run `start_alfred.sh` to build Dashboard API and UI artefacts inside the package.
 5. Run `status_alfred.sh` to confirm package health markers.
+
+## Supported Installation Modes
+
+The installer refuses to run unless a valid Alfred source is supplied explicitly. It never infers the source repository from the installer location.
+
+Exactly three installation modes are supported:
+
+1. Install from a Git repository:
+   - `scripts/install/install_alfred_platform.sh --mode git --git-url <repo> [--git-ref <ref>]`
+2. Install from a packaged release tarball:
+   - `scripts/install/install_alfred_platform.sh --mode tarball --tarball /path/to/alfred-release.tar.gz`
+3. Install from an explicitly supplied local source directory:
+   - `scripts/install/install_alfred_platform.sh --mode local --source-dir /path/to/alfred-handbook`
+
+The installer validates the Alfred project structure before copying. If validation fails, installation exits immediately with a clear error.
+
+## Safety Guards
+
+- The installer never infers the Alfred source from its own location.
+- The installer validates the source contains the expected Alfred project structure.
+- The installer refuses to recurse into the destination directory.
+- The installer prevents self-copy loops, including cases where the install root is inside the source tree or the source tree is inside the install destination.
+- The installer seeds configuration from the copied app tree, not from the location of the installer script that launched the process.
 
 ## Safety Model
 

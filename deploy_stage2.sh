@@ -25,7 +25,7 @@ export ALFRED_INSTALL_ROOT
 
 require_non_empty "$LOG_FILE" "ALFRED_OBSIDIAN_VAULT" "${ALFRED_OBSIDIAN_VAULT:-}"
 
-run_or_note_dry_run "$LOG_FILE" "install Alfred platform package" "$ROOT_DIR/scripts/install/install_alfred_platform.sh"
+run_or_note_dry_run "$LOG_FILE" "install Alfred platform package" "$ROOT_DIR/scripts/install/install_alfred_platform.sh" --mode local --source-dir "$ROOT_DIR"
 run_or_note_dry_run "$LOG_FILE" "preserve or seed Alfred configuration" "$ROOT_DIR/scripts/install/configure_alfred.sh"
 
 CONFIG_FILE="$ALFRED_INSTALL_ROOT/config/config.yaml"
