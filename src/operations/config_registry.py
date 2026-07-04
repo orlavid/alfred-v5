@@ -114,24 +114,43 @@ def build_deployment_profiles() -> tuple[DeploymentProfile, ...]:
     common_outputs = _expected_outputs()
     return (
         DeploymentProfile(
-            name="Local Mac",
-            description="Current default profile for single-machine Alfred usage.",
+            name="Local Development",
+            description="Developer workstation profile for local iteration and validation.",
             mode="active",
             required_outputs=common_outputs,
             gaps=(
-                "Repeatable installer packaging is not yet defined.",
-                "Authentication and multi-user controls are not yet enabled.",
+                "Production process supervision is not enabled in this profile.",
+                "Secrets and external service wiring should remain local-only.",
             ),
         ),
         DeploymentProfile(
-            name="Repeatable Package",
-            description="Target profile for packaging Alfred into a repeatable local deployment bundle.",
-            mode="target",
+            name="Single Machine",
+            description="Single-host installation profile for a repeatable Alfred package.",
+            mode="supported",
             required_outputs=common_outputs,
             gaps=(
                 "No packaged config template bundle exists yet.",
                 "Doctor remediation scripts are not yet provided.",
+            ),
+        ),
+        DeploymentProfile(
+            name="VPS",
+            description="Side-by-side VPS installation profile designed to avoid touching Hermes until cutover.",
+            mode="supported",
+            required_outputs=common_outputs,
+            gaps=(
+                "Service supervision and reverse-proxy integration must be configured deliberately.",
                 "Write-back and hosted sync controls remain deferred.",
+            ),
+        ),
+        DeploymentProfile(
+            name="Enterprise",
+            description="Placeholder profile for larger multi-node or governed enterprise deployment.",
+            mode="placeholder",
+            required_outputs=common_outputs,
+            gaps=(
+                "Enterprise topology, SSO, and secret-management patterns are not yet implemented.",
+                "High-availability deployment patterns remain undefined.",
             ),
         ),
     )

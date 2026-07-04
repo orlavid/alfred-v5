@@ -24,7 +24,12 @@ def test_configuration_registry_declares_profiles_and_services(tmp_path):
     assert registry.package_json_present is True
     assert registry.node_modules_present is True
     assert any(service.name == "LlamaIndex" for service in registry.optional_services)
-    assert any(profile.name == "Repeatable Package" for profile in registry.deployment_profiles)
+    assert {profile.name for profile in registry.deployment_profiles} == {
+        "Local Development",
+        "Single Machine",
+        "VPS",
+        "Enterprise",
+    }
 
 
 def test_build_operational_readiness_reports_freshness_and_services(tmp_path):
@@ -72,7 +77,7 @@ def test_build_operational_readiness_reports_freshness_and_services(tmp_path):
     assert checks["npm environment"]["status"] == "PASS"
     assert checks["optional services declared"]["status"] == "PASS"
     assert checks["LlamaIndex status placeholder"]["status"] == "PASS"
-    assert payload["overall_health"] == "AMBER"
+    assert payload["overall_health"] == "GREEN"
 
 
 def test_build_operational_readiness_generates_outputs():
