@@ -83,6 +83,7 @@ class ExecutiveKnowledgeModel:
     source_root: str
     entity_inventory: dict[str, int]
     entities: tuple[KnowledgeEntity, ...]
+    raw_entities: tuple[dict, ...]
     canonical_entities: tuple[dict, ...]
     aliases: tuple[dict, ...]
     relationship_graph: tuple[KnowledgeRelationship, ...]
@@ -175,6 +176,7 @@ def _build_from_evidence_inventory(evidence_root: Path, today: date) -> Executiv
             source_root=str(evidence_root),
             entity_inventory={entity_type: 0 for entity_type in ENTITY_TYPES},
             entities=(),
+            raw_entities=(),
             canonical_entities=(),
             aliases=(),
             relationship_graph=(),
@@ -363,6 +365,18 @@ def _assemble_model(
         source_root=str(source_root),
         entity_inventory=entity_inventory,
         entities=entities,
+        raw_entities=tuple(
+            {
+                "id": entity.id,
+                "type": entity.type,
+                "title": entity.title,
+                "path": entity.path,
+                "aliases": list(getattr(entity, "aliases", [])),
+                "links": list(getattr(entity, "links", [])),
+                "tags": list(getattr(entity, "tags", [])),
+            }
+            for entity in sorted(resolution_model.index[next(iter(resolution_model.index))], key=lambda item: (item.type, item.title.lower(), item.path))
+        ) if resolution_model.index else (),
         canonical_entities=tuple(asdict(entity) for entity in resolution_model.canonical_entities),
         aliases=tuple(asdict(alias) for alias in resolution_model.aliases),
         relationship_graph=relationships,
