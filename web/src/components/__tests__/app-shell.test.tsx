@@ -1,6 +1,6 @@
 import { MemoryRouter } from "react-router-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { AppShell } from "@/components/AppShell";
+import { AppShell, getViewportSafeFlyoutTop } from "@/components/AppShell";
 
 test("renders executive navigation shell", () => {
   render(
@@ -33,4 +33,15 @@ test("renders executive navigation shell", () => {
 
   expect(screen.getByText("Objectives")).toBeInTheDocument();
   expect(screen.getByText("Projects")).toBeInTheDocument();
+
+  fireEvent.mouseEnter(screen.getByLabelText("Open Library"));
+
+  expect(screen.getByText("Library")).toBeInTheDocument();
+  expect(screen.getByText("Prompt Library")).toBeInTheDocument();
+});
+
+test("clamps flyout position inside viewport margins", () => {
+  expect(getViewportSafeFlyoutTop(40, 240, 900)).toBe(16);
+  expect(getViewportSafeFlyoutTop(850, 240, 900)).toBe(644);
+  expect(getViewportSafeFlyoutTop(400, 240, 900)).toBe(280);
 });
