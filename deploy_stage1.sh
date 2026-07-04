@@ -20,6 +20,7 @@ require_command "$LOG_FILE" ss
 
 [[ -f "$ROOT_DIR/docs/migration/MIGRATION_MANIFEST.md" ]] || fail_line "$LOG_FILE" "missing migration manifest"
 [[ -f "$ROOT_DIR/docs/deployment/VPS_DEPLOYMENT_PLAN.md" ]] || fail_line "$LOG_FILE" "missing VPS deployment plan"
+[[ -f "$ROOT_DIR/docs/deployment/EXECUTIVE_ACCEPTANCE_TESTS.md" ]] || fail_line "$LOG_FILE" "missing executive acceptance test plan"
 [[ -d /docker/obsidian-vault ]] || fail_line "$LOG_FILE" "vault path /docker/obsidian-vault is not accessible"
 
 if [[ ! -d "$ROOT_DIR/output/vps" ]]; then
@@ -39,6 +40,8 @@ run_logged "$LOG_FILE" "capture current services" systemctl list-units --type=se
 run_logged "$LOG_FILE" "capture Telegram service status" systemctl status hermes-telegram.service --no-pager
 run_logged "$LOG_FILE" "capture listeners" ss -ltnp
 run_logged "$LOG_FILE" "capture vault size" du -sh /docker/obsidian-vault
-run_logged "$LOG_FILE" "capture vault recent files" find /docker/obsidian-vault -maxdepth 2 -type f | head -100
+run_logged "$LOG_FILE" "capture vault recent files" bash -lc "find /docker/obsidian-vault -maxdepth 2 -type f | head -100"
+run_logged "$LOG_FILE" "verify sacred assets" "$ROOT_DIR/scripts/vps/verify_sacred_assets.sh" "$LOG_FILE.sacred_assets"
+run_logged "$LOG_FILE" "check capacity and growth" "$ROOT_DIR/scripts/vps/check_capacity_growth.sh" "$LOG_FILE.capacity"
 
 log_line "$LOG_FILE" "PASS: Stage 1 prechecks completed."

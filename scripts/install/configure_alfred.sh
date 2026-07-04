@@ -4,6 +4,16 @@ set -euo pipefail
 INSTALL_ROOT="${ALFRED_INSTALL_ROOT:-/opt/alfred}"
 CONFIG_DIR="$INSTALL_ROOT/config"
 CONFIG_FILE="$CONFIG_DIR/config.yaml"
+PROFILE="${ALFRED_DEPLOYMENT_PROFILE:-VPS}"
+VAULT_PATH="${ALFRED_OBSIDIAN_VAULT:-}"
+OUTPUT_PATH="${ALFRED_OUTPUT_PATH:-$INSTALL_ROOT/app/output}"
+LLAMAINDEX_STATUS="${ALFRED_LLAMAINDEX_STATUS:-not_installed}"
+LLM_WIKI_STATUS="${ALFRED_LLM_WIKI_STATUS:-not_installed}"
+DEEP_RESEARCH_STATUS="${ALFRED_DEEP_RESEARCH_STATUS:-not_installed}"
+LLM_PROVIDER="${ALFRED_LLM_PROVIDER:-placeholder}"
+LLM_MODEL="${ALFRED_LLM_MODEL:-placeholder}"
+LLM_API_BASE="${ALFRED_LLM_API_BASE:-placeholder}"
+LLM_API_KEY_ENV="${ALFRED_LLM_API_KEY_ENV:-ALFRED_LLM_API_KEY}"
 
 mkdir -p "$CONFIG_DIR"
 
@@ -12,9 +22,14 @@ if [[ -f "$CONFIG_FILE" ]]; then
   exit 0
 fi
 
+if [[ -z "$VAULT_PATH" ]]; then
+  echo "FAIL: ALFRED_OBSIDIAN_VAULT must be set before creating $CONFIG_FILE" >&2
+  exit 1
+fi
+
 cat > "$CONFIG_FILE" <<EOF
 deployment:
-  profile: VPS
+  profile: $PROFILE
   build_version: unknown
 paths:
   install_root: $INSTALL_ROOT
@@ -23,7 +38,8 @@ paths:
   data: $INSTALL_ROOT/data
   logs: $INSTALL_ROOT/logs
   runtime: $INSTALL_ROOT/runtime
-  vault: ${ALFRED_OBSIDIAN_VAULT:-$HOME/Documents/My Vault/My Vault}
+  vault: $VAULT_PATH
+  output: $OUTPUT_PATH
 python:
   executable: ${ALFRED_PYTHON:-$INSTALL_ROOT/app/.venv/bin/python}
 node:
@@ -33,15 +49,21 @@ services:
   dashboard_api: enabled
   ui: enabled
   optional:
-    llamaindex: not_installed
-    llm_wiki_enrichment: not_installed
-    deep_research: not_installed
+    llamaindex: $LLAMAINDEX_STATUS
+    llm_wiki_enrichment: $LLM_WIKI_STATUS
+    deep_research: $DEEP_RESEARCH_STATUS
+models:
+  provider: $LLM_PROVIDER
+  model: $LLM_MODEL
+api:
+  base_url: $LLM_API_BASE
+  key_env_var: $LLM_API_KEY_ENV
 runtime:
   host: 127.0.0.1
   ui_port: 4173
-  api_output: $INSTALL_ROOT/app/output/Dashboard_Home.json
-  executive_state_output: $INSTALL_ROOT/app/output/ExecutiveState_Summary.md
-  pipeline_output: $INSTALL_ROOT/app/output/Executive_Pipeline_Report.md
+  api_output: $OUTPUT_PATH/Dashboard_Home.json
+  executive_state_output: $OUTPUT_PATH/ExecutiveState_Summary.md
+  pipeline_output: $OUTPUT_PATH/Executive_Pipeline_Report.md
 EOF
 
 echo "PASS: wrote $CONFIG_FILE"
