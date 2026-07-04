@@ -25,6 +25,7 @@ STEPS = [
     ("Alfred Archaeology", [sys.executable, "build_archaeology_report.py"]),
     ("Knowledge Housekeeping", [sys.executable, "build_knowledge_housekeeping.py"]),
     ("Board Governance", [sys.executable, "build_board_governance.py"]),
+    ("Executive State", [sys.executable, "build_executive_state.py"]),
 ]
 
 

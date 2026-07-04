@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Iterable
 
 from src.executive.executive_reasoning import build_executive_reasoning_from_state
-from src.executive.knowledge_engine import DEFAULT_MEETING_SUBJECT, build_executive_state
+from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, build_executive_state
 
 SECTION_HEADINGS = [
     "Executive Health",

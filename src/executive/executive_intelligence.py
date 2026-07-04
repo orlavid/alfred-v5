@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from src.executive.knowledge_engine import (
+from src.executive.executive_state import (
     DEFAULT_MEETING_SUBJECT,
     ExecutiveState,
     build_executive_state,
@@ -147,12 +147,11 @@ def _render_items(values: Iterable[ExecutiveLineItem]) -> list[str]:
 
 def _build_health_lines(state: ExecutiveState, meeting_subject: str) -> list[str]:
     health = state.executive_health
-    projects = state.vault["projects"]
-    objectives = state.vault["objectives"]
+    graph_stats = state.relationship_graph.statistics if state.relationship_graph is not None else {}
     return [
         f"Platform health is {health['status']} with score {health['score']} / 100 and {health['failed']} failed services.",
-        f"Knowledge graph covers {state.vault['graph']['entity_count']} entities and {state.vault['graph']['edge_count']} edges.",
-        f"Projects at risk: {projects.get('at_risk', 0)}; objectives at risk: {objectives.get('at_risk', 0)}.",
+        f"Knowledge graph covers {graph_stats.get('node_count', 0)} entities and {graph_stats.get('edge_count', 0)} edges.",
+        f"Projects at risk: {state.project_health.get('at_risk', 0)}; objectives at risk: {state.objective_health.get('at_risk', 0)}.",
         f"Meeting intelligence is currently anchored on {meeting_subject}.",
     ]
 
@@ -264,7 +263,7 @@ def _build_decisions(state: ExecutiveState) -> list[ExecutiveLineItem]:
     items = []
     for item in state.open_loops.missing_decisions[:5]:
         items.append(ExecutiveLineItem(item.title, f"{item.summary} Owner: {item.owner}."))
-    for decision in state.vault["decisions"].get("top_decisions", [])[:5]:
+    for decision in state.decisions[:5]:
         items.append(
             ExecutiveLineItem(
                 decision["title"],
@@ -283,7 +282,7 @@ def _build_decisions(state: ExecutiveState) -> list[ExecutiveLineItem]:
 
 
 def _build_actions(state: ExecutiveState) -> list[str]:
-    return state.recommendations[:10]
+    return list(state.recommendations[:10])
 
 
 def _build_summary(

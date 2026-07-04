@@ -8,7 +8,7 @@ from typing import Iterable
 
 from executive.report import render as render_executive_review
 from src.executive.executive_intelligence import ExecutiveIntelligence, build_executive_intelligence_from_state
-from src.executive.knowledge_engine import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
+from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
 
 SECTION_HEADINGS = [
     "Executive Assessment",

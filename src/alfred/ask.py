@@ -7,7 +7,7 @@ from pathlib import Path
 
 from src.executive.executive_intelligence import build_executive_intelligence_from_state
 from src.executive.executive_reasoning import build_executive_reasoning_from_state
-from src.executive.knowledge_engine import DEFAULT_MEETING_SUBJECT, build_executive_state
+from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, build_executive_state
 
 
 @dataclass(frozen=True)
@@ -152,9 +152,9 @@ def _build_supporting_evidence(focus, reasoning, intelligence, meeting, followup
 
 def _build_next_actions(focus, reasoning, intelligence, meeting) -> list[str]:
     if focus == "meeting":
-        actions = meeting.recommended_discussion[:3] + intelligence.recommended_actions_today[:2]
+        actions = list(meeting.recommended_discussion[:3]) + list(intelligence.recommended_actions_today[:2])
     else:
-        actions = [item.action for item in reasoning.top_actions[:3]] + intelligence.recommended_actions_today[:3]
+        actions = [item.action for item in reasoning.top_actions[:3]] + list(intelligence.recommended_actions_today[:3])
 
     deduped = []
     seen = set()
