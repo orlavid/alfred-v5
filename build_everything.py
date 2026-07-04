@@ -9,6 +9,7 @@ ROOT = Path(__file__).parent
 STEPS = [
     ("Engineering Handbook", [sys.executable, "build_handbook.py"]),
     ("Architecture", [sys.executable, "build_architecture.py"]),
+    ("Executive Knowledge Builder", [sys.executable, "build_executive_knowledge.py"]),
     ("Executive Review", [sys.executable, "build_executive_review.py"]),
     ("Meeting Intelligence", [sys.executable, "build_meeting_brief.py", "Barclays"]),
     ("Follow-up Intelligence", [sys.executable, "build_followups.py"]),
