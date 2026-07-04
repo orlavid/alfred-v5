@@ -67,30 +67,28 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
       <div className="mx-auto min-h-screen max-w-[1600px] px-4 py-4 md:px-6">
         <aside
           onMouseLeave={() => setActiveSection(null)}
-          className="relative rounded-[1.75rem] border border-white/60 bg-ink px-2 py-3 text-white shadow-panel md:fixed md:top-4 md:left-6 md:h-[calc(100vh-2rem)] md:w-[4rem] md:px-2 md:py-3"
+          className="relative rounded-[1.5rem] border border-white/60 bg-ink px-1.5 py-2 text-white shadow-panel md:fixed md:left-6 md:top-1/2 md:w-[3.5rem] md:-translate-y-1/2 md:px-1.5 md:py-2"
         >
-          <div className="flex h-full items-center justify-center">
-            <div className="flex w-8 flex-col items-center justify-center gap-1.5 py-1">
-              {CONTROL_SECTIONS.map((section) => (
-                <div key={section.title} className="relative flex items-center">
-                  <NavLink
-                    to={section.items[0].path}
-                    onMouseEnter={() => setActiveSection(section.title)}
-                    onFocus={() => setActiveSection(section.title)}
-                    ref={(element) => {
-                      buttonRefs.current[section.title] = element;
-                    }}
-                    aria-label={`Open ${section.title}`}
-                    className={`flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-semibold shadow-sm transition hover:scale-105 ${
-                      section.color
-                    } ${highlightedSection === section.title ? "ring-2 ring-white ring-offset-2 ring-offset-ink" : ""}`}
-                    title={section.title}
-                  >
-                    {section.rail}
-                  </NavLink>
-                </div>
-              ))}
-            </div>
+          <div className="flex w-8 flex-col items-center gap-1">
+            {CONTROL_SECTIONS.map((section) => (
+              <div key={section.title} className="relative flex items-center">
+                <NavLink
+                  to={section.items[0].path}
+                  onMouseEnter={() => setActiveSection(section.title)}
+                  onFocus={() => setActiveSection(section.title)}
+                  ref={(element) => {
+                    buttonRefs.current[section.title] = element;
+                  }}
+                  aria-label={`Open ${section.title}`}
+                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-semibold shadow-sm transition hover:scale-105 ${
+                    section.color
+                  } ${highlightedSection === section.title ? "ring-2 ring-white ring-offset-2 ring-offset-ink" : ""}`}
+                  title={section.title}
+                >
+                  {section.rail}
+                </NavLink>
+              </div>
+            ))}
           </div>
           {visibleSection ? (
             <div
