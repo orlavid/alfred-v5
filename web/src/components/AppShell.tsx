@@ -22,41 +22,48 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
         <aside
           onMouseEnter={() => setExpanded(true)}
           onMouseLeave={() => setExpanded(false)}
-          className={`rounded-[2rem] border border-white/60 bg-ink px-4 py-6 text-white shadow-panel transition-[width] duration-300 md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:flex-none ${
-            expanded ? "md:w-[28rem]" : "md:w-24"
+          className={`rounded-[2rem] border border-white/60 bg-ink px-3 py-5 text-white shadow-panel transition-[width] duration-300 md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:flex-none ${
+            expanded ? "md:w-[19.5rem]" : "md:w-[4.75rem]"
           }`}
         >
-          <div className="flex h-full gap-4">
-            <div className="flex w-12 flex-col items-center gap-3 pt-2">
+          <div className="flex h-full gap-3">
+            <div className="flex w-10 flex-col items-center justify-between py-1">
               {CONTROL_SECTIONS.map((section) => (
-                <div key={section.title} className={`flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-semibold shadow-sm ${section.color}`}>
+                <NavLink
+                  key={section.title}
+                  to={section.items[0].path}
+                  className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-semibold shadow-sm transition hover:scale-105 ${section.color}`}
+                  title={section.title}
+                >
                   {section.rail}
-                </div>
+                </NavLink>
               ))}
             </div>
             <div className={`min-w-0 flex-1 overflow-hidden transition-all duration-300 ${expanded ? "opacity-100" : "pointer-events-none opacity-0"}`}>
-              <div className="mb-6">
+              <div className="mb-4">
                 <p className="text-xs uppercase tracking-[0.35em] text-white/60">Alfred</p>
-                <h1 className="mt-3 font-serif text-3xl">CONTROL</h1>
-                <p className="mt-3 text-sm text-white/70">Permanent executive navigation for command, context, and controlled execution.</p>
+                <h1 className="mt-2 font-serif text-2xl">CONTROL</h1>
+                <p className="mt-2 text-xs leading-5 text-white/70">Permanent executive navigation for command, context, and controlled execution.</p>
               </div>
-              <nav className="space-y-4">
+              <nav className="space-y-2">
                 {CONTROL_SECTIONS.map((section) => (
-                  <div key={section.title} className="rounded-3xl bg-white/5 p-3">
-                    <div className="mb-3 flex items-center gap-3">
-                      <span className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-semibold ${section.color}`}>
+                  <div key={section.title} className="rounded-2xl bg-white/5 p-2.5">
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-semibold ${section.color}`}>
                         {section.rail}
                       </span>
-                      <span className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">{section.title}</span>
+                      <NavLink to={section.items[0].path} className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 transition hover:text-white">
+                        {section.title}
+                      </NavLink>
                     </div>
-                    <div className="space-y-1">
+                    <div className="grid grid-cols-2 gap-1">
                       {section.items.map((item) => (
                         <NavLink
                           key={item.path}
                           to={item.path}
                           end={item.path === "/"}
                           className={({ isActive }) =>
-                            `block rounded-2xl px-4 py-2 text-sm font-medium transition ${
+                            `block rounded-xl px-3 py-1.5 text-xs font-medium transition ${
                               isActive ? "bg-white text-ink" : "text-white/75 hover:bg-white/10 hover:text-white"
                             }`
                           }
@@ -68,9 +75,9 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
                   </div>
                 ))}
               </nav>
-              <div className="mt-6 rounded-3xl bg-white/5 p-4 text-sm text-white/70">
+              <div className="mt-3 rounded-2xl bg-white/5 p-3 text-xs leading-5 text-white/70">
                 <p className="font-semibold text-white">Behaviour</p>
-                <p className="mt-2">The CONTROL rail stays thin by default, expands on hover, and preserves the current page without click-driven layout toggles.</p>
+                <p className="mt-1">Thin rail by default. Expands on hover. Preserves page context. No click required.</p>
               </div>
             </div>
           </div>
