@@ -37,7 +37,8 @@ test("renders executive navigation shell", () => {
   fireEvent.mouseEnter(screen.getByLabelText("Open Library"));
 
   expect(screen.getByText("Library")).toBeInTheDocument();
-  expect(screen.getByText("Prompt Library")).toBeInTheDocument();
+  expect(screen.getByText("Deployment Links")).toBeInTheDocument();
+  expect(screen.getByText("LLM APIs")).toBeInTheDocument();
 });
 
 test("clamps flyout position inside viewport margins", () => {

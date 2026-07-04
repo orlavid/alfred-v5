@@ -16,6 +16,9 @@ import { OpenLoopsPage } from "@/pages/OpenLoopsPage";
 import { ActionsPage } from "@/pages/ActionsPage";
 import { ExecutiveSummaryPage } from "@/pages/ExecutiveSummaryPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
+import { DeploymentGuidePage } from "@/pages/DeploymentGuidePage";
+import { DeploymentLinksPage } from "@/pages/DeploymentLinksPage";
+import { DEPLOYMENT_GUIDES } from "@/deploymentCatalog";
 import { loadDashboard } from "@/lib/loadDashboard";
 import type { DashboardPayload } from "@/types";
 import { useEffect, useState } from "react";
@@ -124,6 +127,24 @@ export function App() {
             element={<PlaceholderPage title="System Health" kicker="Operations" summary="System health will present app and knowledge pipeline status from canonical backend telemetry." bullets={["Executive health is visible today, but system health remains a placeholder.", "Production system health should be authenticated and backend-shaped."]} />}
           />
           <Route path="/help" element={<HelpPage />} />
+          <Route path="/deployment-links" element={<DeploymentLinksPage />} />
+          {DEPLOYMENT_GUIDES.map((guide) => (
+            <Route key={guide.path} path={guide.path} element={<DeploymentGuidePage guide={guide} />} />
+          ))}
+          <Route
+            path="/downloads"
+            element={
+              <PlaceholderPage
+                title="Downloads"
+                kicker="Library"
+                summary="Downloads hold deployment placeholders such as config templates, install bundles, and generated deployment artefacts."
+                bullets={[
+                  "Current placeholder path: downloads/deployment/README.md",
+                  "Populate this folder only with reviewed artefacts and templates.",
+                ]}
+              />
+            }
+          />
           <Route
             path="/knowledge-base"
             element={<PlaceholderPage title="Knowledge Base" kicker="Library" summary="The knowledge base route will later surface reusable executive operating guidance." bullets={["Use Help and Documentation as the current library surfaces.", "Knowledge Base entries should remain exportable and compatible with Obsidian write-back later."]} />}

@@ -26,3 +26,7 @@ In Development
 Developer Bootstrap
 
 Run `scripts/alfred-dev.sh` from the repository root for the standard local Alfred bootstrap flow. See `docs/DEVELOPER_BOOTSTRAP.md`.
+
+Deployment Links
+
+Optional advanced service guidance lives under `docs/deployment/` and the UI Library deployment pages.

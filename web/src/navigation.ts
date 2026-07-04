@@ -83,12 +83,12 @@ export const CONTROL_SECTIONS: ControlSection[] = [
     title: "Library",
     color: "bg-[#6b6a4f] text-white",
     items: [
-      { label: "Help", path: "/help" },
-      { label: "Knowledge Base", path: "/knowledge-base" },
-      { label: "Obsidian", path: "/obsidian" },
-      { label: "Documentation", path: "/documentation" },
-      { label: "Prompt Library", path: "/prompt-library" },
-      { label: "External Links", path: "/external-links" },
+      { label: "Deployment Links", path: "/deployment-links" },
+      { label: "LlamaIndex", path: "/llamaindex" },
+      { label: "LLM Wiki Enrichment", path: "/llm-wiki-enrichment" },
+      { label: "LLM APIs", path: "/llm-apis" },
+      { label: "Deep Research", path: "/deep-research" },
+      { label: "Downloads", path: "/downloads" },
     ],
   },
 ];
