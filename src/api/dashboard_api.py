@@ -11,6 +11,8 @@ from src.daily.daily_brief import DailyBrief, build_daily_brief_from_state
 from src.executive.executive_reasoning import ExecutiveReasoning, build_executive_reasoning_from_state
 from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
 from src.objectives.objective_intelligence import build_objective_intelligence_from_state
+from src.operations.doctor import build_operational_readiness
+from src.operations.environment_discovery import build_doctor_summary, build_environment_inventory
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EVIDENCE_ROOT = ROOT / "evidence" / "alfred-inventory"
@@ -56,6 +58,7 @@ def get_dashboard_home(
         "ask_alfred": _build_ask_alfred_page(state),
         "daily_brief": _build_daily_brief_page(brief),
         "knowledge": _build_knowledge_page(state),
+        "admin_configuration": _build_admin_configuration_page(),
         "generated_from": {
             "meeting_subject": meeting_subject,
             "runtime_model": "ExecutiveState",
@@ -261,6 +264,96 @@ def _build_board_page(state: ExecutiveState) -> dict[str, Any]:
         "weekly_meeting": list(board.weekly_board_meeting),
         "monthly_meeting": list(board.monthly_board_meeting),
         "standing_agenda": list(board.standing_agenda),
+    }
+
+
+def _filter_components(components: list[dict[str, Any]], categories: set[str]) -> list[dict[str, Any]]:
+    return [component for component in components if component["category"] in categories]
+
+
+def _operational_action(label: str, command: str, summary: str, work_instruction_link: str) -> dict[str, str]:
+    return {
+        "label": label,
+        "command": command,
+        "summary": summary,
+        "work_instruction_link": work_instruction_link,
+        "mode": "CLI-backed",
+    }
+
+
+def _build_admin_configuration_page() -> dict[str, Any]:
+    inventory = build_environment_inventory()
+    doctor_summary = build_doctor_summary(inventory)
+    readiness = build_operational_readiness()
+    components = [component for component in inventory.as_dict()["components"]]
+    actions = [
+        _operational_action("Discover Environment", "python build_environment_inventory.py", "Re-scan the runtime and refresh the persistent environment inventory.", "docs/deployment/INSTALLATION_GUIDE.md"),
+        _operational_action("Auto Configure", "scripts/install/install_alfred_platform.sh --mode local --source-dir .", "Apply high-confidence discovered configuration during installation.", "docs/deployment/INSTALLATION_GUIDE.md"),
+        _operational_action("Run Health Check", "python build_operational_readiness.py", "Refresh Alfred Doctor and platform health state.", "docs/deployment/POST_INSTALL_VALIDATION.md"),
+        _operational_action("Run Operational Readiness", "python build_operational_readiness.py", "Rebuild the operational readiness report and JSON payload.", "docs/deployment/POST_INSTALL_VALIDATION.md"),
+        _operational_action("Run Live Knowledge Certification", "python build_live_knowledge_certification.py", "Certify that Alfred is reading live Obsidian executive knowledge.", "docs/deployment/POST_INSTALL_VALIDATION.md"),
+        _operational_action("Generate Deployment Report", "python build_everything.py", "Regenerate the full deployment-facing report set.", "docs/deployment/INSTALLATION_GUIDE.md"),
+    ]
+    return {
+        "overview": {
+            "environment_score": doctor_summary["environment_score"],
+            "overall_health": readiness.overall_health,
+            "architecture_rule": inventory.architecture_rule,
+            "summary_lines": doctor_summary["summary_lines"],
+        },
+        "sections": {
+            "core_configuration": _filter_components(components, {"Runtime"}),
+            "vault": _filter_components(components, {"Vault"}),
+            "ai_providers": _filter_components(components, {"AI Providers"}),
+            "knowledge_sources": _filter_components(components, {"Knowledge Sources"}),
+            "runtime": _filter_components(components, {"Runtime"}),
+            "services": _filter_components(components, {"Services"}),
+            "security": [
+                {
+                    "name": "Secrets Exposure Policy",
+                    "status": "CONFIGURED",
+                    "health": "HEALTHY",
+                    "version": "n/a",
+                    "install_location": "",
+                    "configuration_source": "product policy",
+                    "required": True,
+                    "dependencies": [],
+                    "last_checked": inventory.generated_at,
+                    "last_changed": "",
+                    "recommended_action": "Keep secrets in environment or secret stores; never render values in Alfred.",
+                    "work_instruction_link": "docs/deployment/INSTALLATION_GUIDE.md",
+                }
+            ],
+            "diagnostics": [
+                {
+                    "name": "Alfred Doctor",
+                    "status": readiness.overall_health,
+                    "health": readiness.overall_health,
+                    "version": "n/a",
+                    "install_location": "output/Operational_Readiness_Report.md",
+                    "configuration_source": "build_operational_readiness.py",
+                    "required": True,
+                    "dependencies": ["Environment Inventory", "Executive Pipeline"],
+                    "last_checked": readiness.generated_at,
+                    "last_changed": "",
+                    "recommended_action": doctor_summary["recommended_actions"][0] if doctor_summary["recommended_actions"] else "No action required.",
+                    "work_instruction_link": "docs/deployment/POST_INSTALL_VALIDATION.md",
+                }
+            ],
+            "deployment": actions,
+            "required_actions": list(inventory.required_actions),
+        },
+        "auto_configured": {
+            key: {
+                "value": value.value,
+                "discovery_method": value.discovery_method,
+                "confidence": value.confidence,
+                "timestamp": value.timestamp,
+            }
+            for key, value in inventory.auto_configured.items()
+        },
+        "doctor_summary": doctor_summary,
+        "actions": actions,
     }
 
 

@@ -9,6 +9,12 @@ import json
 import os
 
 from src.operations.config_registry import ConfigurationRegistry, build_configuration_registry
+from src.operations.environment_discovery import (
+    EnvironmentInventory,
+    build_doctor_summary,
+    build_environment_inventory,
+    write_environment_inventory,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output"
@@ -38,6 +44,8 @@ class OperationalReadiness:
     generated_at: str
     freshness: DataFreshness
     checks: tuple[DoctorCheck, ...]
+    environment_inventory: dict[str, object]
+    doctor_summary: dict[str, object]
     optional_services: tuple[dict[str, str], ...]
     deployment_profiles: tuple[dict[str, object], ...]
     deployment_package_gaps: tuple[str, ...]
@@ -48,6 +56,8 @@ class OperationalReadiness:
             "generated_at": self.generated_at,
             "freshness": asdict(self.freshness),
             "checks": [asdict(check) for check in self.checks],
+            "environment_inventory": self.environment_inventory,
+            "doctor_summary": self.doctor_summary,
             "optional_services": list(self.optional_services),
             "deployment_profiles": list(self.deployment_profiles),
             "deployment_package_gaps": list(self.deployment_package_gaps),
@@ -63,6 +73,14 @@ def build_operational_readiness(
     effective_registry = registry or build_configuration_registry()
     effective_output_dir = output_dir or Path(effective_registry.output_dir)
     effective_now = now or datetime.now(UTC)
+    environment_inventory = build_environment_inventory(
+        root=Path(effective_registry.root_dir),
+        install_root=Path(effective_registry.root_dir),
+        vault_path=Path(effective_registry.configured_vault_path),
+        now=effective_now,
+    )
+    write_environment_inventory(environment_inventory, output_dir=effective_output_dir)
+    doctor_summary = build_doctor_summary(environment_inventory)
     freshness = _build_freshness(effective_output_dir / "ExecutiveState_Summary.md", effective_now)
     checks = (
         _check_python_environment(effective_registry),
@@ -89,6 +107,8 @@ def build_operational_readiness(
         generated_at=effective_now.isoformat(),
         freshness=freshness,
         checks=checks,
+        environment_inventory=environment_inventory.as_dict(),
+        doctor_summary=doctor_summary,
         optional_services=tuple(asdict(service) for service in effective_registry.optional_services),
         deployment_profiles=tuple(asdict(profile) for profile in effective_registry.deployment_profiles),
         deployment_package_gaps=deployment_package_gaps,
@@ -105,6 +125,7 @@ def render_operational_readiness(report: OperationalReadiness) -> str:
         f"- Generated At: {report.generated_at}",
         f"- ExecutiveState Freshness: {report.freshness.status}",
         f"- Freshness Detail: {report.freshness.detail}",
+        f"- Environment Score: {report.doctor_summary['environment_score']}%",
         "",
         "| Check | Status | Detail | Recommendation |",
         "| --- | --- | --- | --- |",
@@ -124,6 +145,9 @@ def render_operational_readiness(report: OperationalReadiness) -> str:
     lines.extend(["", "## Deployment Package Gaps", ""])
     for gap in report.deployment_package_gaps:
         lines.append(f"- {gap}")
+    lines.extend(["", "## Alfred Doctor", ""])
+    for item in report.doctor_summary["summary_lines"]:
+        lines.append(f"- {item}")
     lines.append("")
     return "\n".join(lines)
 

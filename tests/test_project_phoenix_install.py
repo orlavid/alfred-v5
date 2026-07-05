@@ -111,6 +111,9 @@ def test_install_script_supports_standalone_local_source_install(tmp_path):
     assert result.returncode == 0, result.stderr
     assert (install_root / "app" / "build_everything.py").exists()
     assert (install_root / "config" / "config.yaml").exists()
+    config_text = (install_root / "config" / "config.yaml").read_text()
+    assert "detected_environment:" in config_text
+    assert "auto_configured:" in config_text
     build_info = (install_root / "runtime" / "BUILD_INFO").read_text()
     assert "installed_mode=local" in build_info
     assert f"installed_from={source.resolve()}" in build_info
@@ -194,12 +197,64 @@ def _run_installer(script: Path, install_root: Path, *args: str) -> subprocess.C
 
 
 def _create_fake_alfred_source(root: Path) -> Path:
-    (root / "src").mkdir(parents=True)
+    (root / "src" / "operations").mkdir(parents=True)
     (root / "tests").mkdir()
     (root / "scripts" / "install").mkdir(parents=True)
     (root / "build_everything.py").write_text("print('ok')\n")
     (root / "package.json").write_text("{}\n")
     (root / "src" / "__init__.py").write_text("")
+    (root / "src" / "operations" / "__init__.py").write_text("")
+    (root / "src" / "operations" / "environment_discovery.py").write_text(
+        """
+from dataclasses import dataclass
+from pathlib import Path
+import json
+import os
+import sys
+
+@dataclass(frozen=True)
+class AutoConfiguredValue:
+    value: str
+    discovery_method: str
+    confidence: str
+    timestamp: str
+
+@dataclass(frozen=True)
+class Inventory:
+    auto_configured: dict
+    components: tuple
+    required_actions: tuple
+
+    def as_dict(self):
+        return {
+            "auto_configured": {
+                key: {
+                    "value": value.value,
+                    "discovery_method": value.discovery_method,
+                    "confidence": value.confidence,
+                    "timestamp": value.timestamp,
+                }
+                for key, value in self.auto_configured.items()
+            },
+            "components": [],
+            "required_actions": list(self.required_actions),
+        }
+
+def build_environment_inventory(root=None, install_root=None, vault_path=None, now=None):
+    return Inventory(
+        auto_configured={
+            "vault_path": AutoConfiguredValue(os.environ["ALFRED_OBSIDIAN_VAULT"], "fixture", "HIGH", "2026-07-05T00:00:00+00:00"),
+            "python_executable": AutoConfiguredValue(sys.executable, "fixture", "HIGH", "2026-07-05T00:00:00+00:00"),
+        },
+        components=(),
+        required_actions=(),
+    )
+
+def render_detected_environment_yaml(inventory):
+    vault = inventory.auto_configured["vault_path"]
+    return f\"detected_environment:\\n  obsidian_vault:\\n    status: CONFIGURED\\nauto_configured:\\n  vault_path:\\n    value: {vault.value}\\n    discovery_method: {vault.discovery_method}\\n    confidence: {vault.confidence}\\n    timestamp: {vault.timestamp}\\n\"
+"""
+    )
     (root / "tests" / "test_placeholder.py").write_text("def test_placeholder():\n    assert True\n")
     (root / "scripts" / "install" / "configure_alfred.sh").write_text(
         Path("scripts/install/configure_alfred.sh").read_text()

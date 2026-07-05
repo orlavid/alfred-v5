@@ -103,10 +103,71 @@ export type DashboardPayload = {
     entity_counts: Record<string, number>;
     graph: { node_count: number; edge_count: number; top_nodes: string[] };
   };
+  admin_configuration: {
+    overview: {
+      environment_score: number;
+      overall_health: string;
+      architecture_rule: string;
+      summary_lines: string[];
+    };
+    sections: {
+      core_configuration: AdminComponent[];
+      vault: AdminComponent[];
+      ai_providers: AdminComponent[];
+      knowledge_sources: AdminComponent[];
+      runtime: AdminComponent[];
+      services: AdminComponent[];
+      security: AdminComponent[];
+      diagnostics: AdminComponent[];
+      deployment: AdminAction[];
+      required_actions: string[];
+    };
+    auto_configured: Record<
+      string,
+      {
+        value: string;
+        discovery_method: string;
+        confidence: string;
+        timestamp: string;
+      }
+    >;
+    doctor_summary: {
+      environment_score: number;
+      healthy: string[];
+      warnings: string[];
+      disabled: string[];
+      recommended_actions: string[];
+      summary_lines: string[];
+    };
+    actions: AdminAction[];
+  };
   generated_from: {
     meeting_subject: string;
     runtime_model: string;
     sources: string[];
     confidence: string;
   };
+};
+
+export type AdminComponent = {
+  name: string;
+  status: string;
+  health: string;
+  version: string;
+  install_location: string;
+  configuration_source: string;
+  required: boolean;
+  dependencies: string[];
+  last_checked: string;
+  last_changed: string;
+  recommended_action: string;
+  work_instruction_link: string;
+};
+
+export type AdminAction = {
+  label: string;
+  command: string;
+  summary: string;
+  work_instruction_link: string;
+  mode: string;
 };

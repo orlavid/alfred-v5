@@ -79,6 +79,8 @@ def test_build_operational_readiness_reports_freshness_and_services(tmp_path):
     assert checks["optional services declared"]["status"] == "PASS"
     assert checks["LlamaIndex status placeholder"]["status"] == "PASS"
     assert payload["overall_health"] == "GREEN"
+    assert "environment_inventory" in payload
+    assert "doctor_summary" in payload
 
 
 def test_build_operational_readiness_generates_outputs():

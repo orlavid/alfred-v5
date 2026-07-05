@@ -105,11 +105,11 @@ export function App() {
           <Route path="/ask-alfred" element={<AskAlfredPage data={data} query={askQuery} onQueryChange={setAskQuery} />} />
           <Route
             path="/admin"
-            element={<AdminSecurityPage />}
+            element={<AdminSecurityPage data={data} />}
           />
           <Route
             path="/security"
-            element={<AdminSecurityPage />}
+            element={<AdminSecurityPage data={data} />}
           />
           <Route
             path="/ai-models"
@@ -144,7 +144,7 @@ export function App() {
             path="/external-links"
             element={<PlaceholderPage title="External Links" kicker="Library" summary="External links will later hold approved outbound navigation for executive workflows." bullets={["Keep the current app read-only and locally safe.", "External destinations should eventually be explicitly governed from backend or admin configuration."]} />}
           />
-          <Route path="/admin-security" element={<AdminSecurityPage />} />
+          <Route path="/admin-security" element={<AdminSecurityPage data={data} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       ) : null}

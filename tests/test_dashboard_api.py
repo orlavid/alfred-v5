@@ -23,6 +23,7 @@ def test_get_dashboard_home_returns_expected_shape():
     assert "ask_alfred" in payload
     assert "daily_brief" in payload
     assert "knowledge" in payload
+    assert "admin_configuration" in payload
     assert isinstance(payload["burning_fires"], list)
     assert isinstance(payload["plan_today"], list)
     assert isinstance(payload["next_best_action"], dict)
@@ -33,6 +34,8 @@ def test_get_dashboard_home_returns_expected_shape():
     assert "Executive Reasoning" in payload["generated_from"]["sources"]
     assert payload["board"]["members"]
     assert payload["ask_alfred"]["responses"]
+    assert payload["admin_configuration"]["actions"]
+    assert payload["admin_configuration"]["overview"]["environment_score"] >= 0
 
 
 def test_build_dashboard_api_generates_json_output():
@@ -63,3 +66,4 @@ def test_build_dashboard_api_generates_json_output():
     assert "interruption_policy" in payload
     assert "generated_from" in payload
     assert "board" in payload
+    assert "admin_configuration" in payload

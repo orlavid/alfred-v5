@@ -7,6 +7,8 @@ CONFIG_DIR="$INSTALL_ROOT/config"
 DATA_DIR="$INSTALL_ROOT/data"
 LOG_DIR="$INSTALL_ROOT/logs"
 RUNTIME_DIR="$INSTALL_ROOT/runtime"
+DISCOVERY_JSON="$RUNTIME_DIR/environment_inventory.json"
+DISCOVERY_YAML="$RUNTIME_DIR/environment_inventory.yaml"
 
 REQUIRED_PATHS=(
   "build_everything.py"
@@ -71,6 +73,61 @@ copy_tree() {
     --exclude 'output/' \
     --exclude '__pycache__/' \
     "$source_dir/" "$target_dir/"
+}
+
+apply_environment_discovery() {
+  local app_dir="$1"
+  local install_root="$2"
+  local checked_json="$3"
+  local checked_yaml="$4"
+
+  python3 - "$app_dir" "$install_root" "$checked_json" "$checked_yaml" "$CONFIG_DIR/config.yaml" <<'PY'
+from pathlib import Path
+import json
+import os
+import sys
+
+app_dir = Path(sys.argv[1])
+install_root = Path(sys.argv[2])
+inventory_json = Path(sys.argv[3])
+inventory_yaml = Path(sys.argv[4])
+config_file = Path(sys.argv[5])
+
+sys.path.insert(0, str(app_dir))
+
+from src.operations.environment_discovery import (
+    build_environment_inventory,
+    render_detected_environment_yaml,
+)
+
+inventory = build_environment_inventory(root=app_dir, install_root=install_root)
+inventory_json.write_text(json.dumps(inventory.as_dict(), indent=2, sort_keys=True))
+inventory_yaml.write_text(render_detected_environment_yaml(inventory))
+
+auto = inventory.auto_configured
+exports = {}
+if "vault_path" in auto and not os.environ.get("ALFRED_OBSIDIAN_VAULT"):
+    exports["ALFRED_OBSIDIAN_VAULT"] = auto["vault_path"].value
+if "python_executable" in auto and not os.environ.get("ALFRED_PYTHON"):
+    exports["ALFRED_PYTHON"] = auto["python_executable"].value
+if "node_executable" in auto and not os.environ.get("ALFRED_NODE"):
+    exports["ALFRED_NODE"] = auto["node_executable"].value
+if "npm_executable" in auto and not os.environ.get("ALFRED_NPM"):
+    exports["ALFRED_NPM"] = auto["npm_executable"].value
+
+for key, value in exports.items():
+    print(f"EXPORT::{key}={value}")
+
+if config_file.exists():
+    original = config_file.read_text().rstrip() + "\n"
+    marker = "detected_environment:"
+    if marker in original:
+        original = original.split(marker, 1)[0].rstrip() + "\n"
+    config_file.write_text(original + render_detected_environment_yaml(inventory))
+
+for action in inventory.required_actions:
+    print(f"ACTION::{action}")
+PY
 }
 
 normalise_extracted_root() {
@@ -222,12 +279,51 @@ main() {
   copy_tree "$PREPARED_SOURCE_ROOT" "$APP_DIR"
   pass "copied Alfred application from explicit source"
 
+  local discovery_output
+  discovery_output="$(apply_environment_discovery "$APP_DIR" "$INSTALL_ROOT" "$DISCOVERY_JSON" "$DISCOVERY_YAML")"
+  while IFS= read -r line; do
+    case "$line" in
+      EXPORT::*)
+        export "${line#EXPORT::}"
+        ;;
+      ACTION::*)
+        echo "INFO: Next action: ${line#ACTION::}"
+        ;;
+    esac
+  done <<< "$discovery_output"
+
   if [[ ! -f "$CONFIG_DIR/config.yaml" ]]; then
     bash "$APP_DIR/scripts/install/configure_alfred.sh"
     pass "seeded Alfred configuration"
   else
     pass "existing Alfred configuration preserved"
   fi
+
+  python3 - "$APP_DIR" "$INSTALL_ROOT" "$DISCOVERY_JSON" "$DISCOVERY_YAML" "$CONFIG_DIR/config.yaml" <<'PY'
+from pathlib import Path
+import sys
+import json
+
+app_dir = Path(sys.argv[1])
+install_root = Path(sys.argv[2])
+inventory_json = Path(sys.argv[3])
+inventory_yaml = Path(sys.argv[4])
+config_file = Path(sys.argv[5])
+
+sys.path.insert(0, str(app_dir))
+
+from src.operations.environment_discovery import build_environment_inventory, render_detected_environment_yaml
+
+inventory = build_environment_inventory(root=app_dir, install_root=install_root)
+inventory_json.write_text(json.dumps(inventory.as_dict(), indent=2, sort_keys=True))
+inventory_yaml.write_text(render_detected_environment_yaml(inventory))
+original = config_file.read_text().rstrip() + "\n"
+marker = "detected_environment:"
+if marker in original:
+    original = original.split(marker, 1)[0].rstrip() + "\n"
+config_file.write_text(original + render_detected_environment_yaml(inventory))
+PY
+  pass "recorded detected environment in config"
 
   cat > "$RUNTIME_DIR/BUILD_INFO" <<EOF
 build_version=$(git -C "$PREPARED_SOURCE_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)
@@ -240,6 +336,7 @@ EOF
 
   echo "PASS: Alfred platform package installed into $INSTALL_ROOT"
   echo "INFO: Review $CONFIG_DIR/config.yaml before starting Alfred."
+  echo "INFO: Re-run discovery with python -c 'from src.operations.environment_discovery import build_environment_inventory, write_environment_inventory; write_environment_inventory(build_environment_inventory())'"
 }
 
 main "$@"

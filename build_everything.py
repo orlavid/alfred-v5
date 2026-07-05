@@ -29,6 +29,7 @@ STEPS = [
     ("Knowledge Housekeeping", [sys.executable, "build_knowledge_housekeeping.py"]),
     ("Board Governance", [sys.executable, "build_board_governance.py"]),
     ("Executive State", [sys.executable, "build_executive_state.py"]),
+    ("Environment Inventory", [sys.executable, "build_environment_inventory.py"]),
     ("Operational Readiness", [sys.executable, "build_operational_readiness.py"]),
 ]
 

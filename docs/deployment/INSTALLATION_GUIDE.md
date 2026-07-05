@@ -77,6 +77,32 @@ The installer validates the Alfred project structure before copying. If validati
 - The installer prevents self-copy loops, including cases where the install root is inside the source tree or the source tree is inside the install destination.
 - The installer seeds configuration from the copied app tree, not from the location of the installer script that launched the process.
 
+## Environment Discovery
+
+- The installer performs environment discovery where practical before and after configuration.
+- Alfred records a persistent environment inventory containing detected platform components, health, locations, dependencies, and recommended actions.
+- Optional components do not block installation. Missing optional components are surfaced as next actions instead.
+- Required core configuration is auto-populated only when discovery confidence is high.
+- If discovery confidence is insufficient, Alfred marks the item `ACTION_REQUIRED` instead of guessing.
+
+## Admin / Configuration
+
+- Use the Admin / Configuration console under `CONTROL -> Operations` to review:
+  - core configuration
+  - vault
+  - AI providers
+  - knowledge sources
+  - runtime
+  - services
+  - security
+  - diagnostics
+  - deployment actions
+  - required actions
+- Secrets are never displayed. Presence and configuration source are shown instead.
+- Re-run discovery with:
+  - `python build_environment_inventory.py`
+  - `python build_operational_readiness.py`
+
 ## Safety Model
 
 - The package is designed to sit alongside Hermes.
