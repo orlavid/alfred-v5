@@ -17,7 +17,7 @@ Run each question through `build_ask_alfred.py` during validation:
 
 1. `What should I focus on today?`
 2. `What are my top objectives?`
-3. `Prepare me for Barclays.`
+3. `Prepare me for the next executive meeting.`
 4. `What changed yesterday?`
 5. `Which projects are at risk?`
 6. `What follow-ups need action?`
@@ -29,7 +29,7 @@ Run each question through `build_ask_alfred.py` during validation:
 - Confidence is shown for each response.
 - Recommended next actions are present for each response.
 - Responses are grounded in generated intelligence rather than placeholder text.
-- Barclays preparation must reflect the generated meeting brief.
+- Meeting preparation must reflect the generated meeting brief when live meeting evidence exists.
 - Follow-up and open-loop answers must align with the latest generated intelligence outputs.
 
 ## Validation Sequence

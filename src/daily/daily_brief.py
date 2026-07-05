@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Iterable
 
 from src.executive.executive_reasoning import build_executive_reasoning_from_state
-from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, build_executive_state
+from src.executive.executive_state import build_executive_state
 
 SECTION_HEADINGS = [
     "Executive Health",
@@ -41,7 +41,7 @@ class DailyBrief:
 def build_daily_brief(
     evidence_root: Path,
     *,
-    meeting_subject: str = DEFAULT_MEETING_SUBJECT,
+    meeting_subject: str | None = None,
 ) -> DailyBrief:
     state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
     return build_daily_brief_from_state(state)
@@ -53,7 +53,7 @@ def build_daily_brief_from_state(
     reasoning=None,
 ) -> DailyBrief:
     reasoning = reasoning or build_executive_reasoning_from_state(state)
-    meeting = state.meetings[0]
+    meeting = state.meetings[0] if state.meetings else None
     followups = state.followups
     open_loops = state.open_loops
 
@@ -68,23 +68,21 @@ def build_daily_brief_from_state(
         reasoning.key_themes[3] if len(reasoning.key_themes) > 3 else "Open loop posture unchanged.",
     ]
 
-    top_three_priorities = [action.action for action in reasoning.top_actions[:3]]
+    top_three_priorities = [action.action for action in reasoning.top_actions[:3]] or ["No evidence found."]
 
     meetings_requiring_preparation = _dedupe(
-        [meeting.recommended_discussion[0]] + meeting.risks[:2]
-        if meeting.recommended_discussion
-        else meeting.risks[:3]
-    )[:3]
+        ([meeting.recommended_discussion[0]] + meeting.risks[:2]) if meeting and meeting.recommended_discussion else (meeting.risks[:3] if meeting else [])
+    )[:3] or ["No active meeting identified."]
 
     followups_due_today = _dedupe(
         [item.summary for item in followups.due_today]
         + [item.summary for item in followups.overdue[:3]]
-    )[:3] or ["No dated follow-ups for today; work the highest-priority overdue items first."]
+    )[:3] or ["No active follow-up identified."]
 
     open_loops_blocking_progress = _dedupe(
         [item.summary for item in open_loops.waiting_for[:3]]
         + [item.summary for item in open_loops.missing_owners[:2]]
-    )[:3] or ["No explicit blocked open loops detected; focus on ownerless critical loops."]
+    )[:3] or ["No active open loop identified."]
 
     risks_escalating = reasoning.risks_requiring_immediate_attention[:3]
 
@@ -93,9 +91,9 @@ def build_daily_brief_from_state(
     recommended_agenda = reasoning.recommended_agenda_for_today[:5]
 
     one_page_executive_summary = [
-        reasoning.executive_conclusion[0],
-        f"Top priority today: {top_three_priorities[0]}" if top_three_priorities else "No top priority identified.",
-        f"Meeting focus: {meeting.subject}." if meeting.subject else "No critical meeting focus identified.",
+        reasoning.executive_conclusion[0] if reasoning.executive_conclusion else "No evidence found.",
+        f"Top priority today: {top_three_priorities[0]}" if top_three_priorities else "No evidence found.",
+        f"Meeting focus: {meeting.subject}." if meeting else "No active meeting identified.",
         f"Follow-up pressure: {len(followups.overdue)} overdue, {len(followups.high_priority)} high priority.",
         f"Open loop pressure: {len(open_loops.critical_open_loops)} critical, {len(open_loops.missing_owners)} missing owners.",
     ]

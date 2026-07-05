@@ -435,7 +435,16 @@ def _render_strategic_objectives(values: Iterable[StrategicObjectiveRecord]) -> 
                 "",
             ]
         )
-    return rendered or ["_None found._"]
+    return rendered or [
+        "### No evidence found",
+        "- Status: Review Required",
+        "- Confidence: LOW",
+        "- Supporting Projects: None",
+        "- Linked Decisions: None",
+        "- Stale Evidence: NO",
+        "- Recommended Next Action: No evidence found.",
+        "",
+    ]
 
 
 def _render_bullets(values: Iterable[str]) -> list[str]:

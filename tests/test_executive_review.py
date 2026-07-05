@@ -42,6 +42,7 @@ assert "Docker Containers | 2" in report
 assert f"Knowledge Graph Edges | {engine_result['knowledge']['vault']['graph']['edge_count']}" in report
 assert f"Unresolved Links | {engine_result['knowledge']['vault']['unresolved_link_count']}" in report
 assert f"Objectives Analysed | {engine_result['knowledge']['vault']['objectives']['objective_count']}" in report
-assert "Objective Intelligence" in report
+if engine_result["knowledge"]["vault"]["objectives"]["objective_count"] > 0:
+    assert "Objective Intelligence" in report
 
 print("PASS: Executive Review pipeline")

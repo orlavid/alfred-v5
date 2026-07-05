@@ -12,7 +12,7 @@ STEPS = [
     ("Executive Knowledge Builder", [sys.executable, "build_executive_knowledge.py"]),
     ("Knowledge Graph", [sys.executable, "build_knowledge_graph.py"]),
     ("Executive Review", [sys.executable, "build_executive_review.py"]),
-    ("Meeting Intelligence", [sys.executable, "build_meeting_brief.py", "Barclays"]),
+    ("Meeting Intelligence", [sys.executable, "build_meeting_brief.py"]),
     ("Follow-up Intelligence", [sys.executable, "build_followups.py"]),
     ("Open Loop Intelligence", [sys.executable, "build_open_loops.py"]),
     ("Executive Intelligence", [sys.executable, "build_executive_intelligence.py"]),
@@ -31,6 +31,7 @@ STEPS = [
     ("Executive State", [sys.executable, "build_executive_state.py"]),
     ("Environment Inventory", [sys.executable, "build_environment_inventory.py"]),
     ("Operational Readiness", [sys.executable, "build_operational_readiness.py"]),
+    ("Production Validation", [sys.executable, "build_production_validation.py"]),
 ]
 
 

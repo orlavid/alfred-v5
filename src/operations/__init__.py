@@ -49,6 +49,13 @@ from src.operations.doctor import (
     render_operational_readiness_json,
     write_operational_readiness,
 )
+from src.operations.production_validation import (
+    ProductionValidationFinding,
+    ProductionValidationReport,
+    build_production_validation,
+    render_production_validation,
+    write_production_validation,
+)
 
 __all__ = [
     "ConfigurationRegistry",
@@ -81,10 +88,13 @@ __all__ = [
     "EnvironmentInventory",
     "DoctorCheck",
     "OperationalReadiness",
+    "ProductionValidationFinding",
+    "ProductionValidationReport",
     "build_configuration_registry",
     "build_environment_inventory",
     "build_doctor_summary",
     "build_operational_readiness",
+    "build_production_validation",
     "compare_environment_inventory",
     "get_component_by_id",
     "load_environment_inventory",
@@ -94,4 +104,6 @@ __all__ = [
     "render_operational_readiness_json",
     "write_environment_inventory",
     "write_operational_readiness",
+    "render_production_validation",
+    "write_production_validation",
 ]

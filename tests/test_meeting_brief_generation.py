@@ -6,12 +6,12 @@ from src.meeting.meeting_intelligence import SECTION_HEADINGS
 
 
 def test_build_meeting_brief_generates_barclays_report():
-    output = Path("output/Meeting_Brief_Barclays.md")
+    output = Path("output/Meeting_Brief_Project_Phoenix.md")
     if output.exists():
         output.unlink()
 
     exit_code = subprocess.run(
-        [sys.executable, "build_meeting_brief.py", "Barclays"],
+        [sys.executable, "build_meeting_brief.py", "Project Phoenix"],
         check=False,
     ).returncode
 

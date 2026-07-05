@@ -36,6 +36,19 @@ def test_get_dashboard_home_returns_expected_shape():
     assert payload["ask_alfred"]["responses"]
     assert payload["admin_configuration"]["actions"]
     assert payload["admin_configuration"]["overview"]["environment_score"] >= 0
+    assert payload["generated_from"]["production_mode"] is True
+    if payload["burning_fires"]:
+        assert {"origin", "confidence", "source_notes", "provider"} <= payload["burning_fires"][0].keys()
+    if payload["plan_today"]:
+        assert {"origin", "confidence", "source_notes", "provider"} <= payload["plan_today"][0].keys()
+    assert {"origin", "confidence", "source_notes", "provider"} <= payload["next_best_action"].keys()
+
+
+def test_dashboard_empty_vault_returns_explicit_no_evidence(tmp_path):
+    payload = get_dashboard_home(tmp_path / "missing-evidence", vault_root=tmp_path / "missing-vault")
+
+    assert payload["next_best_action"]["action"] == "No evidence found"
+    assert payload["meetings"]["subject"] == "No active meeting identified."
 
 
 def test_build_dashboard_api_generates_json_output():

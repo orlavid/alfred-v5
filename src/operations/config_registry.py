@@ -41,6 +41,8 @@ class ConfigurationRegistry:
     node_modules_present: bool
     configured_vault_path: str
     live_vault_env_var: str
+    production_mode: bool
+    forbidden_output_strings: tuple[str, ...]
     expected_outputs: tuple[str, ...]
     optional_services: tuple[OptionalService, ...]
     deployment_profiles: tuple[DeploymentProfile, ...]
@@ -55,6 +57,8 @@ class ConfigurationRegistry:
             "node_modules_present": self.node_modules_present,
             "configured_vault_path": self.configured_vault_path,
             "live_vault_env_var": self.live_vault_env_var,
+            "production_mode": self.production_mode,
+            "forbidden_output_strings": list(self.forbidden_output_strings),
             "expected_outputs": list(self.expected_outputs),
             "optional_services": [asdict(service) for service in self.optional_services],
             "deployment_profiles": [asdict(profile) for profile in self.deployment_profiles],
@@ -79,6 +83,13 @@ def build_configuration_registry(
         node_modules_present=(effective_root / "node_modules").exists(),
         configured_vault_path=str(configured_vault_path),
         live_vault_env_var=LIVE_VAULT_ENV_VAR,
+        production_mode=True,
+        forbidden_output_strings=(
+            "Barclays",
+            "Graham Dawe",
+            "Reconnect Alfred",
+            "DEFAULT_MEETING_SUBJECT",
+        ),
         expected_outputs=_expected_outputs(),
         optional_services=build_optional_service_registry(),
         deployment_profiles=build_deployment_profiles(),

@@ -28,12 +28,13 @@ from executive.knowledge.executive_briefing import build_briefing
 from executive.intelligence.impact import calculate
 from executive.intelligence.entity_consolidation import consolidate, rewrite_graph
 from executive.knowledge.findings import Finding
+from src.obsidian.live_vault import resolve_live_vault_path
 
-VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
+VAULT_ROOT = resolve_live_vault_path()
 
 
 def analyze(evidence_root, vault_root=None):
-    effective_vault_root = vault_root or VAULT_ROOT
+    effective_vault_root = resolve_live_vault_path(vault_root) if vault_root is not None else VAULT_ROOT
     entities = extract_entities(effective_vault_root)
     resolution_model = build_entity_resolution(entities)
     resolution_index = resolution_model.index

@@ -10,8 +10,7 @@ from typing import Iterable
 
 from executive.knowledge.resolver import normalise_name
 from executive.knowledge.vault import VaultNote, load_vault
-
-DEFAULT_VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
+from src.obsidian.live_vault import resolve_live_vault_path
 
 SECTION_HEADINGS = [
     "Overdue",
@@ -94,7 +93,7 @@ class FollowupIntelligence:
 
 
 def build_followup_intelligence(vault_root: Path | None = None, today: date | None = None) -> FollowupIntelligence:
-    resolved_vault = vault_root or DEFAULT_VAULT_ROOT
+    resolved_vault = resolve_live_vault_path(vault_root)
     effective_today = today or date.today()
     notes = load_vault(resolved_vault)
 

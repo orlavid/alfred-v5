@@ -7,7 +7,9 @@ from pathlib import Path
 import os
 
 from executive.knowledge.vault import load_vault
-from src.knowledge.executive_knowledge_builder import DEFAULT_VAULT_ROOT
+
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_VAULT_ROOT = ROOT / ".vault-not-configured"
 
 LIVE_VAULT_ENV_VAR = "ALFRED_LIVE_VAULT_PATH"
 LEGACY_VAULT_ENV_VAR = "ALFRED_OBSIDIAN_VAULT"

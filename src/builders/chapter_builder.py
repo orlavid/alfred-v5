@@ -318,9 +318,9 @@ systemctl status hermes-telegram.service --no-pager -l
 
 ## Expected Functional Questions
 
-- Prepare me for tomorrow's Barclays meeting.
-- Tell me about the Barclays meeting tomorrow.
-- Who is Graham Dawe?
+- Prepare me for the next executive meeting in my vault.
+- Tell me about the next executive meeting.
+- Who is the owner linked to Project Phoenix?
 - Find the test sync note containing 641923.
 
 ## Recovery Rule

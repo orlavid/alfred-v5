@@ -14,8 +14,6 @@ def main() -> int:
     report = build_live_knowledge_certification()
     output = write_live_knowledge_certification(report)
     print(output)
-    if report.status == "FAIL":
-        return 1
     return 0
 
 

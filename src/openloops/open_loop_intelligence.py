@@ -10,8 +10,7 @@ from typing import Iterable
 
 from executive.knowledge.resolver import normalise_name
 from executive.knowledge.vault import VaultNote, load_vault
-
-DEFAULT_VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
+from src.obsidian.live_vault import resolve_live_vault_path
 
 SECTION_HEADINGS = [
     "Critical Open Loops",
@@ -89,7 +88,7 @@ class OpenLoopIntelligence:
 
 
 def build_open_loop_intelligence(vault_root: Path | None = None) -> OpenLoopIntelligence:
-    resolved_vault = vault_root or DEFAULT_VAULT_ROOT
+    resolved_vault = resolve_live_vault_path(vault_root)
     notes = load_vault(resolved_vault)
     items = _collect_open_loops(notes)
 

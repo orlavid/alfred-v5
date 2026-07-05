@@ -6,11 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from src.executive.executive_state import (
-    DEFAULT_MEETING_SUBJECT,
-    ExecutiveState,
-    build_executive_state,
-)
+from src.executive.executive_state import ExecutiveState, build_executive_state
 from src.followups.followup_intelligence import FollowupItem
 from src.openloops.open_loop_intelligence import OpenLoopItem
 
@@ -55,18 +51,18 @@ class ExecutiveIntelligence:
 def build_executive_intelligence(
     evidence_root: Path,
     *,
-    meeting_subject: str = DEFAULT_MEETING_SUBJECT,
+    meeting_subject: str | None = None,
 ) -> ExecutiveIntelligence:
     state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
     return build_executive_intelligence_from_state(state)
 
 
 def build_executive_intelligence_from_state(state: ExecutiveState) -> ExecutiveIntelligence:
-    meeting = state.meetings[0]
+    meeting = state.meetings[0] if state.meetings else None
     followups = state.followups
     open_loops = state.open_loops
 
-    health = _build_health_lines(state, meeting.subject)
+    health = _build_health_lines(state, meeting.subject if meeting else None)
     top_priorities = _build_top_priorities(state)
     objectives = _build_objectives(state)
     meetings = _build_meetings(state)
@@ -145,14 +141,14 @@ def _render_items(values: Iterable[ExecutiveLineItem]) -> list[str]:
     return items or ["_None found._"]
 
 
-def _build_health_lines(state: ExecutiveState, meeting_subject: str) -> list[str]:
+def _build_health_lines(state: ExecutiveState, meeting_subject: str | None) -> list[str]:
     health = state.executive_health
     graph_stats = state.relationship_graph.statistics if state.relationship_graph is not None else {}
     return [
         f"Platform health is {health['status']} with score {health['score']} / 100 and {health['failed']} failed services.",
         f"Knowledge graph covers {graph_stats.get('node_count', 0)} entities and {graph_stats.get('edge_count', 0)} edges.",
         f"Projects at risk: {state.project_health.get('at_risk', 0)}; objectives at risk: {state.objective_health.get('at_risk', 0)}.",
-        f"Meeting intelligence is currently anchored on {meeting_subject}.",
+        f"Meeting intelligence is currently anchored on {meeting_subject}." if meeting_subject else "No active meeting identified.",
     ]
 
 
@@ -174,11 +170,13 @@ def _build_objectives(state: ExecutiveState) -> list[ExecutiveLineItem]:
 
 
 def _build_meetings(state: ExecutiveState) -> list[ExecutiveLineItem]:
+    if not state.meetings:
+        return []
     meeting = state.meetings[0]
     items = [
         ExecutiveLineItem(
             meeting.subject,
-            meeting.recommended_discussion[0] if meeting.recommended_discussion else "Review current meeting priorities.",
+            meeting.recommended_discussion[0] if meeting.recommended_discussion else "No evidence found.",
         )
     ]
     for risk in meeting.risks[:4]:
@@ -294,13 +292,16 @@ def _build_summary(
     decisions: list[ExecutiveLineItem],
 ) -> list[str]:
     health = state.executive_health
-    meeting = state.meetings[0]
     followups = state.followups
     open_loops = state.open_loops
     return [
         f"Overall posture is {health['status']} with {health['failed']} failed services and score {health['score']} / 100.",
         f"Top executive pressure points: {len(top_priorities)} priorities, {len(projects)} projects at risk, and {len(open_loops.critical_open_loops)} critical open loops.",
         f"Follow-up load remains active with {len(followups.overdue)} overdue items and {len(followups.high_priority)} high-priority follow-ups.",
-        f"Current meeting focus is {meeting.subject}, with {len(meeting.risks)} meeting risks and {len(supplier_risks)} supplier risks in the wider briefing.",
+        (
+            f"Current meeting focus is {state.meetings[0].subject}, with {len(state.meetings[0].risks)} meeting risks and {len(supplier_risks)} supplier risks in the wider briefing."
+            if state.meetings
+            else "No active meeting identified."
+        ),
         f"Decisions awaiting attention total {len(decisions)} across explicit decision items and open-loop governance gaps.",
     ]

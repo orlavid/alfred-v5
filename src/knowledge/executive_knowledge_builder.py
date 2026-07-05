@@ -18,7 +18,7 @@ from src.knowledge.providers import extract_provider_entities
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EVIDENCE_ROOT = ROOT / "evidence" / "alfred-inventory"
-DEFAULT_VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
+DEFAULT_VAULT_ROOT = ROOT / ".vault-not-configured"
 STALE_AFTER_DAYS = 30
 
 SECTION_HEADINGS = [
@@ -396,7 +396,7 @@ def _build_recommended_actions(
 ) -> list[str]:
     actions = []
     if source_mode == "evidence_inventory":
-        actions.append("Reconnect Alfred to a live Obsidian vault to replace fallback evidence-inventory mode.")
+        actions.append("No evidence found in a live vault; evidence inventory mode is active.")
     if orphans:
         actions.append(f"Review the {len(orphans)} orphaned entities and add links or ownership context in Obsidian.")
     if stale_evidence:

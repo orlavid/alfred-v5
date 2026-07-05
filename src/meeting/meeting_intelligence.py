@@ -13,8 +13,7 @@ from executive.knowledge.extractor import extract_entities, extract_links
 from executive.knowledge.graph import build_graph
 from executive.knowledge.resolver import build_resolution_index, normalise_name, resolve_link_with_index
 from executive.knowledge.vault import VaultNote, load_vault
-
-DEFAULT_VAULT_ROOT = Path.home() / "Documents" / "My Vault" / "My Vault"
+from src.obsidian.live_vault import resolve_live_vault_path
 
 SECTION_HEADINGS = [
     "Meeting",
@@ -64,7 +63,7 @@ def build_meeting_brief(subject: str, vault_root: Path | None = None) -> Meeting
     if not subject or not subject.strip():
         raise ValueError("Meeting subject is required.")
 
-    resolved_vault = vault_root or DEFAULT_VAULT_ROOT
+    resolved_vault = resolve_live_vault_path(vault_root)
     notes = load_vault(resolved_vault)
     entities = extract_entities(resolved_vault)
     resolution_index = build_resolution_index(entities)
@@ -114,6 +113,7 @@ def build_meeting_brief(subject: str, vault_root: Path | None = None) -> Meeting
     )
 
     recommended_discussion = _build_recommended_discussion(
+        subject=subject.strip(),
         related_entities=related_entities,
         risks=risks,
         follow_ups=follow_ups,
@@ -423,7 +423,7 @@ def _build_risks(seed_entities: list, related_entities: list[tuple], note_lookup
             continue
         seen.add(key)
         deduped.append(risk)
-    return deduped[:8] or ["Limited explicit risk evidence found in linked notes; confirm ownership, controls, and next decision points in the meeting."]
+    return deduped[:8]
 
 
 def _extract_risk_lines(text: str) -> list[str]:
@@ -441,6 +441,7 @@ def _extract_risk_lines(text: str) -> list[str]:
 
 def _build_recommended_discussion(
     *,
+    subject: str,
     related_entities: list[tuple],
     risks: list[str],
     follow_ups: list[EvidenceItem],
@@ -450,7 +451,7 @@ def _build_recommended_discussion(
 
     top_people = [entity.title for _, entity, _ in related_entities if entity.type == "person"][:3]
     if top_people:
-        discussion.append(f"Confirm who owns the next Barclays actions across {', '.join(top_people)}.")
+        discussion.append(f"Confirm who owns the next {subject} actions across {', '.join(top_people)}.")
 
     top_objectives = [entity.title for _, entity, _ in related_entities if entity.type == "objective"][:3]
     if top_objectives:
@@ -464,9 +465,6 @@ def _build_recommended_discussion(
 
     if open_loops:
         discussion.append(f"Close any open loop that blocks commercial or operational progress, starting with {open_loops[0].title}.")
-
-    if not discussion:
-        discussion.append("Use the meeting to confirm decision owner, success criteria, and the next dated action.")
 
     return discussion[:5]
 

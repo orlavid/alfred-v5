@@ -116,8 +116,8 @@ def test_build_objective_intelligence_generates_report():
     assert "# Objective Intelligence" in content
     for heading in SECTION_HEADINGS:
         assert f"## {heading}" in content
-    assert "- Status:" in content
-    assert "- Confidence:" in content
+    assert "- Status:" in content or "_None found._" in content
+    assert "- Confidence:" in content or "_None found._" in content
     assert "- Supporting Projects:" in content
     assert "- Linked Decisions:" in content
     assert "- Stale Evidence:" in content

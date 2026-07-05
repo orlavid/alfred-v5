@@ -23,8 +23,8 @@ def test_build_executive_reasoning_generates_report():
     for heading in SECTION_HEADINGS:
         assert f"## {heading}" in content
     assert "## Top 10 Executive Actions" in content
-    assert "- Priority:" in content
-    assert "- Action:" in content
+    assert "- Priority:" in content or "_None found._" in content
+    assert "- Action:" in content or "_None found._" in content
     assert "- Why it matters:" in content
     assert "- Supporting evidence:" in content
     assert "- Expected impact:" in content

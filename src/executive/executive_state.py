@@ -14,8 +14,6 @@ from src.knowledge.knowledge_graph import KnowledgeGraphModel, build_knowledge_g
 from src.meeting.meeting_intelligence import MeetingBrief, build_meeting_brief
 from src.openloops.open_loop_intelligence import OpenLoopIntelligence, build_open_loop_intelligence
 
-DEFAULT_MEETING_SUBJECT = "Barclays"
-
 
 @dataclass(frozen=True)
 class ExecutiveState:
@@ -49,7 +47,7 @@ class ExecutiveState:
 def build_executive_state(
     evidence_root: Path,
     *,
-    meeting_subject: str = DEFAULT_MEETING_SUBJECT,
+    meeting_subject: str | None = None,
     vault_root: Path | None = None,
 ) -> ExecutiveState:
     engine_result = execute(evidence_root, vault_root=vault_root)
@@ -57,7 +55,7 @@ def build_executive_state(
     knowledge_model = build_executive_knowledge(evidence_root, vault_root=vault_root)
     relationship_graph = build_knowledge_graph_from_model(knowledge_model)
     board = build_board_governance()
-    meeting = build_meeting_brief(meeting_subject, vault_root=vault_root)
+    meetings = _build_meetings(meeting_subject, vault_root, knowledge_model)
     followups = build_followup_intelligence(vault_root=vault_root)
     open_loops = build_open_loop_intelligence(vault_root=vault_root)
 
@@ -85,12 +83,16 @@ def build_executive_state(
 
     objective_health = _build_objective_health(objectives, vault)
     project_health = _build_project_health(projects, vault)
-    recommendations = _dedupe(
-        priorities[:3],
-        [meeting.recommended_discussion[0]] if meeting.recommended_discussion else [],
-        followups.recommendations[:2],
-        open_loops.recommended_actions[:2],
-        knowledge_model.recommended_actions[:2],
+    recommendations = (
+        _dedupe(
+            priorities[:3],
+            [meetings[0].recommended_discussion[0]] if meetings and meetings[0].recommended_discussion else [],
+            followups.recommendations[:2],
+            open_loops.recommended_actions[:2],
+            knowledge_model.recommended_actions[:2],
+        )
+        if knowledge_model.entities and knowledge_model.source_mode == "live_vault"
+        else ()
     )
     confidence = _derive_confidence(engine_result, followups, open_loops, relationship_graph)
     summary = _build_summary(
@@ -115,7 +117,7 @@ def build_executive_state(
         projects=projects,
         companies=companies,
         people=people,
-        meetings=(meeting,),
+        meetings=meetings,
         decisions=decisions,
         risks=risks,
         policies=policies,
@@ -232,6 +234,37 @@ def _build_summary(
         f"Operational pressure includes {len(followups.overdue)} overdue follow-ups and {len(open_loops.critical_open_loops)} critical open loops.",
         f"Entity resolution currently exposes {len(knowledge_model.aliases)} aliases across {len(knowledge_model.canonical_entities)} canonical entities.",
         f"Runtime confidence is {confidence}.",
+    )
+
+
+def _build_meetings(
+    meeting_subject: str | None,
+    vault_root: Path | None,
+    knowledge_model: ExecutiveKnowledgeModel,
+) -> tuple[MeetingBrief, ...]:
+    subject = (meeting_subject or "").strip()
+    if subject:
+        brief = build_meeting_brief(subject, vault_root=vault_root)
+        return (brief,) if _meeting_has_evidence(brief) else ()
+
+    candidate = next((entity.title for entity in knowledge_model.entities if entity.entity_type == "meeting"), None)
+    if candidate:
+        brief = build_meeting_brief(candidate, vault_root=vault_root)
+        return (brief,) if _meeting_has_evidence(brief) else ()
+    return ()
+
+
+def _meeting_has_evidence(brief: MeetingBrief) -> bool:
+    return bool(
+        brief.matched_entities
+        or brief.evidence_note_count
+        or brief.related_people
+        or brief.related_projects
+        or brief.related_companies
+        or brief.related_objectives
+        or brief.related_decisions
+        or brief.open_loops
+        or brief.follow_ups
     )
 
 

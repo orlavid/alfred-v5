@@ -9,7 +9,7 @@ from src.alfred.ask import ask_alfred_from_state
 from src.board.board_registry import BoardMember
 from src.daily.daily_brief import DailyBrief, build_daily_brief_from_state
 from src.executive.executive_reasoning import ExecutiveReasoning, build_executive_reasoning_from_state
-from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
+from src.executive.executive_state import ExecutiveState, build_executive_state
 from src.objectives.objective_intelligence import build_objective_intelligence_from_state
 from src.operations.doctor import build_operational_readiness
 from src.operations.environment_discovery import build_doctor_summary, build_environment_inventory
@@ -27,7 +27,7 @@ ASK_ALFRED_QUESTIONS = (
 def get_dashboard_home(
     evidence_root: Path | None = None,
     *,
-    meeting_subject: str = DEFAULT_MEETING_SUBJECT,
+    meeting_subject: str | None = None,
     vault_root: Path | None = None,
 ) -> dict[str, Any]:
     state = build_executive_state(
@@ -62,6 +62,7 @@ def get_dashboard_home(
         "generated_from": {
             "meeting_subject": meeting_subject,
             "runtime_model": "ExecutiveState",
+            "production_mode": True,
             "sources": [
                 "ExecutiveState",
                 "Executive Reasoning",
@@ -84,10 +85,10 @@ def get_burning_fires(
     items: list[dict[str, str]] = []
 
     for value in effective_reasoning.risks_requiring_immediate_attention[:3]:
-        items.append({"type": "risk", "summary": value})
+        items.append(_evidence_card("risk", value, "executive_reasoning", state.confidence, []))
 
     for item in state.open_loops.critical_open_loops[:2]:
-        items.append({"type": "open_loop", "summary": item.summary})
+        items.append(_evidence_card("open_loop", item.summary, "open_loop_provider", state.confidence, [item.path], origin=item.source_kind))
 
     return _dedupe_dicts(items, key_fields=("type", "summary"))[:5]
 
@@ -97,13 +98,11 @@ def get_plan_today(
     *,
     reasoning: ExecutiveReasoning | None = None,
     brief: DailyBrief | None = None,
-) -> list[str]:
+) -> list[dict[str, Any]]:
     effective_reasoning = reasoning or build_executive_reasoning_from_state(state)
     effective_brief = brief or build_daily_brief_from_state(state, reasoning=effective_reasoning)
-    return _dedupe_strings(
-        effective_brief.top_three_priorities
-        + effective_brief.recommended_agenda[:2]
-    )[:5]
+    values = _dedupe_strings(effective_brief.top_three_priorities + effective_brief.recommended_agenda[:2])[:5]
+    return [_evidence_card("plan", value, "daily_brief", state.confidence, []) for value in values if value not in {"No evidence found"}]
 
 
 def get_next_best_action(
@@ -119,12 +118,18 @@ def get_next_best_action(
             "action": action.action,
             "why_it_matters": action.why_it_matters,
             "confidence": action.confidence,
+            "origin": "executive_reasoning",
+            "source_notes": [],
+            "provider": "executive_reasoning",
         }
     return {
-        "priority": "MEDIUM",
-        "action": "Review the current executive recommendations and assign an owner.",
-        "why_it_matters": "No ranked action was produced from the current reasoning set.",
+        "priority": "NONE",
+        "action": "No evidence found",
+        "why_it_matters": "No ranked action was produced from evidence-backed reasoning.",
         "confidence": state.confidence,
+        "origin": "no_evidence",
+        "source_notes": [],
+        "provider": "executive_state",
     }
 
 
@@ -136,11 +141,11 @@ def get_operating_picture(
 ) -> dict[str, Any]:
     effective_reasoning = reasoning or build_executive_reasoning_from_state(state)
     effective_brief = brief or build_daily_brief_from_state(state, reasoning=effective_reasoning)
-    meeting = state.meetings[0]
+    meeting = state.meetings[0] if state.meetings else None
     return {
         "overall_health": effective_reasoning.overall_health,
         "confidence": effective_reasoning.confidence,
-        "meeting_focus": meeting.subject,
+        "meeting_focus": meeting.subject if meeting else "No active meeting identified.",
         "followup_pressure": {
             "overdue": len(state.followups.overdue),
             "due_today": len(state.followups.due_today),
@@ -152,6 +157,9 @@ def get_operating_picture(
             "missing_owners": len(state.open_loops.missing_owners),
         },
         "summary": effective_brief.one_page_executive_summary[:3],
+        "origin": "executive_state",
+        "source_notes": [item.path for item in meeting.matched_entities] if meeting else [],
+        "provider": "executive_state",
     }
 
 
@@ -163,28 +171,48 @@ def get_navigation_priorities(
 ) -> list[dict[str, str]]:
     effective_reasoning = reasoning or build_executive_reasoning_from_state(state)
     effective_brief = brief or build_daily_brief_from_state(state, reasoning=effective_reasoning)
-    meeting = state.meetings[0]
+    meeting = state.meetings[0] if state.meetings else None
 
     items = [
         {
             "label": "Priorities",
-            "reason": effective_brief.top_three_priorities[0] if effective_brief.top_three_priorities else "Review the top-ranked executive action.",
+            "reason": effective_brief.top_three_priorities[0] if effective_brief.top_three_priorities else "No evidence found",
+            "origin": "daily_brief",
+            "confidence": state.confidence,
+            "source_notes": [],
+            "provider": "daily_brief",
         },
         {
             "label": "Meetings",
-            "reason": meeting.recommended_discussion[0] if meeting.recommended_discussion else f"Prepare for {meeting.subject}.",
+            "reason": meeting.recommended_discussion[0] if meeting and meeting.recommended_discussion else "No active meeting identified.",
+            "origin": "meeting_intelligence" if meeting else "no_evidence",
+            "confidence": state.confidence,
+            "source_notes": [item.path for item in meeting.matched_entities] if meeting else [],
+            "provider": "meeting_intelligence" if meeting else "executive_state",
         },
         {
             "label": "Follow-ups",
-            "reason": effective_brief.followups_due_today[0] if effective_brief.followups_due_today else "Work the highest-pressure follow-up next.",
+            "reason": effective_brief.followups_due_today[0] if effective_brief.followups_due_today else "No active follow-up identified.",
+            "origin": "followup_intelligence",
+            "confidence": state.confidence,
+            "source_notes": [item.path for item in state.followups.due_today[:1]],
+            "provider": "followup_provider",
         },
         {
             "label": "Open Loops",
-            "reason": effective_brief.open_loops_blocking_progress[0] if effective_brief.open_loops_blocking_progress else "Assign owners to critical loops.",
+            "reason": effective_brief.open_loops_blocking_progress[0] if effective_brief.open_loops_blocking_progress else "No active open loop identified.",
+            "origin": "open_loop_intelligence",
+            "confidence": state.confidence,
+            "source_notes": [item.path for item in state.open_loops.waiting_for[:1]],
+            "provider": "open_loop_provider",
         },
         {
             "label": "Decisions",
-            "reason": effective_brief.decisions_awaiting_you[0] if effective_brief.decisions_awaiting_you else "Clear the next unresolved decision.",
+            "reason": effective_brief.decisions_awaiting_you[0] if effective_brief.decisions_awaiting_you else "No active decision identified.",
+            "origin": "executive_reasoning",
+            "confidence": state.confidence,
+            "source_notes": [],
+            "provider": "executive_reasoning",
         },
     ]
     return items
@@ -239,6 +267,21 @@ def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
 
 
 def _build_meetings_page(state: ExecutiveState) -> dict[str, Any]:
+    if not state.meetings:
+        return {
+            "subject": "No active meeting identified.",
+            "executive_summary": ["No evidence found."],
+            "related_people": [],
+            "related_projects": [],
+            "related_companies": [],
+            "related_objectives": [],
+            "related_decisions": [],
+            "risks": [],
+            "open_loops": [],
+            "follow_ups": [],
+            "recommended_discussion": [],
+            "confidence": state.confidence,
+        }
     meeting = state.meetings[0]
     return {
         "subject": meeting.subject,
@@ -428,6 +471,25 @@ def _build_interruption_policy(
     return {
         "level": level,
         "rule": rule,
+    }
+
+
+def _evidence_card(
+    item_type: str,
+    summary: str,
+    provider: str,
+    confidence: str,
+    source_notes: list[str],
+    *,
+    origin: str | None = None,
+) -> dict[str, Any]:
+    return {
+        "type": item_type,
+        "summary": summary,
+        "origin": origin or provider,
+        "confidence": confidence,
+        "source_notes": source_notes,
+        "provider": provider,
     }
 
 

@@ -28,15 +28,15 @@ def test_build_live_knowledge_certification_passes_with_live_vault(tmp_path, mon
         "# Project Phoenix\nProgramme initiative for [[Objective Alpha]] with owner [[Jane Smith]].\n"
     )
     (vault / "02 People" / "Jane Smith.md").write_text("# Jane Smith\nOwner for [[Project Phoenix]].\n")
-    (vault / "04 Companies" / "Barclays.md").write_text("# Barclays\nSupplier and company for [[Project Phoenix]].\n")
+    (vault / "04 Companies" / "Acme Capital.md").write_text("# Acme Capital\nSupplier and company for [[Project Phoenix]].\n")
     (vault / "04 Decisions" / "Decision 1.md").write_text("# Decision 1\nApproval for [[Project Phoenix]].\n")
-    (vault / "05 Meetings" / "Barclays Meeting.md").write_text("# Barclays Meeting\nAgenda for Barclays and [[Jane Smith]].\n")
+    (vault / "05 Meetings" / "Project Phoenix Review.md").write_text("# Project Phoenix Review\nAgenda for Acme Capital and [[Jane Smith]].\n")
     (vault / "06 Risks" / "Risk Register.md").write_text("# Risk Register\nRisk escalation linked to [[Project Phoenix]].\n")
     (vault / "07 Open Loops" / "Open Loop Register.md").write_text(
         "## LOOP-1\nStatus: OPEN\nPriority: HIGH\nOwner: Jane Smith\nIssue: Await approval for Project Phoenix\n"
     )
     (vault / "08 Follow Ups" / "Follow Up Actions.md").write_text(
-        "## Follow-Up Actions\n- Follow up with Barclays today on Project Phoenix.\n"
+        "## Follow-Up Actions\n- Follow up with Acme Capital today on Project Phoenix.\n"
     )
     (vault / "01 Daily Logs" / "2026-07-04 Daily.md").write_text("# 2026-07-04 Daily\nReviewed [[Project Phoenix]].\n")
     (vault / "10 Briefings" / "Weekly Executive Briefing.md").write_text(

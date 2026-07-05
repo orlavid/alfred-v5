@@ -94,4 +94,4 @@ def test_gate3_supporting_scripts_cover_config_and_acceptance_hardening():
     assert "disk free" in capacity
     assert "inode free" in capacity
     assert "What should I focus on today?" in acceptance
-    assert "Prepare me for Barclays." in acceptance
+    assert "Prepare me for the next executive meeting." in acceptance

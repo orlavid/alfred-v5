@@ -7,7 +7,7 @@ from pathlib import Path
 
 from src.executive.executive_intelligence import build_executive_intelligence_from_state
 from src.executive.executive_reasoning import build_executive_reasoning_from_state
-from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
+from src.executive.executive_state import ExecutiveState, build_executive_state
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,7 @@ def ask_alfred(
     question: str,
     evidence_root: Path,
     *,
-    meeting_subject: str = DEFAULT_MEETING_SUBJECT,
+    meeting_subject: str | None = None,
 ) -> AskAlfredResponse:
     state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
     return ask_alfred_from_state(question, state)
@@ -39,7 +39,7 @@ def ask_alfred_from_state(
 
     reasoning = build_executive_reasoning_from_state(state)
     intelligence = build_executive_intelligence_from_state(state)
-    meeting = state.meetings[0]
+    meeting = state.meetings[0] if state.meetings else None
     followups = state.followups
     open_loops = state.open_loops
 
@@ -78,7 +78,7 @@ def _render_bullets(values: list[str]) -> list[str]:
 
 def _detect_focus(question: str) -> str:
     lowered = question.lower()
-    if any(token in lowered for token in ("meeting", "barclays", "discuss")):
+    if any(token in lowered for token in ("meeting", "discuss", "prepare me")):
         return "meeting"
     if any(token in lowered for token in ("follow-up", "follow up", "overdue", "due today")):
         return "followups"
@@ -95,22 +95,28 @@ def _detect_focus(question: str) -> str:
 
 def _build_answer(question, focus, reasoning, intelligence, meeting, followups, open_loops) -> list[str]:
     if focus == "meeting":
+        if meeting is None:
+            return ["No active meeting identified."]
         return [
             f"Use the {meeting.subject} meeting to resolve ownership, objective linkage, and the next dated action.",
             meeting.recommended_discussion[0] if meeting.recommended_discussion else "Prepare the meeting around the highest-friction issue.",
             meeting.risks[0] if meeting.risks else "Confirm the main risk before the meeting starts.",
         ]
     if focus == "followups":
+        if not reasoning.top_actions:
+            return ["No active follow-up identified."]
         return [
             f"There are {len(followups.overdue)} overdue follow-ups and {len(followups.high_priority)} high-priority items requiring attention.",
             reasoning.top_actions[0].action,
-            reasoning.top_actions[1].action if len(reasoning.top_actions) > 1 else intelligence.recommended_actions_today[0],
+            reasoning.top_actions[1].action if len(reasoning.top_actions) > 1 else (intelligence.recommended_actions_today[0] if intelligence.recommended_actions_today else "No active follow-up identified."),
         ]
     if focus == "open_loops":
+        if not reasoning.top_actions:
+            return ["No active open loop identified."]
         return [
             f"There are {len(open_loops.critical_open_loops)} critical open loops and {len(open_loops.missing_owners)} owner gaps.",
             reasoning.top_actions[0].action,
-            open_loops.recommended_actions[0] if open_loops.recommended_actions else "Assign explicit owners to critical loops.",
+            open_loops.recommended_actions[0] if open_loops.recommended_actions else "No active open loop identified.",
         ]
     if focus == "decisions":
         return [
@@ -119,15 +125,19 @@ def _build_answer(question, focus, reasoning, intelligence, meeting, followups, 
             "Clear the highest-importance unresolved decision before adding new work.",
         ]
     if focus == "suppliers":
+        if not reasoning.top_actions:
+            return ["No active supplier risk identified."]
         return [
             f"Supplier governance remains elevated across {len(intelligence.supplier_risks)} critical or important suppliers.",
             reasoning.top_actions[0].action,
             "Prioritise the most connected supplier relationships for immediate governance review.",
         ]
+    if not reasoning.top_actions:
+        return ["No evidence found."]
     return [
         f"Today’s executive focus should start with the top-ranked actions from the reasoning engine.",
         reasoning.top_actions[0].action,
-        reasoning.top_actions[1].action if len(reasoning.top_actions) > 1 else intelligence.recommended_actions_today[0],
+        reasoning.top_actions[1].action if len(reasoning.top_actions) > 1 else (intelligence.recommended_actions_today[0] if intelligence.recommended_actions_today else "No evidence found."),
     ]
 
 
@@ -138,7 +148,8 @@ def _build_supporting_evidence(focus, reasoning, intelligence, meeting, followup
     ]
 
     if focus == "meeting":
-        evidence.extend(meeting.executive_summary[:2])
+        if meeting:
+            evidence.extend(meeting.executive_summary[:2])
     elif focus == "followups":
         evidence.append(f"Overdue follow-ups: {len(followups.overdue)}; high priority follow-ups: {len(followups.high_priority)}.")
         if intelligence.followups_requiring_action:
@@ -159,7 +170,7 @@ def _build_supporting_evidence(focus, reasoning, intelligence, meeting, followup
 
 def _build_next_actions(focus, reasoning, intelligence, meeting) -> list[str]:
     if focus == "meeting":
-        actions = list(meeting.recommended_discussion[:3]) + list(intelligence.recommended_actions_today[:2])
+        actions = (list(meeting.recommended_discussion[:3]) if meeting else []) + list(intelligence.recommended_actions_today[:2])
     else:
         actions = [item.action for item in reasoning.top_actions[:3]] + list(intelligence.recommended_actions_today[:3])
 
@@ -170,4 +181,4 @@ def _build_next_actions(focus, reasoning, intelligence, meeting) -> list[str]:
             continue
         seen.add(action)
         deduped.append(action)
-    return deduped[:5]
+    return deduped[:5] or ["No evidence found."]

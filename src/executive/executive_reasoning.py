@@ -8,7 +8,7 @@ from typing import Iterable
 
 from executive.report import render as render_executive_review
 from src.executive.executive_intelligence import ExecutiveIntelligence, build_executive_intelligence_from_state
-from src.executive.executive_state import DEFAULT_MEETING_SUBJECT, ExecutiveState, build_executive_state
+from src.executive.executive_state import ExecutiveState, build_executive_state
 
 SECTION_HEADINGS = [
     "Executive Assessment",
@@ -48,7 +48,7 @@ class ExecutiveReasoning:
 def build_executive_reasoning(
     evidence_root: Path,
     *,
-    meeting_subject: str = DEFAULT_MEETING_SUBJECT,
+    meeting_subject: str | None = None,
 ) -> ExecutiveReasoning:
     state = build_executive_state(evidence_root, meeting_subject=meeting_subject)
     return build_executive_reasoning_from_state(state)
@@ -58,7 +58,7 @@ def build_executive_reasoning_from_state(state: ExecutiveState) -> ExecutiveReas
     engine_result = state.engine_result
     executive_review = render_executive_review(engine_result)
     intelligence = build_executive_intelligence_from_state(state)
-    meeting = state.meetings[0]
+    meeting = state.meetings[0] if state.meetings else None
     followups = state.followups
     open_loops = state.open_loops
 
@@ -138,7 +138,16 @@ def _render_actions(actions: Iterable[ExecutiveAction]) -> list[str]:
                 "",
             ]
         )
-    return lines or ["_None found._"]
+    return lines or [
+        "### No evidence found",
+        "- Priority: NONE",
+        "- Action: No active action identified.",
+        "- Why it matters: No evidence found.",
+        "- Supporting evidence: No evidence found.",
+        "- Expected impact: No evidence found.",
+        "- Confidence: LOW",
+        "",
+    ]
 
 
 def _build_key_themes(
@@ -166,7 +175,7 @@ def _build_actions(
         _action_from_project(intelligence.projects_at_risk[0]) if intelligence.projects_at_risk else None,
         _action_from_followup(intelligence.followups_requiring_action[0]) if intelligence.followups_requiring_action else None,
         _action_from_open_loop(intelligence.open_loops[0]) if intelligence.open_loops else None,
-        _action_from_meeting(meeting) if meeting.recommended_discussion else None,
+        _action_from_meeting(meeting) if meeting and meeting.recommended_discussion else None,
         _action_from_decision(intelligence.decisions_awaiting_attention[0]) if intelligence.decisions_awaiting_attention else None,
         _action_from_supplier(intelligence.supplier_risks[0]) if intelligence.supplier_risks else None,
         _action_from_priority(intelligence.top_priorities[1], intelligence) if len(intelligence.top_priorities) > 1 else None,
@@ -292,17 +301,19 @@ def _action_from_recommendation(text: str, priority: str) -> ExecutiveAction:
 def _build_risks(intelligence: ExecutiveIntelligence, meeting, open_loops) -> list[str]:
     risks = []
     risks.extend(item.detail for item in intelligence.projects_at_risk[:3])
-    risks.extend(meeting.risks[:3])
+    if meeting:
+        risks.extend(meeting.risks[:3])
     risks.extend(item.summary for item in open_loops.critical_open_loops[:3])
     return _dedupe_strings(risks)[:10]
 
 
 def _build_opportunities(intelligence: ExecutiveIntelligence, meeting) -> list[str]:
     opportunities = [
-        f"Use {meeting.subject} meeting to resolve ownership and convert relationship context into actions.",
         "Use top-priority triage to assign owners across currently unowned critical work.",
         "Tighten supplier governance around the most connected third parties first.",
     ]
+    if meeting:
+        opportunities.insert(0, f"Use {meeting.subject} meeting to resolve ownership and convert relationship context into actions.")
     if intelligence.key_people:
         opportunities.append(f"Leverage {intelligence.key_people[0].title} as a high-influence relationship node.")
     return opportunities[:10]
