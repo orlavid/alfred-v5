@@ -7,10 +7,12 @@ from pathlib import Path
 
 from src.knowledge.executive_knowledge_builder import DEFAULT_EVIDENCE_ROOT
 from src.operations.environment_discovery import (
+    COMPONENT_VAULT_PRIMARY,
     DISCOVERY_TRIGGER_BEFORE_DEPLOYMENT,
     STATUS_ACTION_REQUIRED,
     STATUS_CONFIGURED,
     build_environment_inventory,
+    get_component_by_id,
 )
 from src.pipeline.executive_pipeline import build_executive_pipeline
 
@@ -51,7 +53,7 @@ def build_live_knowledge_certification(
         vault_path=vault_root,
         trigger=DISCOVERY_TRIGGER_BEFORE_DEPLOYMENT,
     )
-    vault_component = next(component for component in inventory.components if component.name == "Obsidian Vault")
+    vault_component = get_component_by_id(inventory, COMPONENT_VAULT_PRIMARY)
     effective_vault_root = Path(vault_component.install_location)
     if vault_component.status not in {STATUS_CONFIGURED, STATUS_ACTION_REQUIRED} or not effective_vault_root.exists():
         return LiveKnowledgeCertification(

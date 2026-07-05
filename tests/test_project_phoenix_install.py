@@ -252,7 +252,7 @@ def build_environment_inventory(root=None, install_root=None, vault_path=None, n
 
 def render_detected_environment_yaml(inventory):
     vault = inventory.auto_configured["vault_path"]
-    return f\"detected_environment:\\n  obsidian_vault:\\n    status: CONFIGURED\\nauto_configured:\\n  vault_path:\\n    value: {vault.value}\\n    discovery_method: {vault.discovery_method}\\n    confidence: {vault.confidence}\\n    timestamp: {vault.timestamp}\\n\"
+    return f\"detected_environment:\\n  vault_primary:\\n    component_id: vault.primary\\n    status: CONFIGURED\\nauto_configured:\\n  vault_path:\\n    value: {vault.value}\\n    discovery_method: {vault.discovery_method}\\n    confidence: {vault.confidence}\\n    timestamp: {vault.timestamp}\\n\"
 """
     )
     (root / "tests" / "test_placeholder.py").write_text("def test_placeholder():\n    assert True\n")

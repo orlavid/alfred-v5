@@ -58,6 +58,7 @@ class AutoConfiguredValue:
 
 @dataclass(frozen=True)
 class EnvironmentComponent:
+    component_id: str
     name: str
     category: str
     status: str
@@ -66,7 +67,7 @@ class EnvironmentComponent:
     install_location: str
     configuration_source: str
     required: bool
-    dependencies: tuple[str, ...]
+    depends_on: tuple[str, ...]
     last_checked: str
     last_changed: str
     recommended_action: str
@@ -125,6 +126,41 @@ class ProviderResult:
     auto_configured: dict[str, AutoConfiguredValue]
 
 
+COMPONENT_ENVIRONMENT_INVENTORY = "environment.inventory"
+COMPONENT_VAULT_PRIMARY = "vault.primary"
+COMPONENT_RUNTIME_PYTHON = "runtime.python"
+COMPONENT_RUNTIME_NODE = "runtime.node"
+COMPONENT_RUNTIME_NPM = "runtime.npm"
+COMPONENT_RUNTIME_DOCKER = "runtime.docker"
+COMPONENT_SERVICE_SYSTEMD = "service.systemd"
+COMPONENT_SERVICE_OLLAMA = "service.ollama"
+COMPONENT_PROVIDER_OPENROUTER = "provider.openrouter"
+COMPONENT_PROVIDER_OPENAI = "provider.openai"
+COMPONENT_PROVIDER_ANTHROPIC = "provider.anthropic"
+COMPONENT_KNOWLEDGE_LLAMAINDEX = "knowledge.llamaindex"
+COMPONENT_KNOWLEDGE_LLM_WIKI = "knowledge.llm_wiki"
+COMPONENT_KNOWLEDGE_SEMANTIC = "knowledge.semantic"
+COMPONENT_RESEARCH_DEEP = "research.deep_research"
+
+LEGACY_COMPONENT_IDS = {
+    "Environment Inventory": COMPONENT_ENVIRONMENT_INVENTORY,
+    "Obsidian Vault": COMPONENT_VAULT_PRIMARY,
+    "Python": COMPONENT_RUNTIME_PYTHON,
+    "Node": COMPONENT_RUNTIME_NODE,
+    "npm": COMPONENT_RUNTIME_NPM,
+    "Docker": COMPONENT_RUNTIME_DOCKER,
+    "systemd": COMPONENT_SERVICE_SYSTEMD,
+    "Ollama": COMPONENT_SERVICE_OLLAMA,
+    "OpenRouter": COMPONENT_PROVIDER_OPENROUTER,
+    "OpenAI": COMPONENT_PROVIDER_OPENAI,
+    "Anthropic": COMPONENT_PROVIDER_ANTHROPIC,
+    "LlamaIndex": COMPONENT_KNOWLEDGE_LLAMAINDEX,
+    "LLM Wiki Enrichment": COMPONENT_KNOWLEDGE_LLM_WIKI,
+    "Semantic Search": COMPONENT_KNOWLEDGE_SEMANTIC,
+    "Deep Research": COMPONENT_RESEARCH_DEEP,
+}
+
+
 class DiscoveryProvider(ABC):
     @property
     def provider_name(self) -> str:
@@ -135,10 +171,32 @@ class DiscoveryProvider(ABC):
         raise NotImplementedError
 
 
+class EnvironmentInventoryDiscovery(DiscoveryProvider):
+    def discover(self, context: DiscoveryContext) -> ProviderResult:
+        component = EnvironmentComponent(
+            component_id=COMPONENT_ENVIRONMENT_INVENTORY,
+            name="Environment Inventory",
+            category="Platform",
+            status=STATUS_CONFIGURED,
+            health=HEALTH_HEALTHY,
+            version="v1",
+            install_location=str(INVENTORY_JSON),
+            configuration_source="platform registry",
+            required=True,
+            depends_on=(),
+            last_checked=context.checked_at,
+            last_changed=_path_mtime(INVENTORY_JSON),
+            recommended_action="No action required.",
+            work_instruction_link="docs/deployment/INSTALLATION_GUIDE.md",
+        )
+        return ProviderResult((component,), {})
+
+
 class VaultDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         vault_status = detect_live_vault_status(context.vault_path)
         component = EnvironmentComponent(
+            component_id=COMPONENT_VAULT_PRIMARY,
             name="Obsidian Vault",
             category="Vault",
             status=STATUS_CONFIGURED if vault_status.status == "PASS" else STATUS_ACTION_REQUIRED,
@@ -147,7 +205,7 @@ class VaultDiscovery(DiscoveryProvider):
             install_location=vault_status.vault_path,
             configuration_source=vault_status.source,
             required=True,
-            dependencies=(),
+            depends_on=(COMPONENT_ENVIRONMENT_INVENTORY,),
             last_checked=context.checked_at,
             last_changed=_path_mtime(vault_status.vault_path),
             recommended_action=(
@@ -172,6 +230,7 @@ class PythonDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         executable = sys.executable
         component = EnvironmentComponent(
+            component_id=COMPONENT_RUNTIME_PYTHON,
             name="Python",
             category="Runtime",
             status=STATUS_CONFIGURED if Path(executable).exists() else STATUS_ERROR,
@@ -180,7 +239,7 @@ class PythonDiscovery(DiscoveryProvider):
             install_location=executable,
             configuration_source="runtime interpreter",
             required=True,
-            dependencies=(),
+            depends_on=(COMPONENT_ENVIRONMENT_INVENTORY,),
             last_checked=context.checked_at,
             last_changed=_path_mtime(executable),
             recommended_action="Use detected Python executable." if Path(executable).exists() else "Install Python 3 and re-run discovery.",
@@ -203,8 +262,8 @@ class NodeDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         return _command_pair_provider(
             checked_at=context.checked_at,
-            first=("Node", "node", True, "node_executable"),
-            second=("npm", "npm", True, "npm_executable"),
+            first=(COMPONENT_RUNTIME_NODE, "Node", "node", True, "node_executable"),
+            second=(COMPONENT_RUNTIME_NPM, "npm", "npm", True, "npm_executable"),
             work_instruction="docs/deployment/INSTALLATION_GUIDE.md",
         )
 
@@ -212,6 +271,7 @@ class NodeDiscovery(DiscoveryProvider):
 class DockerDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         return _single_command_provider(
+            component_id=COMPONENT_RUNTIME_DOCKER,
             name="Docker",
             category="Runtime",
             command_name="docker",
@@ -225,6 +285,7 @@ class DockerDiscovery(DiscoveryProvider):
 class SystemdDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         return _single_command_provider(
+            component_id=COMPONENT_SERVICE_SYSTEMD,
             name="systemd",
             category="Services",
             command_name="systemctl",
@@ -238,6 +299,7 @@ class SystemdDiscovery(DiscoveryProvider):
 class OllamaDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         return _single_command_provider(
+            component_id=COMPONENT_SERVICE_OLLAMA,
             name="Ollama",
             category="AI Providers",
             command_name="ollama",
@@ -250,22 +312,23 @@ class OllamaDiscovery(DiscoveryProvider):
 
 class OpenRouterDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
-        return _api_key_provider("OpenRouter", "OPENROUTER_API_KEY", context.checked_at)
+        return _api_key_provider(COMPONENT_PROVIDER_OPENROUTER, "OpenRouter", "OPENROUTER_API_KEY", context.checked_at)
 
 
 class OpenAIDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
-        return _api_key_provider("OpenAI", "OPENAI_API_KEY", context.checked_at)
+        return _api_key_provider(COMPONENT_PROVIDER_OPENAI, "OpenAI", "OPENAI_API_KEY", context.checked_at)
 
 
 class AnthropicDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
-        return _api_key_provider("Anthropic", "ANTHROPIC_API_KEY", context.checked_at)
+        return _api_key_provider(COMPONENT_PROVIDER_ANTHROPIC, "Anthropic", "ANTHROPIC_API_KEY", context.checked_at)
 
 
 class LlamaIndexDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         return _path_or_package_provider(
+            component_id=COMPONENT_KNOWLEDGE_LLAMAINDEX,
             name="LlamaIndex",
             category="Knowledge Sources",
             package_name="llama_index",
@@ -273,12 +336,14 @@ class LlamaIndexDiscovery(DiscoveryProvider):
             required=False,
             checked_at=context.checked_at,
             work_instruction_link="docs/deployment/LLAMAINDEX_DEPLOYMENT.md",
+            depends_on=(COMPONENT_RUNTIME_PYTHON, COMPONENT_VAULT_PRIMARY),
         )
 
 
 class LLMWikiDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         return _path_or_package_provider(
+            component_id=COMPONENT_KNOWLEDGE_LLM_WIKI,
             name="LLM Wiki Enrichment",
             category="Knowledge Sources",
             package_name=None,
@@ -286,12 +351,14 @@ class LLMWikiDiscovery(DiscoveryProvider):
             required=False,
             checked_at=context.checked_at,
             work_instruction_link="docs/deployment/LLM_WIKI_ENRICHMENT.md",
+            depends_on=(COMPONENT_VAULT_PRIMARY,),
         )
 
 
 class SemanticDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         return _path_or_package_provider(
+            component_id=COMPONENT_KNOWLEDGE_SEMANTIC,
             name="Semantic Search",
             category="Knowledge Sources",
             package_name=None,
@@ -299,12 +366,14 @@ class SemanticDiscovery(DiscoveryProvider):
             required=False,
             checked_at=context.checked_at,
             work_instruction_link="docs/deployment/POST_INSTALL_VALIDATION.md",
+            depends_on=(COMPONENT_VAULT_PRIMARY,),
         )
 
 
 class DeepResearchDiscovery(DiscoveryProvider):
     def discover(self, context: DiscoveryContext) -> ProviderResult:
         component = EnvironmentComponent(
+            component_id=COMPONENT_RESEARCH_DEEP,
             name="Deep Research",
             category="AI Providers",
             status=STATUS_DISABLED,
@@ -313,7 +382,7 @@ class DeepResearchDiscovery(DiscoveryProvider):
             install_location="",
             configuration_source="product policy",
             required=False,
-            dependencies=("OpenRouter", "OpenAI", "Anthropic"),
+            depends_on=(COMPONENT_PROVIDER_OPENROUTER, COMPONENT_PROVIDER_OPENAI, COMPONENT_PROVIDER_ANTHROPIC),
             last_checked=context.checked_at,
             last_changed="",
             recommended_action="Enable only after explicit approval and budget controls are in place.",
@@ -323,6 +392,7 @@ class DeepResearchDiscovery(DiscoveryProvider):
 
 
 DISCOVERY_PROVIDERS: tuple[DiscoveryProvider, ...] = (
+    EnvironmentInventoryDiscovery(),
     VaultDiscovery(),
     OllamaDiscovery(),
     OpenRouterDiscovery(),
@@ -368,9 +438,9 @@ def build_environment_inventory(
         components.extend(result.components)
         auto_configured.update(result.auto_configured)
 
-    components.sort(key=lambda item: (item.category, item.required is False, item.name.lower()))
+    components.sort(key=lambda item: (item.category, item.required is False, item.component_id))
     required_actions = tuple(
-        component.recommended_action
+        f"{component.component_id}: {component.recommended_action}"
         for component in components
         if component.status in {STATUS_ACTION_REQUIRED, STATUS_ERROR}
     )
@@ -400,32 +470,46 @@ def load_environment_inventory(path: Path | None = None) -> dict[str, object] | 
         return None
 
 
+def get_component_by_id(
+    inventory: EnvironmentInventory | dict[str, object],
+    component_id: str,
+) -> EnvironmentComponent | dict[str, object] | None:
+    components = inventory.components if isinstance(inventory, EnvironmentInventory) else inventory.get("components", [])
+    for component in components:
+        if isinstance(component, EnvironmentComponent) and component.component_id == component_id:
+            return component
+        if isinstance(component, dict) and _component_id_from_payload(component) == component_id:
+            return component
+    return None
+
+
 def compare_environment_inventory(
     previous_inventory: dict[str, object] | None,
     current_components: Iterable[EnvironmentComponent],
 ) -> EnvironmentDrift:
     previous_components = {
-        component["name"]: component
+        _component_id_from_payload(component): component
         for component in (previous_inventory or {}).get("components", [])
+        if _component_id_from_payload(component)
     }
-    current_component_map = {component.name: component for component in current_components}
+    current_component_map = {component.component_id: component for component in current_components}
 
-    new_components = sorted(name for name in current_component_map if name not in previous_components)
-    removed_components = sorted(name for name in previous_components if name not in current_component_map)
+    new_components = sorted(component_id for component_id in current_component_map if component_id not in previous_components)
+    removed_components = sorted(component_id for component_id in previous_components if component_id not in current_component_map)
     configuration_changes: list[str] = []
     version_changes: list[str] = []
     health_changes: list[str] = []
 
-    for name, component in current_component_map.items():
-        previous = previous_components.get(name)
+    for component_id, component in current_component_map.items():
+        previous = previous_components.get(component_id)
         if previous is None:
             continue
         if previous.get("install_location") != component.install_location or previous.get("configuration_source") != component.configuration_source:
-            configuration_changes.append(name)
+            configuration_changes.append(component_id)
         if previous.get("version") != component.version:
-            version_changes.append(name)
+            version_changes.append(component_id)
         if previous.get("health") != component.health or previous.get("status") != component.status:
-            health_changes.append(name)
+            health_changes.append(component_id)
 
     return EnvironmentDrift(
         new_components=tuple(sorted(new_components)),
@@ -463,14 +547,14 @@ def render_environment_inventory_markdown(inventory: EnvironmentInventory) -> st
         f"- Environment Score: {inventory.environment_score}%",
         f"- Architecture Rule: {inventory.architecture_rule}",
         "",
-        "| Name | Category | Status | Health | Version | Location | Config Source | Required | Recommended Action |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| Component ID | Name | Category | Status | Health | Version | Location | Config Source | Depends On | Required | Recommended Action |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for component in inventory.components:
         lines.append(
-            f"| {component.name} | {component.category} | {component.status} | {component.health} | "
+            f"| {component.component_id} | {component.name} | {component.category} | {component.status} | {component.health} | "
             f"{component.version or 'n/a'} | {component.install_location or '-'} | "
-            f"{component.configuration_source or '-'} | {'Required' if component.required else 'Optional'} | "
+            f"{component.configuration_source or '-'} | {', '.join(component.depends_on) or '-'} | {'Required' if component.required else 'Optional'} | "
             f"{component.recommended_action} |"
         )
     lines.extend(["", "## Auto Configured", ""])
@@ -494,10 +578,12 @@ def render_environment_inventory_markdown(inventory: EnvironmentInventory) -> st
 def render_detected_environment_yaml(inventory: EnvironmentInventory) -> str:
     lines = ["detected_environment:"]
     for component in inventory.components:
-        key = _yaml_key(component.name)
+        key = _yaml_key(component.component_id)
         lines.extend(
             [
                 f"  {key}:",
+                f"    component_id: {component.component_id}",
+                f"    name: {component.name}",
                 f"    category: {component.category}",
                 f"    status: {component.status}",
                 f"    health: {component.health}",
@@ -505,7 +591,7 @@ def render_detected_environment_yaml(inventory: EnvironmentInventory) -> str:
                 f"    install_location: {component.install_location or ''}",
                 f"    configuration_source: {component.configuration_source or ''}",
                 f"    required: {'true' if component.required else 'false'}",
-                f"    dependencies: [{', '.join(component.dependencies)}]",
+                f"    depends_on: [{', '.join(component.depends_on)}]",
                 f"    last_checked: {component.last_checked}",
                 f"    last_changed: {component.last_changed}",
                 f"    recommended_action: {component.recommended_action}",
@@ -536,9 +622,9 @@ def build_doctor_summary(inventory: EnvironmentInventory) -> dict[str, object]:
     summary_lines.extend([f"- {component.name} disabled by policy" for component in disabled[:3]])
     return {
         "environment_score": inventory.environment_score,
-        "healthy": [component.name for component in healthy],
-        "warnings": [component.name for component in warnings],
-        "disabled": [component.name for component in disabled],
+        "healthy": [component.component_id for component in healthy],
+        "warnings": [component.component_id for component in warnings],
+        "disabled": [component.component_id for component in disabled],
         "recommended_actions": list(inventory.required_actions[:8]),
         "summary_lines": summary_lines,
     }
@@ -546,6 +632,7 @@ def build_doctor_summary(inventory: EnvironmentInventory) -> dict[str, object]:
 
 def _single_command_provider(
     *,
+    component_id: str,
     name: str,
     category: str,
     command_name: str,
@@ -558,6 +645,7 @@ def _single_command_provider(
     status = STATUS_CONFIGURED if executable else (STATUS_ACTION_REQUIRED if required else STATUS_NOT_FOUND)
     health = HEALTH_HEALTHY if executable else (HEALTH_WARN if required else HEALTH_UNKNOWN)
     component = EnvironmentComponent(
+        component_id=component_id,
         name=name,
         category=category,
         status=status,
@@ -566,7 +654,7 @@ def _single_command_provider(
         install_location=executable,
         configuration_source="PATH discovery" if executable else "PATH discovery failed",
         required=required,
-        dependencies=(),
+        depends_on=(COMPONENT_ENVIRONMENT_INVENTORY,),
         last_checked=checked_at,
         last_changed=_path_mtime(executable),
         recommended_action=f"Use detected {name} executable." if executable else f"Install or configure {name}.",
@@ -586,34 +674,37 @@ def _single_command_provider(
 def _command_pair_provider(
     *,
     checked_at: str,
-    first: tuple[str, str, bool, str],
-    second: tuple[str, str, bool, str],
+    first: tuple[str, str, str, bool, str],
+    second: tuple[str, str, str, bool, str],
     work_instruction: str,
 ) -> ProviderResult:
     first_result = _single_command_provider(
-        name=first[0],
+        component_id=first[0],
+        name=first[1],
         category="Runtime",
-        command_name=first[1],
-        required=first[2],
+        command_name=first[2],
+        required=first[3],
         checked_at=checked_at,
         work_instruction=work_instruction,
-        auto_key=first[3],
+        auto_key=first[4],
     )
     second_result = _single_command_provider(
-        name=second[0],
+        component_id=second[0],
+        name=second[1],
         category="Runtime",
-        command_name=second[1],
-        required=second[2],
+        command_name=second[2],
+        required=second[3],
         checked_at=checked_at,
         work_instruction=work_instruction,
-        auto_key=second[3],
+        auto_key=second[4],
     )
     return ProviderResult(first_result.components + second_result.components, {**first_result.auto_configured, **second_result.auto_configured})
 
 
-def _api_key_provider(name: str, env_var: str, checked_at: str) -> ProviderResult:
+def _api_key_provider(component_id: str, name: str, env_var: str, checked_at: str) -> ProviderResult:
     present = bool(os.environ.get(env_var))
     component = EnvironmentComponent(
+        component_id=component_id,
         name=name,
         category="AI Providers",
         status=STATUS_CONFIGURED if present else STATUS_ACTION_REQUIRED,
@@ -622,7 +713,7 @@ def _api_key_provider(name: str, env_var: str, checked_at: str) -> ProviderResul
         install_location="",
         configuration_source=env_var if present else f"{env_var} not set",
         required=False,
-        dependencies=(),
+        depends_on=(COMPONENT_ENVIRONMENT_INVENTORY,),
         last_checked=checked_at,
         last_changed="",
         recommended_action="No action required." if present else f"Add {env_var} through a secure secret store.",
@@ -633,6 +724,7 @@ def _api_key_provider(name: str, env_var: str, checked_at: str) -> ProviderResul
 
 def _path_or_package_provider(
     *,
+    component_id: str,
     name: str,
     category: str,
     package_name: str | None,
@@ -640,6 +732,7 @@ def _path_or_package_provider(
     required: bool,
     checked_at: str,
     work_instruction_link: str,
+    depends_on: tuple[str, ...],
 ) -> ProviderResult:
     package_present = importlib.util.find_spec(package_name) is not None if package_name else False
     path_present = config_path.exists()
@@ -656,6 +749,7 @@ def _path_or_package_provider(
         health = HEALTH_UNKNOWN if not required else HEALTH_WARN
         source = "not detected"
     component = EnvironmentComponent(
+        component_id=component_id,
         name=name,
         category=category,
         status=status,
@@ -664,7 +758,7 @@ def _path_or_package_provider(
         install_location=str(config_path) if path_present else "",
         configuration_source=source,
         required=required,
-        dependencies=("Python",),
+        depends_on=depends_on,
         last_checked=checked_at,
         last_changed=_path_mtime(config_path),
         recommended_action=("No action required." if status == STATUS_CONFIGURED else f"Review {name} setup and complete configuration if needed."),
@@ -708,4 +802,14 @@ def _environment_score(components: list[EnvironmentComponent]) -> int:
 
 
 def _yaml_key(name: str) -> str:
-    return name.lower().replace(" ", "_").replace("/", "_")
+    return name.lower().replace(" ", "_").replace("/", "_").replace(".", "_")
+
+
+def _component_id_from_payload(component: dict[str, object]) -> str | None:
+    component_id = component.get("component_id")
+    if isinstance(component_id, str) and component_id:
+        return component_id
+    name = component.get("name")
+    if isinstance(name, str):
+        return LEGACY_COMPONENT_IDS.get(name)
+    return None

@@ -10,8 +10,15 @@ import os
 
 from src.operations.config_registry import ConfigurationRegistry, build_configuration_registry
 from src.operations.environment_discovery import (
+    COMPONENT_KNOWLEDGE_LLAMAINDEX,
+    COMPONENT_KNOWLEDGE_LLM_WIKI,
+    COMPONENT_RESEARCH_DEEP,
+    COMPONENT_RUNTIME_NPM,
+    COMPONENT_RUNTIME_PYTHON,
+    COMPONENT_VAULT_PRIMARY,
     build_doctor_summary,
     build_environment_inventory,
+    get_component_by_id,
     write_environment_inventory,
     STATUS_ACTION_REQUIRED,
     STATUS_CONFIGURED,
@@ -88,15 +95,15 @@ def build_operational_readiness(
     doctor_summary = build_doctor_summary(environment_inventory)
     freshness = _build_freshness(effective_output_dir / "ExecutiveState_Summary.md", effective_now)
     checks = (
-        _check_inventory_component(environment_inventory.as_dict(), "Python", "Python runtime is configured from environment discovery."),
-        _check_inventory_component(environment_inventory.as_dict(), "npm", "npm runtime is configured from environment discovery."),
-        _check_inventory_component(environment_inventory.as_dict(), "Obsidian Vault", "Vault path is configured from environment discovery."),
+        _check_inventory_component(environment_inventory.as_dict(), COMPONENT_RUNTIME_PYTHON, "Python inventory", "Python runtime is configured from environment discovery."),
+        _check_inventory_component(environment_inventory.as_dict(), COMPONENT_RUNTIME_NPM, "npm inventory", "npm runtime is configured from environment discovery."),
+        _check_inventory_component(environment_inventory.as_dict(), COMPONENT_VAULT_PRIMARY, "Obsidian Vault inventory", "Vault path is configured from environment discovery."),
         _check_output_files_present(effective_registry, effective_output_dir),
         _check_executive_state_freshness(freshness),
         _check_build_outputs_present(effective_output_dir),
-        _check_inventory_component(environment_inventory.as_dict(), "LlamaIndex", "LlamaIndex capability is tracked in the persistent environment inventory."),
-        _check_inventory_component(environment_inventory.as_dict(), "LLM Wiki Enrichment", "LLM Wiki capability is tracked in the persistent environment inventory."),
-        _check_inventory_component(environment_inventory.as_dict(), "Deep Research", "Deep Research capability is tracked in the persistent environment inventory."),
+        _check_inventory_component(environment_inventory.as_dict(), COMPONENT_KNOWLEDGE_LLAMAINDEX, "LlamaIndex inventory", "LlamaIndex capability is tracked in the persistent environment inventory."),
+        _check_inventory_component(environment_inventory.as_dict(), COMPONENT_KNOWLEDGE_LLM_WIKI, "LLM Wiki Enrichment inventory", "LLM Wiki capability is tracked in the persistent environment inventory."),
+        _check_inventory_component(environment_inventory.as_dict(), COMPONENT_RESEARCH_DEEP, "Deep Research inventory", "Deep Research capability is tracked in the persistent environment inventory."),
         _check_deployment_package_gaps(effective_registry),
     )
     overall_health = _derive_overall_health(checks)
@@ -189,10 +196,15 @@ def _build_freshness(state_summary_path: Path, now: datetime) -> DataFreshness:
     )
 
 
-def _check_inventory_component(inventory: dict[str, object], name: str, detail_prefix: str) -> DoctorCheck:
-    component = next((item for item in inventory["components"] if item["name"] == name), None)
+def _check_inventory_component(
+    inventory: dict[str, object],
+    component_id: str,
+    check_name: str,
+    detail_prefix: str,
+) -> DoctorCheck:
+    component = get_component_by_id(inventory, component_id)
     if component is None:
-        return DoctorCheck(f"{name} inventory", "WARN", f"{name} is missing from the environment inventory.", "Re-run environment discovery before continuing.")
+        return DoctorCheck(check_name, "WARN", f"{component_id} is missing from the environment inventory.", "Re-run environment discovery before continuing.")
 
     if component["status"] in {STATUS_CONFIGURED, STATUS_FOUND, STATUS_DISABLED}:
         status = "PASS"
@@ -205,7 +217,7 @@ def _check_inventory_component(inventory: dict[str, object], name: str, detail_p
 
     detail = f"{detail_prefix} Status is {component['status']}; health is {component['health']}."
     recommendation = component["recommended_action"]
-    return DoctorCheck(f"{name} inventory", status, detail, recommendation)
+    return DoctorCheck(check_name, status, detail, recommendation)
 
 
 def _check_output_files_present(registry: ConfigurationRegistry, output_dir: Path) -> DoctorCheck:

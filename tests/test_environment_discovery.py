@@ -6,6 +6,13 @@ import subprocess
 import sys
 
 from src.operations.environment_discovery import (
+    COMPONENT_ENVIRONMENT_INVENTORY,
+    COMPONENT_KNOWLEDGE_LLM_WIKI,
+    COMPONENT_KNOWLEDGE_SEMANTIC,
+    COMPONENT_PROVIDER_OPENAI,
+    COMPONENT_PROVIDER_OPENROUTER,
+    COMPONENT_RUNTIME_PYTHON,
+    COMPONENT_VAULT_PRIMARY,
     DISCOVERY_PROVIDERS,
     DISCOVERY_TRIGGER_BEFORE_OPERATIONAL_READINESS,
     DISCOVERY_TRIGGER_DAILY,
@@ -16,6 +23,7 @@ from src.operations.environment_discovery import (
     build_doctor_summary,
     build_environment_inventory,
     compare_environment_inventory,
+    get_component_by_id,
     render_detected_environment_yaml,
     write_environment_inventory,
 )
@@ -29,17 +37,18 @@ def test_build_environment_inventory_detects_core_runtime_and_vault(tmp_path, mo
     monkeypatch.setenv("OPENAI_API_KEY", "present-only")
 
     inventory = build_environment_inventory(root=tmp_path, install_root=tmp_path, now=datetime(2026, 7, 5, tzinfo=UTC))
-    components = {component.name: component for component in inventory.components}
+    components = {component.component_id: component for component in inventory.components}
 
-    assert components["Obsidian Vault"].status == STATUS_CONFIGURED
-    assert components["Python"].status == STATUS_CONFIGURED
+    assert components[COMPONENT_VAULT_PRIMARY].status == STATUS_CONFIGURED
+    assert components[COMPONENT_RUNTIME_PYTHON].status == STATUS_CONFIGURED
     assert "vault_path" in inventory.auto_configured
-    assert components["OpenAI"].status == STATUS_CONFIGURED
+    assert components[COMPONENT_PROVIDER_OPENAI].status == STATUS_CONFIGURED
     assert inventory.environment_score > 0
     assert inventory.trigger == DISCOVERY_TRIGGER_MANUAL
     assert DISCOVERY_TRIGGER_STARTUP in inventory.supported_triggers
     assert DISCOVERY_TRIGGER_DAILY in inventory.supported_triggers
     assert DISCOVERY_TRIGGER_BEFORE_OPERATIONAL_READINESS in inventory.supported_triggers
+    assert components[COMPONENT_VAULT_PRIMARY].depends_on == (COMPONENT_ENVIRONMENT_INVENTORY,)
 
 
 def test_environment_inventory_marks_missing_optional_provider_as_action_required(tmp_path, monkeypatch):
@@ -50,9 +59,9 @@ def test_environment_inventory_marks_missing_optional_provider_as_action_require
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
 
     inventory = build_environment_inventory(root=tmp_path, install_root=tmp_path)
-    components = {component.name: component for component in inventory.components}
+    components = {component.component_id: component for component in inventory.components}
 
-    assert components["OpenRouter"].status == STATUS_ACTION_REQUIRED
+    assert components[COMPONENT_PROVIDER_OPENROUTER].status == STATUS_ACTION_REQUIRED
     assert any("OPENROUTER_API_KEY" in action for action in inventory.required_actions)
 
 
@@ -83,7 +92,7 @@ def test_render_detected_environment_yaml_contains_components_and_auto_configure
 
     assert "detected_environment:" in rendered
     assert "auto_configured:" in rendered
-    assert "obsidian_vault:" in rendered
+    assert "vault_primary:" in rendered
 
 
 def test_build_doctor_summary_uses_environment_inventory(tmp_path, monkeypatch):
@@ -98,6 +107,7 @@ def test_build_doctor_summary_uses_environment_inventory(tmp_path, monkeypatch):
     assert "environment_score" in summary
     assert "summary_lines" in summary
     assert summary["summary_lines"][0].startswith("Environment Score:")
+    assert COMPONENT_VAULT_PRIMARY in summary["healthy"]
 
 
 def test_environment_discovery_uses_provider_architecture():
@@ -126,12 +136,13 @@ def test_environment_inventory_drift_detection_reports_changes(tmp_path, monkeyp
 
     inventory = build_environment_inventory(root=tmp_path, install_root=tmp_path)
     previous = inventory.as_dict()
-    vault_component = next(component for component in previous["components"] if component["name"] == "Obsidian Vault")
+    vault_component = get_component_by_id(previous, COMPONENT_VAULT_PRIMARY)
     vault_component["health"] = "ERROR"
     vault_component["version"] = "old"
     vault_component["install_location"] = "/old/path"
     previous["components"].append(
         {
+            "component_id": "service.removed_fixture",
             "name": "Removed Service",
             "category": "Services",
             "status": "FOUND",
@@ -140,7 +151,7 @@ def test_environment_inventory_drift_detection_reports_changes(tmp_path, monkeyp
             "install_location": "/tmp/removed",
             "configuration_source": "fixture",
             "required": False,
-            "dependencies": [],
+            "depends_on": [],
             "last_checked": inventory.generated_at,
             "last_changed": inventory.generated_at,
             "recommended_action": "None",
@@ -150,10 +161,27 @@ def test_environment_inventory_drift_detection_reports_changes(tmp_path, monkeyp
 
     drift = compare_environment_inventory(previous, inventory.components)
 
-    assert "Removed Service" in drift.removed_components
-    assert "Obsidian Vault" in drift.configuration_changes
-    assert "Obsidian Vault" in drift.version_changes
-    assert "Obsidian Vault" in drift.health_changes
+    assert "service.removed_fixture" in drift.removed_components
+    assert COMPONENT_VAULT_PRIMARY in drift.configuration_changes
+    assert COMPONENT_VAULT_PRIMARY in drift.version_changes
+    assert COMPONENT_VAULT_PRIMARY in drift.health_changes
+
+
+def test_environment_inventory_records_dependency_graph(tmp_path, monkeypatch):
+    vault = tmp_path / "vault"
+    vault.mkdir()
+    (vault / "Daily.md").write_text("# Daily\n")
+    monkeypatch.setenv("ALFRED_LIVE_VAULT_PATH", str(vault))
+
+    inventory = build_environment_inventory(root=tmp_path, install_root=tmp_path)
+
+    semantic = get_component_by_id(inventory, COMPONENT_KNOWLEDGE_SEMANTIC)
+    llm_wiki = get_component_by_id(inventory, COMPONENT_KNOWLEDGE_LLM_WIKI)
+
+    assert semantic is not None
+    assert llm_wiki is not None
+    assert COMPONENT_VAULT_PRIMARY in semantic.depends_on
+    assert COMPONENT_VAULT_PRIMARY in llm_wiki.depends_on
 
 
 def test_build_environment_inventory_script_generates_outputs():
