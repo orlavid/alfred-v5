@@ -8,8 +8,18 @@ LOG_FILE="$(script_log_path "deploy_vps")"
 : > "$LOG_FILE"
 
 ROLLBACK_TRIGGERED=0
+REMOTE_RELEASE_READY=0
 VENV_DIR="$ROOT_DIR/.venv"
 VENV_PYTHON="$VENV_DIR/bin/python"
+PACKAGE_DIR="${ALFRED_DEPLOY_PACKAGE_DIR:-$ROOT_DIR/.deploy}"
+PACKAGE_PATH="$PACKAGE_DIR/alfred-handbook-deploy.tgz"
+REMOTE_USER="${ALFRED_REMOTE_USER:-root}"
+REMOTE_HOST="${ALFRED_REMOTE_HOST:?ALFRED_REMOTE_HOST is required}"
+REMOTE_TARGET="$REMOTE_USER@$REMOTE_HOST"
+REMOTE_STAGE_ROOT="${ALFRED_REMOTE_STAGE_ROOT:-/tmp/alfred-deploy}"
+REMOTE_INSTALL_ROOT="${ALFRED_REMOTE_INSTALL_ROOT:-/opt/alfred}"
+REMOTE_RELEASE_DIR="${ALFRED_REMOTE_RELEASE_DIR:-$REMOTE_STAGE_ROOT/release}"
+REMOTE_BUNDLE_PATH="$REMOTE_STAGE_ROOT/alfred-handbook-deploy.tgz"
 
 rollback_on_failure() {
   local exit_code=$?
@@ -20,11 +30,12 @@ rollback_on_failure() {
     exit "$exit_code"
   fi
   ROLLBACK_TRIGGERED=1
-  log_line "$LOG_FILE" "FAIL: deployment gate failed with exit code $exit_code; starting automatic rollback."
-  if [[ -f "$ROOT_DIR/deploy_rollback.sh" ]]; then
-    "$ROOT_DIR/deploy_rollback.sh" >>"$LOG_FILE" 2>&1 || log_line "$LOG_FILE" "FAIL: automatic rollback also failed."
+  log_line "$LOG_FILE" "FAIL: deployment gate failed with exit code $exit_code; starting automatic VPS rollback."
+  if [[ $REMOTE_RELEASE_READY -eq 1 ]]; then
+    remote_run "rollback Alfred on VPS" bash -lc "cd '$REMOTE_RELEASE_DIR' && if [[ -f deploy_rollback.sh ]]; then ALFRED_INSTALL_ROOT='$REMOTE_INSTALL_ROOT' ./deploy_rollback.sh; else echo 'INFO: deploy_rollback.sh not present; skipping rollback helper.'; fi" \
+      || log_line "$LOG_FILE" "FAIL: automatic VPS rollback also failed."
   else
-    log_line "$LOG_FILE" "INFO: deploy_rollback.sh not present; skipping rollback helper."
+    log_line "$LOG_FILE" "INFO: remote release not prepared; skipping VPS rollback."
   fi
   exit "$exit_code"
 }
@@ -35,6 +46,19 @@ run_gate() {
   local label="$1"
   shift
   run_logged "$LOG_FILE" "$label" "$@"
+}
+
+remote_run() {
+  local label="$1"
+  shift
+  run_logged "$LOG_FILE" "$label" ssh -o BatchMode=yes "$REMOTE_TARGET" "$@"
+}
+
+remote_copy() {
+  local label="$1"
+  local source_path="$2"
+  local target_path="$3"
+  run_logged "$LOG_FILE" "$label" scp "$source_path" "$REMOTE_TARGET:$target_path"
 }
 
 ensure_python_environment() {
@@ -59,21 +83,58 @@ ensure_python_environment() {
   fi
 }
 
+build_release_bundle() {
+  mkdir -p "$PACKAGE_DIR"
+  rm -f "$PACKAGE_PATH"
+  run_logged "$LOG_FILE" "package deployment bundle" \
+    tar --exclude='.git' --exclude='.venv' --exclude='node_modules' --exclude='dist' --exclude='output' --exclude='deployment_logs' --exclude='.deploy' \
+      -czf "$PACKAGE_PATH" -C "$ROOT_DIR" .
+}
+
+prepare_remote_release() {
+  remote_run "prepare VPS staging directories" mkdir -p "$REMOTE_STAGE_ROOT"
+  remote_copy "upload deployment bundle" "$PACKAGE_PATH" "$REMOTE_BUNDLE_PATH"
+  remote_run "extract deployment bundle on VPS" bash -lc "rm -rf '$REMOTE_RELEASE_DIR' && mkdir -p '$REMOTE_RELEASE_DIR' && tar -xzf '$REMOTE_BUNDLE_PATH' -C '$REMOTE_RELEASE_DIR'"
+  REMOTE_RELEASE_READY=1
+}
+
+run_remote_install() {
+  remote_run "install Alfred on VPS" bash -lc "cd '$REMOTE_RELEASE_DIR' && ALFRED_INSTALL_ROOT='$REMOTE_INSTALL_ROOT' ALFRED_OBSIDIAN_VAULT='${ALFRED_OBSIDIAN_VAULT:?ALFRED_OBSIDIAN_VAULT is required}' ./deploy_stage2.sh"
+}
+
+run_remote_acceptance() {
+  remote_run "run Executive Acceptance on VPS" bash -lc "cd '$REMOTE_RELEASE_DIR' && ALFRED_INSTALL_ROOT='$REMOTE_INSTALL_ROOT' ./deploy_validation.sh"
+}
+
+run_remote_start() {
+  remote_run "start service on VPS" bash -lc "cd '$REMOTE_RELEASE_DIR' && ALFRED_INSTALL_ROOT='$REMOTE_INSTALL_ROOT' ./scripts/install/start_alfred.sh"
+}
+
+run_remote_smoke_test() {
+  remote_run "smoke test on VPS" bash -lc "cd '$REMOTE_RELEASE_DIR' && ALFRED_INSTALL_ROOT='$REMOTE_INSTALL_ROOT' ./scripts/install/status_alfred.sh"
+}
+
 log_line "$LOG_FILE" "Project Phoenix live knowledge cutover deployment started."
+log_line "$LOG_FILE" "Local validation runs on the development machine; Alfred installation and smoke verification run on the VPS."
 
 require_command "$LOG_FILE" git
 require_command "$LOG_FILE" python3
 require_command "$LOG_FILE" npm
+require_command "$LOG_FILE" tar
+require_command "$LOG_FILE" ssh
+require_command "$LOG_FILE" scp
 
 run_gate "pull GitHub" git pull --ff-only
 ensure_python_environment
-run_gate "install" "$ROOT_DIR/deploy_stage2.sh"
 run_gate "build" "$VENV_PYTHON" "$ROOT_DIR/build_everything.py"
 run_gate "run tests" "$VENV_PYTHON" -m pytest
 run_gate "run Live Knowledge Certification" "$VENV_PYTHON" "$ROOT_DIR/build_live_knowledge_certification.py"
-run_gate "run Executive Acceptance" "$ROOT_DIR/deploy_validation.sh"
-run_gate "start service" "$ROOT_DIR/scripts/install/start_alfred.sh"
-run_gate "smoke test" "$ROOT_DIR/scripts/install/status_alfred.sh"
+build_release_bundle
+prepare_remote_release
+run_remote_install
+run_remote_acceptance
+run_remote_start
+run_remote_smoke_test
 
 trap - EXIT
 log_line "$LOG_FILE" "PASS: live knowledge cutover deployment completed."
