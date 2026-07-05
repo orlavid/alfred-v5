@@ -41,6 +41,7 @@ class ConfigurationRegistry:
     node_modules_present: bool
     configured_vault_path: str
     live_vault_env_var: str
+    default_knowledge_provider: str
     production_mode: bool
     forbidden_output_strings: tuple[str, ...]
     expected_outputs: tuple[str, ...]
@@ -57,6 +58,7 @@ class ConfigurationRegistry:
             "node_modules_present": self.node_modules_present,
             "configured_vault_path": self.configured_vault_path,
             "live_vault_env_var": self.live_vault_env_var,
+            "default_knowledge_provider": self.default_knowledge_provider,
             "production_mode": self.production_mode,
             "forbidden_output_strings": list(self.forbidden_output_strings),
             "expected_outputs": list(self.expected_outputs),
@@ -83,6 +85,7 @@ def build_configuration_registry(
         node_modules_present=(effective_root / "node_modules").exists(),
         configured_vault_path=str(configured_vault_path),
         live_vault_env_var=LIVE_VAULT_ENV_VAR,
+        default_knowledge_provider="legacy_adapter",
         production_mode=True,
         forbidden_output_strings=(
             "Barclays",

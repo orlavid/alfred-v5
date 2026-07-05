@@ -78,6 +78,14 @@ def test_executive_state_matches_legacy_adapter_output(tmp_path: Path):
     assert len(state.open_loops.critical_open_loops) == len(adapter.get_open_loops().critical_open_loops)
 
 
+def test_executive_state_defaults_to_legacy_adapter_provider(tmp_path: Path):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+    state = build_executive_state(Path("evidence/alfred-inventory"), vault_root=vault)
+
+    assert state.adapter is not None
+    assert state.adapter.__class__.__name__ == "LegacyKnowledgeAdapter"
+
+
 def _build_obsidian_vault(vault: Path) -> Path:
     (vault / "01 Daily Logs").mkdir(parents=True)
     (vault / "02 People").mkdir(parents=True)

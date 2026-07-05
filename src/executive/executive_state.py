@@ -13,6 +13,7 @@ from src.knowledge.knowledge_graph import KnowledgeGraphModel
 from src.knowledge.providers.legacy_adapter import LegacyKnowledgeAdapter, build_legacy_knowledge_adapter
 from src.meeting.meeting_intelligence import MeetingBrief, build_meeting_brief
 from src.openloops.open_loop_intelligence import OpenLoopIntelligence
+from src.operations.config_registry import build_configuration_registry
 
 
 @dataclass(frozen=True)
@@ -50,7 +51,11 @@ def build_executive_state(
     *,
     meeting_subject: str | None = None,
     vault_root: Path | None = None,
+    knowledge_provider: str | None = None,
 ) -> ExecutiveState:
+    provider = knowledge_provider or build_configuration_registry(vault_path=vault_root).default_knowledge_provider
+    if provider != "legacy_adapter":
+        raise ValueError(f"Unsupported knowledge provider: {provider}")
     adapter = build_legacy_knowledge_adapter(evidence_root, vault_root=vault_root)
     engine_result = adapter.engine_result
     vault = adapter.vault

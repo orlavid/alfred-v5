@@ -91,3 +91,12 @@ def test_dashboard_consumes_executive_state_only():
     assert "build_executive_state(" in source
     assert "build_executive_knowledge(" not in source
     assert "load_vault(" not in source
+
+
+def test_dashboard_does_not_depend_on_direct_followup_or_open_loop_builders():
+    import src.api.dashboard_api as dashboard_api_module
+
+    source = inspect.getsource(dashboard_api_module)
+
+    assert "build_followup_intelligence(" not in source
+    assert "build_open_loop_intelligence(" not in source
