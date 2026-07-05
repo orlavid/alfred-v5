@@ -5,10 +5,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from src.executive.executive_state import build_executive_state
 from src.meeting.meeting_intelligence import build_meeting_brief, render_meeting_brief
-from src.knowledge.executive_knowledge_builder import build_executive_knowledge
 
 ROOT = Path(__file__).resolve().parent
+EVIDENCE = ROOT / "evidence" / "alfred-inventory"
 OUT = ROOT / "output"
 OUT.mkdir(exist_ok=True)
 
@@ -22,8 +23,8 @@ def main(argv: list[str] | None = None) -> int:
     if args:
         subject = " ".join(args).strip()
     else:
-        knowledge = build_executive_knowledge()
-        subject = next((entity.title for entity in knowledge.entities if entity.entity_type == "meeting"), "").strip()
+        state = build_executive_state(EVIDENCE)
+        subject = (state.meetings[0].subject if state.meetings else "").strip()
         if not subject:
             output = OUT / "Meeting_Brief_No_Evidence.md"
             output.write_text("# Meeting Brief\n\n## Meeting\n\n- Subject: No active meeting identified.\n\n## Executive Summary\n\n- No evidence found.\n")

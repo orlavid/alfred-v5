@@ -93,6 +93,8 @@ class FollowupIntelligence:
 
 
 def build_followup_intelligence(vault_root: Path | None = None, today: date | None = None) -> FollowupIntelligence:
+    # Deprecated direct retrieval path retained for the default knowledge provider.
+    # ExecutiveState is the canonical consumer for user-facing runtime knowledge.
     resolved_vault = resolve_live_vault_path(vault_root)
     effective_today = today or date.today()
     notes = load_vault(resolved_vault)

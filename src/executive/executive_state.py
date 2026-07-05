@@ -53,9 +53,7 @@ def build_executive_state(
     vault_root: Path | None = None,
     knowledge_provider: str | None = None,
 ) -> ExecutiveState:
-    provider = knowledge_provider or build_configuration_registry(vault_path=vault_root).default_knowledge_provider
-    if provider != "legacy_adapter":
-        raise ValueError(f"Unsupported knowledge provider: {provider}")
+    provider = _resolve_knowledge_provider(knowledge_provider, vault_root)
     adapter = build_legacy_knowledge_adapter(evidence_root, vault_root=vault_root)
     engine_result = adapter.engine_result
     vault = adapter.vault
@@ -136,6 +134,13 @@ def build_executive_state(
         neighbours=neighbours,
         knowledge_model=knowledge_model,
     )
+
+
+def _resolve_knowledge_provider(knowledge_provider: str | None, vault_root: Path | None) -> str:
+    provider = knowledge_provider or build_configuration_registry(vault_path=vault_root).default_knowledge_provider
+    if provider != "legacy_adapter":
+        raise ValueError(f"Unsupported knowledge provider: {provider}")
+    return provider
 
 
 def render_executive_state_summary(state: ExecutiveState) -> str:

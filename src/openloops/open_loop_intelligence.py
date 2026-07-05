@@ -88,6 +88,8 @@ class OpenLoopIntelligence:
 
 
 def build_open_loop_intelligence(vault_root: Path | None = None) -> OpenLoopIntelligence:
+    # Deprecated direct retrieval path retained for the default knowledge provider.
+    # ExecutiveState is the canonical consumer for user-facing runtime knowledge.
     resolved_vault = resolve_live_vault_path(vault_root)
     notes = load_vault(resolved_vault)
     items = _collect_open_loops(notes)

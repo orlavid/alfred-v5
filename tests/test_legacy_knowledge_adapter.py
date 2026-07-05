@@ -86,6 +86,24 @@ def test_executive_state_defaults_to_legacy_adapter_provider(tmp_path: Path):
     assert state.adapter.__class__.__name__ == "LegacyKnowledgeAdapter"
 
 
+def test_executive_state_only_consumes_configured_provider(tmp_path: Path, monkeypatch):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+
+    from src.executive import executive_state as executive_state_module
+
+    class FakeRegistry:
+        default_knowledge_provider = "unsupported_provider"
+
+    monkeypatch.setattr(executive_state_module, "build_configuration_registry", lambda **_: FakeRegistry())
+
+    try:
+        build_executive_state(Path("evidence/alfred-inventory"), vault_root=vault)
+    except ValueError as exc:
+        assert "Unsupported knowledge provider" in str(exc)
+    else:
+        raise AssertionError("build_executive_state should reject unsupported configured providers")
+
+
 def _build_obsidian_vault(vault: Path) -> Path:
     (vault / "01 Daily Logs").mkdir(parents=True)
     (vault / "02 People").mkdir(parents=True)
