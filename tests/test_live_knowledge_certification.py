@@ -18,6 +18,8 @@ def test_build_live_knowledge_certification_passes_with_live_vault(tmp_path, mon
     (vault / "08 Follow Ups").mkdir(parents=True)
     (vault / "09 Objectives").mkdir(parents=True)
     (vault / "10 Briefings").mkdir(parents=True)
+    (vault / "output").mkdir(parents=True)
+    (vault / "docs" / "migration").mkdir(parents=True)
 
     (vault / "09 Objectives" / "Objective Alpha.md").write_text(
         "# Objective Alpha\nStrategic objective linked to [[Project Phoenix]].\n"
@@ -40,6 +42,8 @@ def test_build_live_knowledge_certification_passes_with_live_vault(tmp_path, mon
     (vault / "10 Briefings" / "Weekly Executive Briefing.md").write_text(
         "# Weekly Executive Briefing\nExecutive briefing for [[Project Phoenix]].\n"
     )
+    (vault / "output" / "Objective Fake.md").write_text("# Objective Fake\nShould be ignored.\n")
+    (vault / "docs" / "migration" / "Project Fake.md").write_text("# Project Fake\nShould be ignored.\n")
 
     monkeypatch.setenv("ALFRED_LIVE_VAULT_PATH", str(vault))
 
@@ -47,8 +51,8 @@ def test_build_live_knowledge_certification_passes_with_live_vault(tmp_path, mon
 
     assert report.status in {"PASS", "WARNING"}
     assert report.source_mode == "live_vault"
-    assert report.metrics["Objectives discovered"] >= 1
-    assert report.metrics["Projects discovered"] >= 1
+    assert report.metrics["Objectives discovered"] == 1
+    assert report.metrics["Projects discovered"] == 1
     assert report.metrics["People discovered"] >= 1
     assert report.metrics["Companies discovered"] >= 1
     assert report.metrics["Meetings discovered"] >= 1

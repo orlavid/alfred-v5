@@ -194,8 +194,8 @@ def _run_vault_scan(context: dict[str, Any]) -> tuple[int, list[str]]:
     vault_status = detect_live_vault_status(vault_root)
     LIVE_VAULT_STATUS_REPORT.write_text(render_live_vault_status(vault_status))
 
-    if vault_root.exists() and any(vault_root.rglob("*.md")):
-        notes = tuple(load_vault(vault_root))
+    notes = tuple(load_vault(vault_root)) if vault_root.exists() else ()
+    if notes:
         entities = tuple(extract_entities(vault_root))
         scan = _ScanContext(
             source_mode="live_vault",

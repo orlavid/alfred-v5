@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import os
 
+from executive.knowledge.vault import load_vault
 from src.knowledge.executive_knowledge_builder import DEFAULT_VAULT_ROOT
 
 LIVE_VAULT_ENV_VAR = "ALFRED_LIVE_VAULT_PATH"
@@ -46,7 +47,7 @@ def detect_live_vault_status(vault_root: Path | None = None) -> LiveVaultStatus:
         source = "default"
 
     exists = resolved.exists() and resolved.is_dir()
-    markdown_count = len(list(resolved.rglob("*.md"))) if exists else 0
+    markdown_count = len(load_vault(resolved)) if exists else 0
 
     if not exists:
         return LiveVaultStatus(
@@ -64,7 +65,7 @@ def detect_live_vault_status(vault_root: Path | None = None) -> LiveVaultStatus:
             exists=True,
             markdown_files_processed=0,
             status="FAIL",
-            reason="Configured live vault contains no markdown files.",
+            reason="Configured live vault contains no executive markdown notes after exclusions.",
         )
     return LiveVaultStatus(
         vault_path=str(resolved),
@@ -72,7 +73,7 @@ def detect_live_vault_status(vault_root: Path | None = None) -> LiveVaultStatus:
         exists=True,
         markdown_files_processed=markdown_count,
         status="PASS",
-        reason="Configured live vault is readable and contains markdown notes.",
+        reason="Configured live vault is readable and contains executive markdown notes.",
     )
 
 

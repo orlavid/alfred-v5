@@ -10,10 +10,11 @@ import re
 from typing import Iterable
 
 from executive.knowledge.entity import VaultEntity
-from executive.knowledge.extractor import extract_entities, extract_links, extract_tags
+from executive.knowledge.extractor import extract_links, extract_tags
 from executive.knowledge.graph import build_graph
 from executive.knowledge.resolver import build_entity_resolution, build_resolution_index, resolve_link_with_index
 from executive.knowledge.vault import VaultNote, load_vault
+from src.knowledge.providers import extract_provider_entities
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EVIDENCE_ROOT = ROOT / "evidence" / "alfred-inventory"
@@ -101,7 +102,7 @@ def build_executive_knowledge(
 ) -> ExecutiveKnowledgeModel:
     effective_today = today or date.today()
     live_vault_root = vault_root or DEFAULT_VAULT_ROOT
-    if live_vault_root.exists() and any(live_vault_root.rglob("*.md")):
+    if load_vault(live_vault_root):
         return _build_from_live_vault(live_vault_root, effective_today)
     return _build_from_evidence_inventory(evidence_root or DEFAULT_EVIDENCE_ROOT, effective_today)
 
@@ -158,7 +159,7 @@ def render_executive_knowledge_json(report: ExecutiveKnowledgeModel) -> str:
 
 
 def _build_from_live_vault(vault_root: Path, today: date) -> ExecutiveKnowledgeModel:
-    entities = extract_entities(vault_root)
+    entities = list(extract_provider_entities(vault_root))
     resolution_model = build_entity_resolution(entities)
     resolution_index = resolution_model.index
     graph = build_graph(entities, resolution_index)

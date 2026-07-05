@@ -1,33 +1,23 @@
+"""Provider-backed entity extraction from executive Obsidian notes."""
+
+from __future__ import annotations
+
 import re
-from executive.knowledge.entity import VaultEntity
-from executive.knowledge.vault import load_vault
+from pathlib import Path
+
+from src.knowledge.providers import extract_provider_entities
 
 WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 TAG_RE = re.compile(r"(?<!\w)#([A-Za-z0-9_/-]+)")
 
-def extract_links(text):
-    links = []
-    for match in WIKILINK_RE.findall(text):
-        links.append(match.split("|")[0].strip())
-    return links
 
-def extract_tags(text):
+def extract_links(text: str) -> list[str]:
+    return [match.split("|")[0].strip() for match in WIKILINK_RE.findall(text)]
+
+
+def extract_tags(text: str) -> list[str]:
     return sorted(set(TAG_RE.findall(text)))
 
-def extract_entities(vault_root):
-    notes = load_vault(vault_root)
-    entities = []
 
-    for note in notes:
-        entities.append(
-            VaultEntity(
-                id=note.path,
-                type=note.kind,
-                title=note.title,
-                path=note.path,
-                tags=extract_tags(note.text),
-                links=extract_links(note.text),
-            )
-        )
-
-    return entities
+def extract_entities(vault_root: Path):
+    return list(extract_provider_entities(vault_root))
