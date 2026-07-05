@@ -1,4 +1,5 @@
 from pathlib import Path
+import inspect
 import json
 import subprocess
 import sys
@@ -80,3 +81,13 @@ def test_build_dashboard_api_generates_json_output():
     assert "generated_from" in payload
     assert "board" in payload
     assert "admin_configuration" in payload
+
+
+def test_dashboard_consumes_executive_state_only():
+    import src.api.dashboard_api as dashboard_api_module
+
+    source = inspect.getsource(dashboard_api_module)
+
+    assert "build_executive_state(" in source
+    assert "build_executive_knowledge(" not in source
+    assert "load_vault(" not in source

@@ -56,8 +56,26 @@ def test_executive_state_uses_legacy_adapter_factory(tmp_path: Path, monkeypatch
     state = build_executive_state(Path("evidence/alfred-inventory"), vault_root=vault)
 
     assert calls["count"] == 1
+    assert state.adapter is not None
     assert state.objectives[0].title == "Objective Alpha"
     assert state.projects[0].title == "Project Phoenix"
+
+
+def test_executive_state_matches_legacy_adapter_output(tmp_path: Path):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+    evidence_root = Path("evidence/alfred-inventory")
+
+    adapter = build_legacy_knowledge_adapter(evidence_root, vault_root=vault)
+    state = build_executive_state(evidence_root, vault_root=vault)
+
+    assert tuple(item.title for item in state.objectives) == tuple(item.title for item in adapter.get_objectives())
+    assert tuple(item.title for item in state.projects) == tuple(item.title for item in adapter.get_projects())
+    assert tuple(item.title for item in state.people) == tuple(item.title for item in adapter.get_people())
+    assert tuple(item.title for item in state.companies) == tuple(item.title for item in adapter.get_companies())
+    assert tuple(item["title"] for item in state.decisions) == tuple(item["title"] for item in adapter.get_decisions())
+    assert len(state.followups.overdue) == len(adapter.get_followups().overdue)
+    assert len(state.followups.high_priority) == len(adapter.get_followups().high_priority)
+    assert len(state.open_loops.critical_open_loops) == len(adapter.get_open_loops().critical_open_loops)
 
 
 def _build_obsidian_vault(vault: Path) -> Path:

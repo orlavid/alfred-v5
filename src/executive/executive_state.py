@@ -17,6 +17,7 @@ from src.openloops.open_loop_intelligence import OpenLoopIntelligence
 
 @dataclass(frozen=True)
 class ExecutiveState:
+    adapter: LegacyKnowledgeAdapter | None = None
     board: BoardGovernance | None = None
     objectives: tuple[Any, ...] = ()
     projects: tuple[Any, ...] = ()
@@ -103,6 +104,7 @@ def build_executive_state(
     )
 
     return ExecutiveState(
+        adapter=adapter,
         board=board,
         objectives=objectives,
         projects=projects,
