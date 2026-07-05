@@ -6,13 +6,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from executive.engine import execute
 from src.board.board_registry import BoardGovernance, build_board_governance
-from src.followups.followup_intelligence import FollowupIntelligence, build_followup_intelligence
-from src.knowledge.executive_knowledge_builder import ExecutiveKnowledgeModel, build_executive_knowledge
-from src.knowledge.knowledge_graph import KnowledgeGraphModel, build_knowledge_graph_from_model
+from src.followups.followup_intelligence import FollowupIntelligence
+from src.knowledge.executive_knowledge_builder import ExecutiveKnowledgeModel
+from src.knowledge.knowledge_graph import KnowledgeGraphModel
+from src.knowledge.providers.legacy_adapter import LegacyKnowledgeAdapter, build_legacy_knowledge_adapter
 from src.meeting.meeting_intelligence import MeetingBrief, build_meeting_brief
-from src.openloops.open_loop_intelligence import OpenLoopIntelligence, build_open_loop_intelligence
+from src.openloops.open_loop_intelligence import OpenLoopIntelligence
 
 
 @dataclass(frozen=True)
@@ -50,36 +50,27 @@ def build_executive_state(
     meeting_subject: str | None = None,
     vault_root: Path | None = None,
 ) -> ExecutiveState:
-    engine_result = execute(evidence_root, vault_root=vault_root)
-    vault = engine_result["knowledge"]["vault"]
-    knowledge_model = build_executive_knowledge(evidence_root, vault_root=vault_root)
-    relationship_graph = build_knowledge_graph_from_model(knowledge_model)
+    adapter = build_legacy_knowledge_adapter(evidence_root, vault_root=vault_root)
+    engine_result = adapter.engine_result
+    vault = adapter.vault
+    knowledge_model = adapter.knowledge_model
+    relationship_graph = adapter.relationship_graph
     board = build_board_governance()
-    meetings = _build_meetings(meeting_subject, vault_root, knowledge_model)
-    followups = build_followup_intelligence(vault_root=vault_root)
-    open_loops = build_open_loop_intelligence(vault_root=vault_root)
+    meetings = _build_meetings(meeting_subject, vault_root, adapter)
+    followups = adapter.get_followups()
+    open_loops = adapter.get_open_loops()
 
-    objectives = tuple(sorted(vault.get("objectives", {}).get("insights", []), key=_title_key))
-    projects = tuple(sorted(vault.get("projects", {}).get("insights", []), key=_title_key))
-    companies = tuple(sorted(vault.get("companies", {}).get("insights", []), key=_title_key))
-    people = tuple(sorted(vault.get("people", {}).get("insights", []), key=_title_key))
-    policies = tuple(
-        sorted(
-            (entity for entity in knowledge_model.entities if entity.entity_type == "policy"),
-            key=lambda entity: (entity.title.lower(), entity.path),
-        )
-    )
-    decisions = tuple(
-        sorted(
-            vault.get("decisions", {}).get("top_decisions", []),
-            key=lambda item: (-item.get("importance", 0), item.get("title", "").lower()),
-        )
-    )
-    risks = tuple(vault.get("risk", {}).get("high_risk", []))
-    priorities = tuple(vault.get("priorities", {}).get("top_priorities", []))
+    objectives = adapter.get_objectives()
+    projects = adapter.get_projects()
+    companies = adapter.get_companies()
+    people = adapter.get_people()
+    policies = adapter.get_policies()
+    decisions = adapter.get_decisions()
+    risks = adapter.get_risks()
+    priorities = adapter.get_priorities()
     suppliers = tuple(_filter_suppliers(companies))
-    entities = tuple(vault.get("entities", []))
-    neighbours = _build_neighbours(vault.get("graph", {}).get("edges", []))
+    entities = adapter.entities
+    neighbours = adapter.get_neighbours()
 
     objective_health = _build_objective_health(objectives, vault)
     project_health = _build_project_health(projects, vault)
@@ -240,14 +231,14 @@ def _build_summary(
 def _build_meetings(
     meeting_subject: str | None,
     vault_root: Path | None,
-    knowledge_model: ExecutiveKnowledgeModel,
+    adapter: LegacyKnowledgeAdapter,
 ) -> tuple[MeetingBrief, ...]:
     subject = (meeting_subject or "").strip()
     if subject:
         brief = build_meeting_brief(subject, vault_root=vault_root)
         return (brief,) if _meeting_has_evidence(brief) else ()
 
-    candidate = next((entity.title for entity in knowledge_model.entities if entity.entity_type == "meeting"), None)
+    candidate = next((entity.title for entity in adapter.knowledge_model.entities if entity.entity_type == "meeting"), None)
     if candidate:
         brief = build_meeting_brief(candidate, vault_root=vault_root)
         return (brief,) if _meeting_has_evidence(brief) else ()
