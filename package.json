@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "python build_dashboard_api.py && vite build",
-    "dev": "python build_dashboard_api.py && vite",
+    "build": "vite build",
+    "dev": "vite",
     "test": "vitest run"
   },
   "dependencies": {
