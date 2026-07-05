@@ -6,10 +6,16 @@ import subprocess
 import sys
 
 from src.operations.environment_discovery import (
+    DISCOVERY_PROVIDERS,
+    DISCOVERY_TRIGGER_BEFORE_OPERATIONAL_READINESS,
+    DISCOVERY_TRIGGER_DAILY,
+    DISCOVERY_TRIGGER_MANUAL,
+    DISCOVERY_TRIGGER_STARTUP,
     STATUS_ACTION_REQUIRED,
     STATUS_CONFIGURED,
     build_doctor_summary,
     build_environment_inventory,
+    compare_environment_inventory,
     render_detected_environment_yaml,
     write_environment_inventory,
 )
@@ -30,6 +36,10 @@ def test_build_environment_inventory_detects_core_runtime_and_vault(tmp_path, mo
     assert "vault_path" in inventory.auto_configured
     assert components["OpenAI"].status == STATUS_CONFIGURED
     assert inventory.environment_score > 0
+    assert inventory.trigger == DISCOVERY_TRIGGER_MANUAL
+    assert DISCOVERY_TRIGGER_STARTUP in inventory.supported_triggers
+    assert DISCOVERY_TRIGGER_DAILY in inventory.supported_triggers
+    assert DISCOVERY_TRIGGER_BEFORE_OPERATIONAL_READINESS in inventory.supported_triggers
 
 
 def test_environment_inventory_marks_missing_optional_provider_as_action_required(tmp_path, monkeypatch):
@@ -88,6 +98,62 @@ def test_build_doctor_summary_uses_environment_inventory(tmp_path, monkeypatch):
     assert "environment_score" in summary
     assert "summary_lines" in summary
     assert summary["summary_lines"][0].startswith("Environment Score:")
+
+
+def test_environment_discovery_uses_provider_architecture():
+    provider_names = {provider.__class__.__name__ for provider in DISCOVERY_PROVIDERS}
+    assert {
+        "VaultDiscovery",
+        "OllamaDiscovery",
+        "OpenRouterDiscovery",
+        "OpenAIDiscovery",
+        "AnthropicDiscovery",
+        "LlamaIndexDiscovery",
+        "LLMWikiDiscovery",
+        "SemanticDiscovery",
+        "DockerDiscovery",
+        "SystemdDiscovery",
+        "PythonDiscovery",
+        "NodeDiscovery",
+    }.issubset(provider_names)
+
+
+def test_environment_inventory_drift_detection_reports_changes(tmp_path, monkeypatch):
+    vault = tmp_path / "vault"
+    vault.mkdir()
+    (vault / "Daily.md").write_text("# Daily\n")
+    monkeypatch.setenv("ALFRED_LIVE_VAULT_PATH", str(vault))
+
+    inventory = build_environment_inventory(root=tmp_path, install_root=tmp_path)
+    previous = inventory.as_dict()
+    vault_component = next(component for component in previous["components"] if component["name"] == "Obsidian Vault")
+    vault_component["health"] = "ERROR"
+    vault_component["version"] = "old"
+    vault_component["install_location"] = "/old/path"
+    previous["components"].append(
+        {
+            "name": "Removed Service",
+            "category": "Services",
+            "status": "FOUND",
+            "health": "HEALTHY",
+            "version": "1.0",
+            "install_location": "/tmp/removed",
+            "configuration_source": "fixture",
+            "required": False,
+            "dependencies": [],
+            "last_checked": inventory.generated_at,
+            "last_changed": inventory.generated_at,
+            "recommended_action": "None",
+            "work_instruction_link": "docs/deployment/INSTALLATION_GUIDE.md",
+        }
+    )
+
+    drift = compare_environment_inventory(previous, inventory.components)
+
+    assert "Removed Service" in drift.removed_components
+    assert "Obsidian Vault" in drift.configuration_changes
+    assert "Obsidian Vault" in drift.version_changes
+    assert "Obsidian Vault" in drift.health_changes
 
 
 def test_build_environment_inventory_script_generates_outputs():

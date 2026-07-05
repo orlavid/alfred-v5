@@ -240,7 +240,7 @@ class Inventory:
             "required_actions": list(self.required_actions),
         }
 
-def build_environment_inventory(root=None, install_root=None, vault_path=None, now=None):
+def build_environment_inventory(root=None, install_root=None, vault_path=None, now=None, trigger="manual", previous_inventory=None):
     return Inventory(
         auto_configured={
             "vault_path": AutoConfiguredValue(os.environ["ALFRED_OBSIDIAN_VAULT"], "fixture", "HIGH", "2026-07-05T00:00:00+00:00"),

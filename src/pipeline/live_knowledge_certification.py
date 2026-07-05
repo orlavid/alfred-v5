@@ -6,7 +6,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.knowledge.executive_knowledge_builder import DEFAULT_EVIDENCE_ROOT
-from src.obsidian.live_vault import detect_live_vault_status, resolve_live_vault_path
+from src.operations.environment_discovery import (
+    DISCOVERY_TRIGGER_BEFORE_DEPLOYMENT,
+    STATUS_ACTION_REQUIRED,
+    STATUS_CONFIGURED,
+    build_environment_inventory,
+)
 from src.pipeline.executive_pipeline import build_executive_pipeline
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,21 +47,25 @@ def build_live_knowledge_certification(
     *,
     vault_root: Path | None = None,
 ) -> LiveKnowledgeCertification:
-    effective_vault_root = resolve_live_vault_path(vault_root)
-    vault_status = detect_live_vault_status(effective_vault_root)
-    if vault_status.status == "FAIL":
+    inventory = build_environment_inventory(
+        vault_path=vault_root,
+        trigger=DISCOVERY_TRIGGER_BEFORE_DEPLOYMENT,
+    )
+    vault_component = next(component for component in inventory.components if component.name == "Obsidian Vault")
+    effective_vault_root = Path(vault_component.install_location)
+    if vault_component.status not in {STATUS_CONFIGURED, STATUS_ACTION_REQUIRED} or not effective_vault_root.exists():
         return LiveKnowledgeCertification(
-            vault_path=vault_status.vault_path,
+            vault_path=vault_component.install_location,
             source_mode="unavailable",
             metrics={
-                "Vault path": vault_status.vault_path,
-                "Markdown files processed": vault_status.markdown_files_processed,
+                "Vault path": vault_component.install_location,
+                "Markdown files processed": 0,
                 "ExecutiveState generated": False,
                 "Daily Brief generated": False,
                 "Dashboard API generated": False,
             },
             status="FAIL",
-            reasons=(vault_status.reason,),
+            reasons=(vault_component.recommended_action,),
         )
 
     pipeline = build_executive_pipeline(

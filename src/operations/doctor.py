@@ -10,10 +10,14 @@ import os
 
 from src.operations.config_registry import ConfigurationRegistry, build_configuration_registry
 from src.operations.environment_discovery import (
-    EnvironmentInventory,
     build_doctor_summary,
     build_environment_inventory,
     write_environment_inventory,
+    STATUS_ACTION_REQUIRED,
+    STATUS_CONFIGURED,
+    STATUS_DISABLED,
+    STATUS_ERROR,
+    STATUS_FOUND,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -78,21 +82,21 @@ def build_operational_readiness(
         install_root=Path(effective_registry.root_dir),
         vault_path=Path(effective_registry.configured_vault_path),
         now=effective_now,
+        trigger="before_operational_readiness",
     )
     write_environment_inventory(environment_inventory, output_dir=effective_output_dir)
     doctor_summary = build_doctor_summary(environment_inventory)
     freshness = _build_freshness(effective_output_dir / "ExecutiveState_Summary.md", effective_now)
     checks = (
-        _check_python_environment(effective_registry),
-        _check_npm_environment(effective_registry),
-        _check_vault_path(effective_registry),
+        _check_inventory_component(environment_inventory.as_dict(), "Python", "Python runtime is configured from environment discovery."),
+        _check_inventory_component(environment_inventory.as_dict(), "npm", "npm runtime is configured from environment discovery."),
+        _check_inventory_component(environment_inventory.as_dict(), "Obsidian Vault", "Vault path is configured from environment discovery."),
         _check_output_files_present(effective_registry, effective_output_dir),
         _check_executive_state_freshness(freshness),
         _check_build_outputs_present(effective_output_dir),
-        _check_optional_services_declared(effective_registry),
-        _check_specific_service_status(effective_registry, "LlamaIndex"),
-        _check_specific_service_status(effective_registry, "LLM Wiki Enrichment"),
-        _check_specific_service_status(effective_registry, "Deep Research"),
+        _check_inventory_component(environment_inventory.as_dict(), "LlamaIndex", "LlamaIndex capability is tracked in the persistent environment inventory."),
+        _check_inventory_component(environment_inventory.as_dict(), "LLM Wiki Enrichment", "LLM Wiki capability is tracked in the persistent environment inventory."),
+        _check_inventory_component(environment_inventory.as_dict(), "Deep Research", "Deep Research capability is tracked in the persistent environment inventory."),
         _check_deployment_package_gaps(effective_registry),
     )
     overall_health = _derive_overall_health(checks)
@@ -185,34 +189,23 @@ def _build_freshness(state_summary_path: Path, now: datetime) -> DataFreshness:
     )
 
 
-def _check_python_environment(registry: ConfigurationRegistry) -> DoctorCheck:
-    executable = Path(registry.python_executable)
-    venv_python = Path(registry.root_dir) / ".venv" / "bin" / "python"
-    status = "PASS" if executable.exists() and venv_python.exists() else "WARN"
-    detail = f"Runtime python is {registry.python_executable}; .venv python {'found' if venv_python.exists() else 'missing'}."
-    recommendation = "Use .venv/bin/python for repeatable local builds." if status != "PASS" else "Python environment looks consistent."
-    return DoctorCheck("Python environment", status, detail, recommendation)
+def _check_inventory_component(inventory: dict[str, object], name: str, detail_prefix: str) -> DoctorCheck:
+    component = next((item for item in inventory["components"] if item["name"] == name), None)
+    if component is None:
+        return DoctorCheck(f"{name} inventory", "WARN", f"{name} is missing from the environment inventory.", "Re-run environment discovery before continuing.")
 
+    if component["status"] in {STATUS_CONFIGURED, STATUS_FOUND, STATUS_DISABLED}:
+        status = "PASS"
+    elif component["status"] == "NOT_FOUND" and component.get("required") is False:
+        status = "PASS"
+    elif component["status"] == STATUS_ERROR:
+        status = "FAIL"
+    else:
+        status = "WARN"
 
-def _check_npm_environment(registry: ConfigurationRegistry) -> DoctorCheck:
-    npm_present = registry.npm_executable is not None
-    status = "PASS" if npm_present and registry.package_json_present and registry.node_modules_present else "WARN"
-    detail = (
-        f"npm executable is {registry.npm_executable or 'missing'}; "
-        f"package.json is {'present' if registry.package_json_present else 'missing'}; "
-        f"node_modules is {'present' if registry.node_modules_present else 'missing'}."
-    )
-    recommendation = "Run npm install before packaging Alfred." if status != "PASS" else "npm environment is ready."
-    return DoctorCheck("npm environment", status, detail, recommendation)
-
-
-def _check_vault_path(registry: ConfigurationRegistry) -> DoctorCheck:
-    vault_path = Path(registry.configured_vault_path)
-    exists = vault_path.exists() and vault_path.is_dir()
-    status = "PASS" if exists else "WARN"
-    detail = f"Configured vault path is {vault_path} and is {'available' if exists else 'not available'}."
-    recommendation = "Set ALFRED_OBSIDIAN_VAULT or create the configured vault path." if status != "PASS" else "Vault path is configured."
-    return DoctorCheck("vault path configured", status, detail, recommendation)
+    detail = f"{detail_prefix} Status is {component['status']}; health is {component['health']}."
+    recommendation = component["recommended_action"]
+    return DoctorCheck(f"{name} inventory", status, detail, recommendation)
 
 
 def _check_output_files_present(registry: ConfigurationRegistry, output_dir: Path) -> DoctorCheck:
@@ -236,22 +229,6 @@ def _check_build_outputs_present(output_dir: Path) -> DoctorCheck:
     detail = "Core build outputs are present." if not missing else f"Missing core build outputs: {', '.join(missing)}."
     recommendation = "Re-run the pipeline and dashboard builds." if missing else "Core build outputs are available."
     return DoctorCheck("build outputs present", status, detail, recommendation)
-
-
-def _check_optional_services_declared(registry: ConfigurationRegistry) -> DoctorCheck:
-    status = "PASS" if registry.optional_services else "WARN"
-    detail = f"{len(registry.optional_services)} optional services are declared in the central registry."
-    recommendation = "Declare optional services centrally before packaging Alfred." if not registry.optional_services else "Optional services are centrally declared."
-    return DoctorCheck("optional services declared", status, detail, recommendation)
-
-
-def _check_specific_service_status(registry: ConfigurationRegistry, service_name: str) -> DoctorCheck:
-    service = next((item for item in registry.optional_services if item.name == service_name), None)
-    if service is None:
-        return DoctorCheck(service_name + " status", "WARN", "Service is not declared.", "Add the service to the central registry.")
-    detail = f"Status is {service.status}; config doc is {service.config_doc}."
-    recommendation = "Keep as placeholder until the service is intentionally deployed." if service.status == "Not installed" else "Validate the live service state."
-    return DoctorCheck(f"{service_name} status placeholder", "PASS", detail, recommendation)
 
 
 def _check_deployment_package_gaps(registry: ConfigurationRegistry) -> DoctorCheck:

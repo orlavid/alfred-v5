@@ -45,6 +45,7 @@ def test_build_operational_readiness_reports_freshness_and_services(tmp_path):
     venv_python.write_text("")
     package_json.write_text("{}")
     vault.mkdir()
+    (vault / "Daily.md").write_text("# Daily\n")
 
     for name in (
         "Dashboard_Home.json",
@@ -74,10 +75,9 @@ def test_build_operational_readiness_reports_freshness_and_services(tmp_path):
     checks = {check["name"]: check for check in payload["checks"]}
 
     assert report.freshness.status == "FRESH"
-    assert checks["Python environment"]["status"] == "PASS"
-    assert checks["npm environment"]["status"] == "PASS"
-    assert checks["optional services declared"]["status"] == "PASS"
-    assert checks["LlamaIndex status placeholder"]["status"] == "PASS"
+    assert checks["Python inventory"]["status"] == "PASS"
+    assert checks["npm inventory"]["status"] == "PASS"
+    assert checks["LlamaIndex inventory"]["status"] == "PASS"
     assert payload["overall_health"] == "GREEN"
     assert "environment_inventory" in payload
     assert "doctor_summary" in payload

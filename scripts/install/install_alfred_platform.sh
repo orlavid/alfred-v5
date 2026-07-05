@@ -95,12 +95,9 @@ config_file = Path(sys.argv[5])
 
 sys.path.insert(0, str(app_dir))
 
-from src.operations.environment_discovery import (
-    build_environment_inventory,
-    render_detected_environment_yaml,
-)
+from src.operations.environment_discovery import build_environment_inventory, render_detected_environment_yaml
 
-inventory = build_environment_inventory(root=app_dir, install_root=install_root)
+inventory = build_environment_inventory(root=app_dir, install_root=install_root, trigger="startup")
 inventory_json.write_text(json.dumps(inventory.as_dict(), indent=2, sort_keys=True))
 inventory_yaml.write_text(render_detected_environment_yaml(inventory))
 
@@ -314,7 +311,7 @@ sys.path.insert(0, str(app_dir))
 
 from src.operations.environment_discovery import build_environment_inventory, render_detected_environment_yaml
 
-inventory = build_environment_inventory(root=app_dir, install_root=install_root)
+inventory = build_environment_inventory(root=app_dir, install_root=install_root, trigger="startup")
 inventory_json.write_text(json.dumps(inventory.as_dict(), indent=2, sort_keys=True))
 inventory_yaml.write_text(render_detected_environment_yaml(inventory))
 original = config_file.read_text().rstrip() + "\n"
