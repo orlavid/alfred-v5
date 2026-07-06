@@ -92,7 +92,7 @@ build_release_bundle() {
   mkdir -p "$PACKAGE_DIR"
   rm -f "$PACKAGE_PATH"
   run_logged "$LOG_FILE" "package deployment bundle" \
-    tar --exclude='.git' --exclude='.venv' --exclude='node_modules' --exclude='dist' --exclude='output' --exclude='deployment_logs' --exclude='.deploy' \
+    COPYFILE_DISABLE=1 tar --no-xattrs --exclude='.git' --exclude='.venv' --exclude='node_modules' --exclude='dist' --exclude='output' --exclude='deployment_logs' --exclude='.deploy' \
       -czf "$PACKAGE_PATH" -C "$ROOT_DIR" .
 }
 
