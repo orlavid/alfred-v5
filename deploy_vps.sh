@@ -9,6 +9,11 @@ LOG_FILE="$(script_log_path "deploy_vps")"
 
 ROLLBACK_TRIGGERED=0
 REMOTE_RELEASE_READY=0
+
+shell_quote() {
+  printf "'%s'" "$(printf "%s" "$1" | sed "s/'/'\\\\''/g")"
+}
+
 VENV_DIR="$ROOT_DIR/.venv"
 VENV_PYTHON="$VENV_DIR/bin/python"
 PACKAGE_DIR="${ALFRED_DEPLOY_PACKAGE_DIR:-$ROOT_DIR/.deploy}"
@@ -94,24 +99,24 @@ build_release_bundle() {
 prepare_remote_release() {
   remote_run "prepare VPS staging directories" mkdir -p "$REMOTE_STAGE_ROOT"
   remote_copy "upload deployment bundle" "$PACKAGE_PATH" "$REMOTE_BUNDLE_PATH"
-  remote_run "extract deployment bundle on VPS" bash -lc "rm -rf ${REMOTE_RELEASE_DIR@Q} && mkdir -p ${REMOTE_RELEASE_DIR@Q} && tar -xzf ${REMOTE_BUNDLE_PATH@Q} -C ${REMOTE_RELEASE_DIR@Q}"
+  remote_run "extract deployment bundle on VPS" bash -lc "rm -rf $(shell_quote "$REMOTE_RELEASE_DIR") && mkdir -p $(shell_quote "$REMOTE_RELEASE_DIR") && tar -xzf $(shell_quote "$REMOTE_BUNDLE_PATH") -C $(shell_quote "$REMOTE_RELEASE_DIR")"
   REMOTE_RELEASE_READY=1
 }
 
 run_remote_install() {
-  remote_run "install Alfred on VPS" bash -lc "cd ${REMOTE_RELEASE_DIR@Q} && ALFRED_INSTALL_ROOT=${REMOTE_INSTALL_ROOT@Q} ALFRED_OBSIDIAN_VAULT=${ALFRED_OBSIDIAN_VAULT@Q} ./deploy_stage2.sh"
+  remote_run "install Alfred on VPS" bash -lc "cd $(shell_quote "$REMOTE_RELEASE_DIR") && ALFRED_INSTALL_ROOT=$(shell_quote "$REMOTE_INSTALL_ROOT") ALFRED_OBSIDIAN_VAULT=$(shell_quote "$ALFRED_OBSIDIAN_VAULT") ./deploy_stage2.sh"
 }
 
 run_remote_acceptance() {
-  remote_run "run Executive Acceptance on VPS" bash -lc "cd ${REMOTE_RELEASE_DIR@Q} && ALFRED_INSTALL_ROOT=${REMOTE_INSTALL_ROOT@Q} ./deploy_validation.sh"
+  remote_run "run Executive Acceptance on VPS" bash -lc "cd $(shell_quote "$REMOTE_RELEASE_DIR") && ALFRED_INSTALL_ROOT=$(shell_quote "$REMOTE_INSTALL_ROOT") ./deploy_validation.sh"
 }
 
 run_remote_start() {
-  remote_run "start service on VPS" bash -lc "cd ${REMOTE_RELEASE_DIR@Q} && ALFRED_INSTALL_ROOT=${REMOTE_INSTALL_ROOT@Q} ./scripts/install/start_alfred.sh"
+  remote_run "start service on VPS" bash -lc "cd $(shell_quote "$REMOTE_RELEASE_DIR") && ALFRED_INSTALL_ROOT=$(shell_quote "$REMOTE_INSTALL_ROOT") ./scripts/install/start_alfred.sh"
 }
 
 run_remote_smoke_test() {
-  remote_run "smoke test on VPS" bash -lc "cd ${REMOTE_RELEASE_DIR@Q} && ALFRED_INSTALL_ROOT=${REMOTE_INSTALL_ROOT@Q} ./scripts/install/status_alfred.sh"
+  remote_run "smoke test on VPS" bash -lc "cd $(shell_quote "$REMOTE_RELEASE_DIR") && ALFRED_INSTALL_ROOT=$(shell_quote "$REMOTE_INSTALL_ROOT") ./scripts/install/status_alfred.sh"
 }
 
 log_line "$LOG_FILE" "Project Phoenix live knowledge cutover deployment started."
