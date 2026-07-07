@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import re
 from typing import Iterable
 
 from executive.report import render as render_executive_review
@@ -19,6 +20,7 @@ SECTION_HEADINGS = [
     "Recommended Agenda For Today",
     "Executive Conclusion",
 ]
+PRIORITY_DETAIL_RE = re.compile(r"^(?P<priority>[A-Z]+) score (?P<score>\d+)\.\s*(?P<action>.+)$")
 
 
 @dataclass(frozen=True)
@@ -171,14 +173,14 @@ def _build_actions(
     open_loops,
 ) -> list[ExecutiveAction]:
     candidates = [
-        _action_from_priority(intelligence.top_priorities[0], intelligence) if intelligence.top_priorities else None,
+        _action_from_priority(intelligence.top_priorities[0], intelligence) if intelligence.top_priorities and _priority_actionable(intelligence.top_priorities[0]) else None,
         _action_from_project(intelligence.projects_at_risk[0]) if intelligence.projects_at_risk else None,
         _action_from_followup(intelligence.followups_requiring_action[0]) if intelligence.followups_requiring_action else None,
         _action_from_open_loop(intelligence.open_loops[0]) if intelligence.open_loops else None,
         _action_from_meeting(meeting) if meeting and meeting.recommended_discussion else None,
         _action_from_decision(intelligence.decisions_awaiting_attention[0]) if intelligence.decisions_awaiting_attention else None,
         _action_from_supplier(intelligence.supplier_risks[0]) if intelligence.supplier_risks else None,
-        _action_from_priority(intelligence.top_priorities[1], intelligence) if len(intelligence.top_priorities) > 1 else None,
+        _action_from_priority(intelligence.top_priorities[1], intelligence) if len(intelligence.top_priorities) > 1 and _priority_actionable(intelligence.top_priorities[1]) else None,
         _action_from_followup(intelligence.followups_requiring_action[1]) if len(intelligence.followups_requiring_action) > 1 else None,
         _action_from_open_loop(intelligence.open_loops[1]) if len(intelligence.open_loops) > 1 else None,
         _action_from_recommendation(intelligence.recommended_actions_today[0], "HIGH") if intelligence.recommended_actions_today else None,
@@ -202,14 +204,17 @@ def _build_actions(
 
 
 def _action_from_priority(item, intelligence: ExecutiveIntelligence) -> ExecutiveAction:
+    action = _priority_recommended_action(item)
+    priority = _priority_level(item)
+    score = _priority_score(item)
     return ExecutiveAction(
-        priority="CRITICAL",
-        action=f"Assign owner and recovery plan for {item.title}",
+        priority=priority,
+        action=f"{action} for {item.title}",
         why_it_matters=item.detail,
-        supporting_evidence=f"Priority list and project risk list both elevate {item.title}.",
+        supporting_evidence=f"Priority list elevates {item.title} with score {score}.",
         expected_impact="Reduces governance drift and improves delivery accountability.",
-        confidence="HIGH",
-        score=100,
+        confidence="HIGH" if priority in {"CRITICAL", "HIGH"} else "MEDIUM",
+        score=score,
     )
 
 
@@ -296,6 +301,30 @@ def _action_from_recommendation(text: str, priority: str) -> ExecutiveAction:
         confidence="MEDIUM",
         score=score,
     )
+
+
+def _priority_actionable(item) -> bool:
+    return _priority_score(item) >= 40 and _priority_level(item) in {"CRITICAL", "HIGH", "MEDIUM"}
+
+
+def _priority_match(item) -> re.Match[str] | None:
+    detail = getattr(item, "detail", "")
+    return PRIORITY_DETAIL_RE.match(detail)
+
+
+def _priority_score(item) -> int:
+    match = _priority_match(item)
+    return int(match.group("score")) if match else 0
+
+
+def _priority_level(item) -> str:
+    match = _priority_match(item)
+    return match.group("priority") if match else "LOW"
+
+
+def _priority_recommended_action(item) -> str:
+    match = _priority_match(item)
+    return match.group("action") if match else "Review and confirm executive treatment"
 
 
 def _build_risks(intelligence: ExecutiveIntelligence, meeting, open_loops) -> list[str]:

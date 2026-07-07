@@ -1,6 +1,26 @@
 from collections import defaultdict
+import re
 
 EXECUTIVE_TYPES = {"project", "objective", "company", "person", "decision", "open_loop"}
+CANONICAL_EXECUTIVE_PREFIXES = (
+    "02 People/",
+    "03 Projects/",
+    "04 Companies/",
+    "04 Decisions/",
+    "05 Meetings/",
+    "06 Risks/",
+    "07 Open Loops/",
+    "08 Follow Ups/",
+    "08 Follow-Ups/",
+    "09 Objectives/",
+    "09 Governance/",
+    "10 Briefings/",
+)
+NOISY_ARTIFACT_PREFIXES = (
+    "00 Inbox/Captures/",
+    "07 AI Memory/Entities/",
+)
+DATE_TOKEN_RE = re.compile(r"(20\d{6}|\d{4}-\d{2}-\d{2})")
 
 def _index_by_title(items, title_key="title"):
     return {
@@ -61,6 +81,13 @@ def _person_index(people):
 def _decision_index(decisions):
     return _index_by_title(decisions.get("top_decisions", []))
 
+def _entity_index(entities):
+    return {
+        entity.title: entity
+        for entity in entities
+        if getattr(entity, "title", None)
+    }
+
 def _entity_neighbour_counts(graph, entities):
     lookup = {e.id: e for e in entities}
     neighbours = defaultdict(set)
@@ -98,6 +125,8 @@ def _score_entity(title, entity_type, indexes, neighbour_counts):
     person = indexes["people"].get(title)
     decision = indexes["decisions"].get(title)
     neighbours = neighbour_counts.get(title, {})
+    entity = indexes["entities"].get(title)
+    entity_path = getattr(entity, "path", "")
 
     score = 0
     reasons = []
@@ -166,6 +195,19 @@ def _score_entity(title, entity_type, indexes, neighbour_counts):
             reasons.append("Decision is weakly linked to projects and objectives")
             recommended_actions.append("Link decision to affected projects, objectives and owners")
 
+    if entity is not None and _is_current_executive_entity(entity):
+        score += 12
+        reasons.append("Current executive source note")
+
+    if entity is not None and _is_recent_decision(entity, entity_type):
+        score += 10
+        reasons.append("Recent executive decision")
+
+    if entity is not None and _is_noisy_capture_artifact(entity):
+        score -= 60
+        reasons.append("Historical capture or AI-memory artefact")
+        recommended_actions.append("Review whether the artefact should be archived, linked, or excluded from executive prioritisation")
+
     linked_types = neighbours.get("linked_types", {})
 
     if entity_type in ("project", "objective") and linked_types.get("person", 0) == 0:
@@ -179,7 +221,7 @@ def _score_entity(title, entity_type, indexes, neighbour_counts):
     if not recommended_actions:
         recommended_actions.append("Review and confirm executive treatment")
 
-    score = min(score, 100)
+    score = max(0, min(score, 100))
 
     if score >= 80:
         priority = "CRITICAL"
@@ -209,6 +251,7 @@ def build_priorities(vault, entities, graph):
         "companies": _company_index(vault.get("companies", {})),
         "people": _person_index(vault.get("people", {})),
         "decisions": _decision_index(vault.get("decisions", {})),
+        "entities": _entity_index(entities),
     }
 
     neighbour_counts = _entity_neighbour_counts(graph, entities)
@@ -250,3 +293,36 @@ def build_priorities(vault, entities, graph):
         "low": sum(1 for x in priorities if x["priority"] == "LOW"),
         "top_priorities": priorities[:50],
     }
+
+
+def _is_current_executive_entity(entity):
+    path = getattr(entity, "path", "").replace("\\", "/")
+    return any(path.startswith(prefix) for prefix in CANONICAL_EXECUTIVE_PREFIXES)
+
+
+def _is_noisy_capture_artifact(entity):
+    path = getattr(entity, "path", "").replace("\\", "/")
+    title = getattr(entity, "title", "").lower()
+    if any(path.startswith(prefix) for prefix in NOISY_ARTIFACT_PREFIXES):
+        return True
+    if title.startswith("historical capture"):
+        return True
+    if title.startswith("capture - "):
+        return True
+    return False
+
+
+def _is_recent_decision(entity, entity_type):
+    if entity_type != "decision":
+        return False
+    title = getattr(entity, "title", "")
+    path = getattr(entity, "path", "")
+    token = DATE_TOKEN_RE.search(f"{title} {path}")
+    if token is None:
+        return False
+    value = token.group(1)
+    if len(value) == 8 and value.isdigit():
+        year = int(value[:4])
+    else:
+        year = int(value[:4])
+    return year >= 2025
