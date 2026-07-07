@@ -1,0 +1,15 @@
+[Unit]
+Description=Alfred v5 Executive Operating System
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/alfred/app
+Environment=ALFRED_INSTALL_ROOT=/opt/alfred
+ExecStart=/bin/bash /opt/alfred/app/scripts/install/run_alfred_service.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

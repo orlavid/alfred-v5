@@ -75,7 +75,7 @@ def build_configuration_registry(
 ) -> ConfigurationRegistry:
     effective_root = root or ROOT
     effective_output_dir = output_dir or (effective_root / "output")
-    configured_vault_path = vault_path or _detect_configured_vault_path()
+    configured_vault_path = vault_path or _detect_configured_vault_path(effective_root)
     return ConfigurationRegistry(
         root_dir=str(effective_root),
         output_dir=str(effective_output_dir),
@@ -187,11 +187,63 @@ def _expected_outputs() -> tuple[str, ...]:
     )
 
 
-def _detect_configured_vault_path() -> Path:
+def _detect_configured_vault_path(root: Path | None = None) -> Path:
     explicit = os.environ.get(LIVE_VAULT_ENV_VAR)
     if explicit:
         return Path(explicit).expanduser()
     legacy = os.environ.get(LEGACY_VAULT_ENV_VAR)
     if legacy:
         return Path(legacy).expanduser()
+    config_path = _detect_installed_config_path(root)
+    configured = _read_installed_vault_path(config_path)
+    if configured is not None:
+        return configured
     return resolve_live_vault_path()
+
+
+def _detect_installed_config_path(root: Path | None) -> Path | None:
+    configured = os.environ.get("ALFRED_CONFIG_FILE")
+    if configured:
+        candidate = Path(configured).expanduser()
+        if candidate.exists():
+            return candidate
+
+    install_root = os.environ.get("ALFRED_INSTALL_ROOT")
+    if install_root:
+        candidate = Path(install_root).expanduser() / "config" / "config.yaml"
+        if candidate.exists():
+            return candidate
+
+    if root is None:
+        return None
+
+    candidates = (
+        root / "config" / "config.yaml",
+        root.parent / "config" / "config.yaml",
+    )
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def _read_installed_vault_path(config_path: Path | None) -> Path | None:
+    if config_path is None or not config_path.exists():
+        return None
+
+    in_paths = False
+    for raw_line in config_path.read_text().splitlines():
+        stripped = raw_line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if raw_line.startswith("paths:"):
+            in_paths = True
+            continue
+        if in_paths and not raw_line.startswith("  "):
+            in_paths = False
+        if in_paths and stripped.startswith("vault:"):
+            _, _, value = stripped.partition(":")
+            value = value.strip()
+            if value:
+                return Path(value).expanduser()
+    return None

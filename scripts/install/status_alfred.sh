@@ -6,6 +6,7 @@ CONFIG_FILE="$INSTALL_ROOT/config/config.yaml"
 APP_DIR="$INSTALL_ROOT/app"
 RUNTIME_DIR="$INSTALL_ROOT/runtime"
 STATUS_FILE="$RUNTIME_DIR/status.env"
+VENV_PYTHON="$INSTALL_ROOT/.venv/bin/python"
 
 get_config_value() {
   local key="$1"
@@ -61,6 +62,7 @@ echo "Alfred Platform Status"
 echo
 report_line "Build version" "$BUILD_VERSION"
 report_line "Python" "${PYTHON_EXEC:-missing}"
+report_line "Canonical venv" "$( [[ -x "$VENV_PYTHON" ]] && echo "$VENV_PYTHON" || echo missing )"
 report_line "Node" "$NODE_EXEC"
 report_line "Vault configured" "${VAULT_PATH:-missing}"
 report_line "ExecutiveState freshness" "$EXEC_STATE_FRESHNESS"
@@ -68,6 +70,9 @@ report_line "Dashboard API" "$DASHBOARD_STATUS"
 report_line "UI status" "$UI_STATUS"
 report_line "Optional services" "$OPTIONAL_SERVICES"
 report_line "Pipeline output" "$( [[ -f "$PIPELINE_FILE" ]] && echo present || echo missing )"
+if command -v systemctl >/dev/null 2>&1; then
+  report_line "alfred.service" "$(systemctl is-active alfred.service 2>/dev/null || echo inactive)"
+fi
 
 if [[ -f "$STATUS_FILE" ]]; then
   echo
