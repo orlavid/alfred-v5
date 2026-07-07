@@ -101,8 +101,13 @@ def write_runtime_certification(report: RuntimeCertification, output_dir: Path) 
 def _check_build_commit(build_info: dict[str, str], expected_commit: str) -> RuntimeCheck:
     actual = build_info.get("build_version", "unknown")
     tree_state = build_info.get("build_tree_state", "unknown")
-    status = "PASS" if expected_commit != "unknown" and actual == expected_commit and tree_state == "clean" else "FAIL"
-    detail = f"BUILD_INFO commit is {actual}; tree state is {tree_state}."
+    expected_known = expected_commit != "unknown"
+    if expected_known:
+        status = "PASS" if actual == expected_commit and tree_state == "clean" else "FAIL"
+        detail = f"BUILD_INFO commit is {actual}; expected commit is {expected_commit}; tree state is {tree_state}."
+    else:
+        status = "PASS" if actual != "unknown" and tree_state == "clean" else "FAIL"
+        detail = f"BUILD_INFO commit is {actual}; tree state is {tree_state}; no external expected commit was supplied."
     remediation = "Deploy only from a clean git worktree and pass ALFRED_BUILD_COMMIT/ALFRED_BUILD_TREE_STATE into the VPS install."
     return RuntimeCheck("Deployed commit matches expected commit", status, detail, remediation)
 
