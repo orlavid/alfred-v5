@@ -37,9 +37,10 @@ Run each question through `build_ask_alfred.py` during validation:
 1. Rebuild the executive pipeline.
 2. Rebuild follow-up and open-loop intelligence.
 3. Run live knowledge certification and review entity counts.
-4. Build the daily brief.
-5. Run the six Ask Alfred prompts.
-6. Review `output/Ask_Alfred.md`, `output/Daily_Brief.md`, `output/Executive_Pipeline_Report.md`, and `output/Operational_Readiness_Report.md`.
+4. Build knowledge certification and confirm live-vault population remains evidence-backed.
+5. Build the daily brief.
+6. Run the six Ask Alfred prompts.
+7. Review `output/Ask_Alfred.md`, `output/Daily_Brief.md`, `output/Executive_Pipeline_Report.md`, `output/Knowledge_Certification.md`, and `output/Operational_Readiness_Report.md`.
 
 ## Failure Conditions
 

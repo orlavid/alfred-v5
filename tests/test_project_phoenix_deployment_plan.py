@@ -66,6 +66,7 @@ def test_gate3_validation_script_checks_required_outputs():
         "build_executive_state.py",
         "build_executive_pipeline.py",
         "build_daily_brief.py",
+        "build_knowledge_certification.py",
         "build_operational_readiness.py",
         "build_ask_alfred.py",
         "certify_live_knowledge.sh",
@@ -86,6 +87,7 @@ def test_gate3_supporting_scripts_cover_config_and_acceptance_hardening():
     assert "ALFRED_OBSIDIAN_VAULT" in stage2
     assert "key_env_var" in stage2
     assert "certify live knowledge" in Path("deploy_validation.sh").read_text()
+    assert "build knowledge certification" in Path("deploy_validation.sh").read_text()
     assert "objectives" in cert
     assert "projects" in cert
     assert "knowledge_graph_nodes" in cert

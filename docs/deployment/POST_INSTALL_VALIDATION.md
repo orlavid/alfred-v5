@@ -21,6 +21,7 @@ Use this checklist after installing Alfred into `/opt/alfred`.
 /opt/alfred/app/.venv/bin/python /opt/alfred/app/build_executive_state.py
 /opt/alfred/app/.venv/bin/python /opt/alfred/app/build_executive_pipeline.py
 /opt/alfred/app/.venv/bin/python /opt/alfred/app/build_daily_brief.py
+/opt/alfred/app/.venv/bin/python /opt/alfred/app/build_knowledge_certification.py
 /opt/alfred/app/.venv/bin/python /opt/alfred/app/build_environment_inventory.py
 /opt/alfred/app/.venv/bin/python /opt/alfred/app/build_operational_readiness.py
 cd /opt/alfred/app && npm run build
@@ -62,6 +63,7 @@ cd /opt/alfred/app && npm run build
 ### Operational Readiness green
 
 - `output/Operational_Readiness_Report.md` exists.
+- `output/Knowledge_Certification.md` and `output/Knowledge_Certification.json` exist before readiness is evaluated.
 - `status_alfred.sh` reports the expected files and services.
 - Remaining warnings should be understood and acceptable for the chosen deployment profile.
 
