@@ -57,6 +57,8 @@ def test_build_operational_readiness_reports_freshness_and_services(tmp_path):
         "Executive_Pipeline_Report.md",
         "Live_Vault_Status.md",
         "LIVE_KNOWLEDGE_CERTIFICATION.md",
+        "Knowledge_Certification.md",
+        "Knowledge_Certification.json",
     ):
         (output / name).write_text("ok")
 
@@ -120,6 +122,8 @@ python:
         "Executive_Pipeline_Report.md",
         "Live_Vault_Status.md",
         "LIVE_KNOWLEDGE_CERTIFICATION.md",
+        "Knowledge_Certification.md",
+        "Knowledge_Certification.json",
         "Environment_Inventory.json",
         "Environment_Inventory.md",
     ):

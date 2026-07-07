@@ -182,6 +182,8 @@ def _expected_outputs() -> tuple[str, ...]:
         "Executive_Pipeline_Report.md",
         "Live_Vault_Status.md",
         "LIVE_KNOWLEDGE_CERTIFICATION.md",
+        "Knowledge_Certification.md",
+        "Knowledge_Certification.json",
         "Environment_Inventory.json",
         "Environment_Inventory.md",
     )
