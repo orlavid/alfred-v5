@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from src.alfred.ask import ask_alfred
 from src.executive.executive_state import build_executive_state
 from src.knowledge.providers.legacy_adapter import build_legacy_knowledge_adapter
 
@@ -102,6 +103,71 @@ def test_executive_state_only_consumes_configured_provider(tmp_path: Path, monke
         assert "Unsupported knowledge provider" in str(exc)
     else:
         raise AssertionError("build_executive_state should reject unsupported configured providers")
+
+
+def test_executive_state_uses_configured_vault_when_no_explicit_vault_root(tmp_path: Path, monkeypatch):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+    install_root = tmp_path / "opt" / "alfred"
+    app_root = install_root / "app"
+    config_dir = install_root / "config"
+
+    app_root.mkdir(parents=True)
+    config_dir.mkdir(parents=True)
+    config_dir.joinpath("config.yaml").write_text(
+        f"""deployment:
+  profile: VPS
+paths:
+  install_root: {install_root}
+  app: {app_root}
+  vault: {vault}
+python:
+  executable: /opt/alfred/.venv/bin/python
+"""
+    )
+
+    monkeypatch.delenv("ALFRED_LIVE_VAULT_PATH", raising=False)
+    monkeypatch.delenv("ALFRED_OBSIDIAN_VAULT", raising=False)
+    monkeypatch.delenv("ALFRED_CONFIG_FILE", raising=False)
+    monkeypatch.setenv("ALFRED_INSTALL_ROOT", str(install_root))
+
+    state = build_executive_state(Path("evidence/alfred-inventory"))
+
+    assert state.knowledge_model.source_mode == "live_vault"
+    assert len(state.objectives) == 1
+    assert len(state.projects) == 1
+
+
+def test_ask_alfred_uses_configured_vault_when_no_explicit_vault_root(tmp_path: Path, monkeypatch):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+    install_root = tmp_path / "opt" / "alfred"
+    app_root = install_root / "app"
+    config_dir = install_root / "config"
+
+    app_root.mkdir(parents=True)
+    config_dir.mkdir(parents=True)
+    config_dir.joinpath("config.yaml").write_text(
+        f"""deployment:
+  profile: VPS
+paths:
+  install_root: {install_root}
+  app: {app_root}
+  vault: {vault}
+python:
+  executable: /opt/alfred/.venv/bin/python
+"""
+    )
+
+    monkeypatch.delenv("ALFRED_LIVE_VAULT_PATH", raising=False)
+    monkeypatch.delenv("ALFRED_OBSIDIAN_VAULT", raising=False)
+    monkeypatch.delenv("ALFRED_CONFIG_FILE", raising=False)
+    monkeypatch.setenv("ALFRED_INSTALL_ROOT", str(install_root))
+
+    response = ask_alfred("What should I do today?", Path("evidence/alfred-inventory"))
+
+    assert response.executive_answer
+    assert response.executive_answer[0] != "No evidence found."
+    assert response.recommended_next_actions
+    assert response.recommended_next_actions[0] != "No evidence found."
 
 
 def _build_obsidian_vault(vault: Path) -> Path:

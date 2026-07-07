@@ -53,14 +53,15 @@ def build_executive_state(
     vault_root: Path | None = None,
     knowledge_provider: str | None = None,
 ) -> ExecutiveState:
-    provider = _resolve_knowledge_provider(knowledge_provider, vault_root)
-    adapter = build_legacy_knowledge_adapter(evidence_root, vault_root=vault_root)
+    effective_vault_root = _resolve_vault_root(vault_root)
+    provider = _resolve_knowledge_provider(knowledge_provider, effective_vault_root)
+    adapter = build_legacy_knowledge_adapter(evidence_root, vault_root=effective_vault_root)
     engine_result = adapter.engine_result
     vault = adapter.vault
     knowledge_model = adapter.knowledge_model
     relationship_graph = adapter.relationship_graph
     board = build_board_governance()
-    meetings = _build_meetings(meeting_subject, vault_root, adapter)
+    meetings = _build_meetings(meeting_subject, effective_vault_root, adapter)
     followups = adapter.get_followups()
     open_loops = adapter.get_open_loops()
 
@@ -141,6 +142,13 @@ def _resolve_knowledge_provider(knowledge_provider: str | None, vault_root: Path
     if provider != "legacy_adapter":
         raise ValueError(f"Unsupported knowledge provider: {provider}")
     return provider
+
+
+def _resolve_vault_root(vault_root: Path | None) -> Path:
+    if vault_root is not None:
+        return vault_root.expanduser()
+    registry = build_configuration_registry()
+    return Path(registry.configured_vault_path).expanduser()
 
 
 def render_executive_state_summary(state: ExecutiveState) -> str:
