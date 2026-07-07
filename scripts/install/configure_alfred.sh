@@ -41,7 +41,7 @@ paths:
   vault: $VAULT_PATH
   output: $OUTPUT_PATH
 python:
-  executable: ${ALFRED_PYTHON:-$INSTALL_ROOT/app/.venv/bin/python}
+  executable: ${ALFRED_PYTHON:-$INSTALL_ROOT/.venv/bin/python}
 node:
   executable: ${ALFRED_NODE:-$(command -v node 2>/dev/null || echo node)}
   npm: ${ALFRED_NPM:-$(command -v npm 2>/dev/null || echo npm)}

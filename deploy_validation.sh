@@ -26,8 +26,9 @@ run_logged "$LOG_FILE" "build dashboard api" "$PYTHON_EXEC" build_dashboard_api.
 run_logged "$LOG_FILE" "build executive state" "$PYTHON_EXEC" build_executive_state.py
 run_logged "$LOG_FILE" "build executive pipeline" "$PYTHON_EXEC" build_executive_pipeline.py
 run_logged "$LOG_FILE" "build daily brief" "$PYTHON_EXEC" build_daily_brief.py
-run_logged "$LOG_FILE" "build operational readiness" "$PYTHON_EXEC" build_operational_readiness.py
 run_logged "$LOG_FILE" "certify live knowledge" "$ROOT_DIR/scripts/vps/certify_live_knowledge.sh" "$LOG_FILE.knowledge"
+run_logged "$LOG_FILE" "build knowledge certification" "$PYTHON_EXEC" build_knowledge_certification.py
+run_logged "$LOG_FILE" "build operational readiness" "$PYTHON_EXEC" build_operational_readiness.py
 run_logged "$LOG_FILE" "build UI" npm run build
 run_logged "$LOG_FILE" "ask Alfred: focus today" "$PYTHON_EXEC" build_ask_alfred.py "What should I focus on today?"
 run_logged "$LOG_FILE" "ask Alfred: top objectives" "$PYTHON_EXEC" build_ask_alfred.py "What are my top objectives?"
@@ -42,6 +43,8 @@ run_logged "$LOG_FILE" "report Alfred status" "$ROOT_DIR/scripts/install/status_
 [[ -f "$PIPELINE_OUTPUT" ]] || fail_line "$LOG_FILE" "pipeline output missing: $PIPELINE_OUTPUT"
 [[ -f "$APP_DIR/output/Daily_Brief.md" ]] || fail_line "$LOG_FILE" "daily brief output missing"
 [[ -f "$APP_DIR/output/Ask_Alfred.md" ]] || fail_line "$LOG_FILE" "Ask Alfred output missing"
+[[ -f "$APP_DIR/output/Knowledge_Certification.md" ]] || fail_line "$LOG_FILE" "knowledge certification markdown output missing"
+[[ -f "$APP_DIR/output/Knowledge_Certification.json" ]] || fail_line "$LOG_FILE" "knowledge certification json output missing"
 [[ -f "$APP_DIR/dist/index.html" ]] || fail_line "$LOG_FILE" "ui build output missing"
 
 grep -q "Overall Health: GREEN" "$APP_DIR/output/Operational_Readiness_Report.md" || fail_line "$LOG_FILE" "operational readiness is not GREEN"

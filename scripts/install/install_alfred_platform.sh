@@ -7,15 +7,19 @@ CONFIG_DIR="$INSTALL_ROOT/config"
 DATA_DIR="$INSTALL_ROOT/data"
 LOG_DIR="$INSTALL_ROOT/logs"
 RUNTIME_DIR="$INSTALL_ROOT/runtime"
+VENV_DIR="$INSTALL_ROOT/.venv"
 DISCOVERY_JSON="$RUNTIME_DIR/environment_inventory.json"
 DISCOVERY_YAML="$RUNTIME_DIR/environment_inventory.yaml"
 
 REQUIRED_PATHS=(
   "build_everything.py"
+  "requirements.txt"
   "package.json"
   "src"
   "scripts/install/configure_alfred.sh"
   "scripts/install/start_alfred.sh"
+  "scripts/install/run_alfred_service.sh"
+  "scripts/install/alfred.service"
   "tests"
 )
 
@@ -75,13 +79,30 @@ copy_tree() {
     "$source_dir/" "$target_dir/"
 }
 
+ensure_runtime_venv() {
+  local python_bin
+  python_bin="${ALFRED_BOOTSTRAP_PYTHON:-$(command -v python3)}"
+  [[ -n "$python_bin" ]] || fail "unable to locate python3 for runtime bootstrap"
+
+  if [[ ! -x "$VENV_DIR/bin/python" ]]; then
+    "$python_bin" -m venv "$VENV_DIR" || fail "unable to create runtime virtual environment at $VENV_DIR"
+  fi
+
+  "$VENV_DIR/bin/python" -m pip install --upgrade pip >/dev/null 2>&1 || fail "unable to upgrade pip in $VENV_DIR"
+  "$VENV_DIR/bin/python" -m pip install -r "$APP_DIR/requirements.txt" >/dev/null 2>&1 || fail "unable to install Alfred Python requirements"
+
+  ln -sfn "../.venv" "$APP_DIR/.venv"
+  export ALFRED_PYTHON="$VENV_DIR/bin/python"
+  pass "runtime virtual environment prepared at $VENV_DIR"
+}
+
 apply_environment_discovery() {
   local app_dir="$1"
   local install_root="$2"
   local checked_json="$3"
   local checked_yaml="$4"
 
-  python3 - "$app_dir" "$install_root" "$checked_json" "$checked_yaml" "$CONFIG_DIR/config.yaml" <<'PY'
+  "$VENV_DIR/bin/python" - "$app_dir" "$install_root" "$checked_json" "$checked_yaml" "$CONFIG_DIR/config.yaml" <<'PY'
 from pathlib import Path
 import json
 import os
@@ -124,6 +145,46 @@ if config_file.exists():
 
 for action in inventory.required_actions:
     print(f"ACTION::{action}")
+PY
+}
+
+normalise_runtime_config() {
+  "$VENV_DIR/bin/python" - "$CONFIG_DIR/config.yaml" "$VENV_DIR/bin/python" <<'PY'
+from pathlib import Path
+import sys
+
+config_path = Path(sys.argv[1])
+python_path = sys.argv[2]
+lines = config_path.read_text().splitlines()
+updated = []
+in_python = False
+replaced = False
+
+for line in lines:
+    if line.startswith("python:"):
+        in_python = True
+        updated.append(line)
+        continue
+    if in_python and not line.startswith("  "):
+        in_python = False
+    if in_python and line.strip().startswith("executable:"):
+        updated.append(f"  executable: {python_path}")
+        replaced = True
+        continue
+    updated.append(line)
+
+if not replaced:
+    output = []
+    inserted = False
+    for line in updated:
+        output.append(line)
+        if line.startswith("python:"):
+            output.append(f"  executable: {python_path}")
+            inserted = True
+    if inserted:
+        updated = output
+
+config_path.write_text("\n".join(updated) + "\n")
 PY
 }
 
@@ -270,11 +331,12 @@ main() {
   prevent_self_copy_loop "$PREPARED_SOURCE_ROOT"
 
   mkdir -p "$INSTALL_ROOT"
-  mkdir -p "$APP_DIR" "$CONFIG_DIR" "$DATA_DIR" "$LOG_DIR" "$RUNTIME_DIR"
+  mkdir -p "$APP_DIR" "$CONFIG_DIR" "$DATA_DIR" "$LOG_DIR" "$RUNTIME_DIR" "$VENV_DIR"
   pass "created install root"
 
   copy_tree "$PREPARED_SOURCE_ROOT" "$APP_DIR"
   pass "copied Alfred application from explicit source"
+  ensure_runtime_venv
 
   local discovery_output
   discovery_output="$(apply_environment_discovery "$APP_DIR" "$INSTALL_ROOT" "$DISCOVERY_JSON" "$DISCOVERY_YAML")"
@@ -296,7 +358,7 @@ main() {
     pass "existing Alfred configuration preserved"
   fi
 
-  python3 - "$APP_DIR" "$INSTALL_ROOT" "$DISCOVERY_JSON" "$DISCOVERY_YAML" "$CONFIG_DIR/config.yaml" <<'PY'
+  "$VENV_DIR/bin/python" - "$APP_DIR" "$INSTALL_ROOT" "$DISCOVERY_JSON" "$DISCOVERY_YAML" "$CONFIG_DIR/config.yaml" <<'PY'
 from pathlib import Path
 import sys
 import json
@@ -321,13 +383,17 @@ if marker in original:
 config_file.write_text(original + render_detected_environment_yaml(inventory))
 PY
   pass "recorded detected environment in config"
+  normalise_runtime_config
+  pass "normalised runtime configuration"
 
   cat > "$RUNTIME_DIR/BUILD_INFO" <<EOF
-build_version=$(git -C "$PREPARED_SOURCE_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)
+build_version=${ALFRED_BUILD_COMMIT:-$(git -C "$PREPARED_SOURCE_ROOT" rev-parse HEAD 2>/dev/null || echo unknown)}
+build_tree_state=${ALFRED_BUILD_TREE_STATE:-$([[ -z "$(git -C "$PREPARED_SOURCE_ROOT" status --short 2>/dev/null)" ]] && echo clean || echo dirty)}
 installed_from=$SOURCE_REFERENCE
 installed_mode=$MODE
 installed_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 install_root=$INSTALL_ROOT
+python_executable=$ALFRED_PYTHON
 EOF
   pass "build info recorded"
 

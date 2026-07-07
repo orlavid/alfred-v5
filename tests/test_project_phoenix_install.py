@@ -13,6 +13,8 @@ def test_install_scripts_and_docs_exist():
         Path("scripts/install/install_alfred_platform.sh"),
         Path("scripts/install/configure_alfred.sh"),
         Path("scripts/install/start_alfred.sh"),
+        Path("scripts/install/run_alfred_service.sh"),
+        Path("scripts/install/alfred.service"),
         Path("scripts/install/stop_alfred.sh"),
         Path("scripts/install/status_alfred.sh"),
         Path("scripts/install/uninstall_alfred.sh"),
@@ -24,6 +26,16 @@ def test_install_scripts_and_docs_exist():
         assert path.exists(), path
 
 
+def test_requirements_include_runtime_build_dependencies():
+    requirements = Path("requirements.txt").read_text()
+    dev_requirements = Path("requirements-dev.txt").read_text()
+
+    assert "python-docx" in requirements
+    assert "PyYAML" in requirements
+    assert "-r requirements.txt" in dev_requirements
+    assert "pytest" in dev_requirements
+
+
 def test_install_scripts_reference_opt_alfred_and_config_yaml():
     install_script = Path("scripts/install/install_alfred_platform.sh").read_text()
     configure_script = Path("scripts/install/configure_alfred.sh").read_text()
@@ -33,6 +45,7 @@ def test_install_scripts_reference_opt_alfred_and_config_yaml():
     assert "/opt/alfred" in install_script
     assert "config.yaml" in configure_script
     assert "Build version" in status_script
+    assert "Canonical venv" in status_script
     assert "ExecutiveState freshness" in status_script
     assert "Dashboard API" in status_script
     assert "UI status" in status_script
@@ -111,10 +124,13 @@ def test_install_script_supports_standalone_local_source_install(tmp_path):
     assert result.returncode == 0, result.stderr
     assert (install_root / "app" / "build_everything.py").exists()
     assert (install_root / "config" / "config.yaml").exists()
+    assert (install_root / ".venv" / "bin" / "python").exists()
     config_text = (install_root / "config" / "config.yaml").read_text()
     assert "detected_environment:" in config_text
     assert "auto_configured:" in config_text
+    assert f"executable: {install_root / '.venv' / 'bin' / 'python'}" in config_text
     build_info = (install_root / "runtime" / "BUILD_INFO").read_text()
+    assert "build_version=abc123" in build_info
     assert "installed_mode=local" in build_info
     assert f"installed_from={source.resolve()}" in build_info
 
@@ -185,6 +201,7 @@ def _run_installer(script: Path, install_root: Path, *args: str) -> subprocess.C
         **os.environ,
         "ALFRED_INSTALL_ROOT": str(install_root),
         "ALFRED_OBSIDIAN_VAULT": str(install_root.parent / "vault"),
+        "ALFRED_BUILD_COMMIT": "abc123",
     }
     Path(env["ALFRED_OBSIDIAN_VAULT"]).mkdir(parents=True, exist_ok=True)
     return subprocess.run(
@@ -201,6 +218,7 @@ def _create_fake_alfred_source(root: Path) -> Path:
     (root / "tests").mkdir()
     (root / "scripts" / "install").mkdir(parents=True)
     (root / "build_everything.py").write_text("print('ok')\n")
+    (root / "requirements.txt").write_text("\n")
     (root / "package.json").write_text("{}\n")
     (root / "src" / "__init__.py").write_text("")
     (root / "src" / "operations" / "__init__.py").write_text("")
@@ -258,6 +276,12 @@ def render_detected_environment_yaml(inventory):
     (root / "tests" / "test_placeholder.py").write_text("def test_placeholder():\n    assert True\n")
     (root / "scripts" / "install" / "configure_alfred.sh").write_text(
         Path("scripts/install/configure_alfred.sh").read_text()
+    )
+    (root / "scripts" / "install" / "run_alfred_service.sh").write_text(
+        Path("scripts/install/run_alfred_service.sh").read_text()
+    )
+    (root / "scripts" / "install" / "alfred.service").write_text(
+        Path("scripts/install/alfred.service").read_text()
     )
     (root / "scripts" / "install" / "start_alfred.sh").write_text("#!/bin/bash\nexit 0\n")
     (root / "scripts" / "install" / "install_alfred_platform.sh").write_text("# placeholder\n")
