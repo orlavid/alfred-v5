@@ -127,6 +127,15 @@ def _score_entity(title, entity_type, indexes, neighbour_counts):
     neighbours = neighbour_counts.get(title, {})
     entity = indexes["entities"].get(title)
     entity_path = getattr(entity, "path", "")
+    evidence_paths = list(getattr(entity, "evidence_paths", ()) or ((entity_path,) if entity_path else ()))
+    contract_status = getattr(entity, "status", None)
+    contract_owner = getattr(entity, "owner", None)
+    contract_priority = getattr(entity, "priority", None)
+    contract_risk_level = getattr(entity, "risk_level", None)
+    contract_due_date = getattr(entity, "due_date", None)
+    contract_last_activity = getattr(entity, "last_activity", None)
+    contract_related_objectives = tuple(getattr(entity, "related_objectives", ()) or ())
+    contract_related_people = tuple(getattr(entity, "related_people", ()) or ())
 
     score = 0
     reasons = []
@@ -152,11 +161,11 @@ def _score_entity(title, entity_type, indexes, neighbour_counts):
             reasons.append(reason)
 
     if entity_type == "project":
-        if ownership and not ownership.get("owner"):
+        if contract_owner is None and ownership and not ownership.get("owner"):
             score += 20
             reasons.append("No inferred project owner")
             recommended_actions.append("Assign an accountable owner")
-        elif ownership and ownership.get("confidence", 0) < 0.5:
+        elif contract_owner is None and ownership and ownership.get("confidence", 0) < 0.5:
             score += 10
             reasons.append("Ownership is inferred with low confidence")
             recommended_actions.append("Confirm the real accountable owner")
@@ -210,11 +219,11 @@ def _score_entity(title, entity_type, indexes, neighbour_counts):
 
     linked_types = neighbours.get("linked_types", {})
 
-    if entity_type in ("project", "objective") and linked_types.get("person", 0) == 0:
+    if entity_type in ("project", "objective") and linked_types.get("person", 0) == 0 and not contract_related_people:
         score += 10
         reasons.append("No person relationship detected")
 
-    if entity_type == "project" and linked_types.get("objective", 0) == 0:
+    if entity_type == "project" and linked_types.get("objective", 0) == 0 and not contract_related_objectives:
         score += 10
         reasons.append("No objective relationship detected")
 
@@ -239,9 +248,22 @@ def _score_entity(title, entity_type, indexes, neighbour_counts):
         "priority": priority,
         "reasons": list(dict.fromkeys(reasons))[:8],
         "recommended_actions": list(dict.fromkeys(recommended_actions))[:5],
+        "next_step": list(dict.fromkeys(recommended_actions))[0],
+        "why_now": list(dict.fromkeys(reasons))[:3],
+        "status": contract_status or _entity_status(entity_type, project, company, person, decision, risk),
+        "owner": _normalise_owner(contract_owner) or (_normalise_owner(ownership.get("owner")) if ownership else None),
+        "deadline_or_recency": contract_due_date or contract_last_activity or _entity_date_signal(entity, entity_type),
+        "evidence_paths": evidence_paths[:5],
+        "provider": getattr(entity, "provider", entity_type),
+        "confidence": getattr(entity, "confidence", "MEDIUM"),
+        "contract_entity_id": getattr(entity, "entity_id", getattr(entity, "id", title)),
+        "contract_priority": contract_priority,
+        "contract_risk_level": contract_risk_level,
+        "missing_fields": list(getattr(entity, "missing_fields", ()) or ()),
     }
 
-def build_priorities(vault, entities, graph):
+def build_priorities(vault, entities, graph, canonical_entities=None):
+    scoring_entities = list(canonical_entities) if canonical_entities is not None else list(entities)
     indexes = {
         "impact": _impact_index(vault.get("impact", [])),
         "dependencies": _dependency_index(vault.get("dependency_analysis", {})),
@@ -251,7 +273,7 @@ def build_priorities(vault, entities, graph):
         "companies": _company_index(vault.get("companies", {})),
         "people": _person_index(vault.get("people", {})),
         "decisions": _decision_index(vault.get("decisions", {})),
-        "entities": _entity_index(entities),
+        "entities": _entity_index(scoring_entities),
     }
 
     neighbour_counts = _entity_neighbour_counts(graph, entities)
@@ -267,7 +289,7 @@ def build_priorities(vault, entities, graph):
     candidate_titles.update(indexes["decisions"].keys())
 
     title_to_type = {}
-    for entity in entities:
+    for entity in scoring_entities:
         if entity.type in EXECUTIVE_TYPES:
             title_to_type.setdefault(entity.title, entity.type)
 
@@ -326,3 +348,33 @@ def _is_recent_decision(entity, entity_type):
     else:
         year = int(value[:4])
     return year >= 2025
+
+
+def _entity_status(entity_type, project, company, person, decision, risk):
+    if entity_type == "project" and project is not None:
+        return project.status
+    if entity_type == "company" and company is not None:
+        return company.status
+    if entity_type == "person" and person is not None:
+        return person.risk
+    if entity_type == "decision" and decision is not None:
+        return "RECENT" if decision.get("title") else "ACTIVE"
+    if risk:
+        return f"RISK {risk.get('risk_score', 0)}"
+    return "ACTIVE"
+
+
+def _normalise_owner(value):
+    if value in {None, "", "Unknown", "None", "Not mentioned"}:
+        return None
+    return value
+
+
+def _entity_date_signal(entity, entity_type):
+    title = getattr(entity, "title", "")
+    path = getattr(entity, "path", "")
+    token = DATE_TOKEN_RE.search(f"{title} {path}")
+    if token is None:
+        return None
+    label = "recent decision signal" if entity_type == "decision" else "dated evidence signal"
+    return f"{label}: {token.group(1)}"

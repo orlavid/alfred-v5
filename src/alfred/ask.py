@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.executive.executive_intelligence import build_executive_intelligence_from_state
+from src.executive.presentation_contract import build_executive_presentation_from_state
 from src.executive.executive_reasoning import build_executive_reasoning_from_state
+from src.executive.read_model import build_unified_executive_read_model
 from src.executive.executive_state import ExecutiveState, build_executive_state
 
 
@@ -37,16 +39,18 @@ def ask_alfred_from_state(
     if not cleaned_question:
         raise ValueError("Question is required.")
 
+    read_model = build_unified_executive_read_model(state)
     reasoning = build_executive_reasoning_from_state(state)
     intelligence = build_executive_intelligence_from_state(state)
-    meeting = state.meetings[0] if state.meetings else None
-    followups = state.followups
-    open_loops = state.open_loops
+    presentation = build_executive_presentation_from_state(state, reasoning=reasoning, read_model=read_model)
+    meeting = read_model.meetings[0] if read_model.meetings else None
+    followups = read_model.followups
+    open_loops = read_model.open_loops
 
     focus = _detect_focus(cleaned_question)
-    answer = _build_answer(cleaned_question, focus, reasoning, intelligence, meeting, followups, open_loops)
-    evidence = _build_supporting_evidence(focus, reasoning, intelligence, meeting, followups, open_loops)
-    actions = _build_next_actions(focus, reasoning, intelligence, meeting)
+    answer = _build_answer(cleaned_question, focus, reasoning, intelligence, meeting, followups, open_loops, presentation)
+    evidence = _build_supporting_evidence(focus, reasoning, intelligence, meeting, followups, open_loops, presentation)
+    actions = _build_next_actions(focus, reasoning, intelligence, meeting, presentation)
 
     return AskAlfredResponse(
         question=cleaned_question,
@@ -82,10 +86,10 @@ def _detect_focus(question: str) -> str:
         return "meeting"
     if any(token in lowered for token in ("follow-up", "follow up", "overdue", "due today")):
         return "followups"
-    if any(token in lowered for token in ("open loop", "blocked", "waiting")):
-        return "open_loops"
     if any(token in lowered for token in ("decision", "approve", "approval")):
         return "decisions"
+    if any(token in lowered for token in ("open loop", "blocked", "waiting")):
+        return "open_loops"
     if any(token in lowered for token in ("supplier", "vendor", "third party")):
         return "suppliers"
     if any(token in lowered for token in ("project", "priority", "today", "do today")):
@@ -93,7 +97,7 @@ def _detect_focus(question: str) -> str:
     return "general"
 
 
-def _build_answer(question, focus, reasoning, intelligence, meeting, followups, open_loops) -> list[str]:
+def _build_answer(question, focus, reasoning, intelligence, meeting, followups, open_loops, presentation) -> list[str]:
     if focus == "meeting":
         if meeting is None:
             return ["No active meeting identified."]
@@ -125,23 +129,29 @@ def _build_answer(question, focus, reasoning, intelligence, meeting, followups, 
             "Clear the highest-importance unresolved decision before adding new work.",
         ]
     if focus == "suppliers":
-        if not reasoning.top_actions:
+        supplier_intent = next((item for item in reasoning.intents if item.intent_type == "supplier"), None)
+        if not intelligence.supplier_risks and supplier_intent is None:
             return ["No active supplier risk identified."]
+        lead_supplier = intelligence.supplier_risks[0] if intelligence.supplier_risks else None
         return [
             f"Supplier governance remains elevated across {len(intelligence.supplier_risks)} critical or important suppliers.",
-            reasoning.top_actions[0].action,
-            "Prioritise the most connected supplier relationships for immediate governance review.",
+            supplier_intent.recommended_action if supplier_intent is not None else f"{lead_supplier.title}: {lead_supplier.detail}",
+            (
+                f"{lead_supplier.title}: {lead_supplier.detail}"
+                if lead_supplier is not None
+                else "Prioritise the most connected supplier relationships for immediate governance review."
+            ),
         ]
     if not reasoning.top_actions:
         return ["No evidence found."]
     return [
         f"Today’s executive focus should start with the top-ranked actions from the reasoning engine.",
-        reasoning.top_actions[0].action,
-        reasoning.top_actions[1].action if len(reasoning.top_actions) > 1 else (intelligence.recommended_actions_today[0] if intelligence.recommended_actions_today else "No evidence found."),
+        presentation.sections["recommended_actions"].items[0].title if presentation.sections["recommended_actions"].items else reasoning.top_actions[0].action,
+        presentation.sections["recommended_actions"].items[1].title if len(presentation.sections["recommended_actions"].items) > 1 else (intelligence.recommended_actions_today[0] if intelligence.recommended_actions_today else "No evidence found."),
     ]
 
 
-def _build_supporting_evidence(focus, reasoning, intelligence, meeting, followups, open_loops) -> list[str]:
+def _build_supporting_evidence(focus, reasoning, intelligence, meeting, followups, open_loops, presentation) -> list[str]:
     evidence = [
         f"Overall health: {reasoning.overall_health}.",
         f"Key theme: {reasoning.key_themes[0]}" if reasoning.key_themes else "",
@@ -163,16 +173,28 @@ def _build_supporting_evidence(focus, reasoning, intelligence, meeting, followup
     elif focus == "suppliers":
         evidence.extend(item.detail for item in intelligence.supplier_risks[:2])
     else:
-        evidence.extend(item.detail for item in intelligence.top_priorities[:2])
+        if presentation.sections["recommended_actions"].items:
+            evidence.extend(
+                ", ".join(item.evidence_paths[:3]) if item.evidence_paths else item.summary
+                for item in presentation.sections["recommended_actions"].items[:2]
+            )
+        else:
+            evidence.extend(action.supporting_evidence for action in reasoning.top_actions[:2])
+        if not reasoning.top_actions:
+            evidence.extend(item.detail for item in intelligence.top_priorities[:2])
 
     return [item for item in evidence if item][:5]
 
 
-def _build_next_actions(focus, reasoning, intelligence, meeting) -> list[str]:
+def _build_next_actions(focus, reasoning, intelligence, meeting, presentation) -> list[str]:
     if focus == "meeting":
         actions = (list(meeting.recommended_discussion[:3]) if meeting else []) + list(intelligence.recommended_actions_today[:2])
     else:
-        actions = [item.action for item in reasoning.top_actions[:3]] + list(intelligence.recommended_actions_today[:3])
+        actions = (
+            [item.title for item in presentation.sections["recommended_actions"].items[:3]]
+            if presentation.sections["recommended_actions"].items
+            else [item.action for item in reasoning.top_actions[:3]]
+        ) + list(intelligence.recommended_actions_today[:3])
 
     deduped = []
     seen = set()

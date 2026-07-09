@@ -37,6 +37,7 @@ class ExecutiveKnowledgeProvider(ABC):
                     path=match.note.path,
                     tags=_extract_tags(match.note.text),
                     links=_extract_links(match.note.text),
+                    source_text=match.note.text,
                 )
             )
         return entities

@@ -257,6 +257,7 @@ def _build_entities_from_notes(notes: list[VaultNote]) -> list[VaultEntity]:
                 path=note.path,
                 tags=extract_tags(note.text),
                 links=extract_links(note.text),
+                source_text=note.text,
             )
         )
     return sorted(entities, key=lambda item: (item.type, item.title.lower(), item.path))

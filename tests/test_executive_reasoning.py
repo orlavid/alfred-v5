@@ -148,3 +148,70 @@ def test_build_actions_does_not_let_low_priority_capture_outrank_live_work():
 
     assert all("Historical Capture" not in action for action in action_titles)
     assert any("Follow Up Actions" in action or "LOOP-1" in action or "Cash Management" in action for action in action_titles)
+
+
+def test_priority_action_synthesis_is_specific_and_evidence_backed():
+    intelligence = ExecutiveIntelligence(
+        executive_health=[],
+        top_priorities=[
+            ExecutiveLineItem(
+                "Cash Management",
+                "CRITICAL score 82. Assign an accountable owner; Status: AT RISK; Owner: Jane Smith; Evidence: 03 Projects/Cash Management.md",
+                context={
+                    "priority": "CRITICAL",
+                    "priority_score": 82,
+                    "next_step": "Assign an accountable owner",
+                    "status": "AT RISK",
+                    "owner": "Jane Smith",
+                    "deadline_or_recency": "dated evidence signal: 2026-07-04",
+                    "evidence_paths": ["03 Projects/Cash Management.md"],
+                    "why_now": ["Risk score 75", "No objective relationship detected"],
+                    "confidence": "HIGH",
+                },
+            ),
+        ],
+        objectives_requiring_attention=[],
+        critical_meetings=[],
+        projects_at_risk=[],
+        followups_requiring_action=[],
+        open_loops=[],
+        key_people=[],
+        supplier_risks=[],
+        decisions_awaiting_attention=[],
+        recommended_actions_today=[],
+        executive_summary=[],
+    )
+    followups = FollowupIntelligence(
+        generated_at="2026-07-07T00:00:00+00:00",
+        followup_count=0,
+        overdue=[],
+        due_today=[],
+        due_this_week=[],
+        waiting_on_others=[],
+        high_priority=[],
+        recommendations=[],
+        executive_summary=[],
+    )
+    open_loops = OpenLoopIntelligence(
+        generated_at="2026-07-07T00:00:00+00:00",
+        open_loop_count=0,
+        critical_open_loops=[],
+        waiting_for=[],
+        stalled_projects=[],
+        missing_decisions=[],
+        missing_owners=[],
+        recommended_actions=[],
+        executive_summary=[],
+    )
+
+    actions = _build_actions(intelligence, None, followups, open_loops)
+
+    assert len(actions) == 1
+    action = actions[0]
+    assert action.action == (
+        "Assign an accountable owner for Cash Management "
+        "(AT RISK; owner Jane Smith; dated evidence signal: 2026-07-04)"
+    )
+    assert "Risk score 75" in action.why_it_matters
+    assert "03 Projects/Cash Management.md" in action.supporting_evidence
+    assert "Jane Smith" in action.expected_impact

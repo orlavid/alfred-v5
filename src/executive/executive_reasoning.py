@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-import re
 from typing import Iterable
 
 from executive.report import render as render_executive_review
 from src.executive.executive_intelligence import ExecutiveIntelligence, build_executive_intelligence_from_state
+from src.executive.intent_contract import CanonicalExecutiveIntent, build_executive_intents, intent_to_executive_action
+from src.executive.read_model import build_unified_executive_read_model
 from src.executive.executive_state import ExecutiveState, build_executive_state
 
 SECTION_HEADINGS = [
@@ -20,9 +21,6 @@ SECTION_HEADINGS = [
     "Recommended Agenda For Today",
     "Executive Conclusion",
 ]
-PRIORITY_DETAIL_RE = re.compile(r"^(?P<priority>[A-Z]+) score (?P<score>\d+)\.\s*(?P<action>.+)$")
-
-
 @dataclass(frozen=True)
 class ExecutiveAction:
     priority: str
@@ -45,6 +43,7 @@ class ExecutiveReasoning:
     decisions_required: list[str]
     recommended_agenda_for_today: list[str]
     executive_conclusion: list[str]
+    intents: tuple[CanonicalExecutiveIntent, ...] = ()
 
 
 def build_executive_reasoning(
@@ -57,15 +56,17 @@ def build_executive_reasoning(
 
 
 def build_executive_reasoning_from_state(state: ExecutiveState) -> ExecutiveReasoning:
+    read_model = build_unified_executive_read_model(state)
     engine_result = state.engine_result
     executive_review = render_executive_review(engine_result)
     intelligence = build_executive_intelligence_from_state(state)
-    meeting = state.meetings[0] if state.meetings else None
-    followups = state.followups
-    open_loops = state.open_loops
+    meeting = read_model.meetings[0] if read_model.meetings else None
+    followups = read_model.followups
+    open_loops = read_model.open_loops
 
     themes = _build_key_themes(intelligence, followups, open_loops)
-    actions = _build_actions(intelligence, meeting, followups, open_loops)
+    intents = build_executive_intents(read_model, intelligence)
+    actions = _build_actions(intents)
     risks = _build_risks(intelligence, meeting, open_loops)
     opportunities = _build_opportunities(intelligence, meeting)
     decisions = _build_decisions(intelligence)
@@ -77,6 +78,7 @@ def build_executive_reasoning_from_state(state: ExecutiveState) -> ExecutiveReas
         overall_health=f"{engine_result['health']['status']} ({engine_result['health']['score']} / 100)",
         confidence=confidence,
         key_themes=themes,
+        intents=intents,
         top_actions=actions,
         risks_requiring_immediate_attention=risks,
         opportunities=opportunities,
@@ -167,164 +169,26 @@ def _build_key_themes(
 
 
 def _build_actions(
-    intelligence: ExecutiveIntelligence,
-    meeting,
-    followups,
-    open_loops,
+    intents_or_intelligence,
+    meeting=None,
+    followups=None,
+    open_loops=None,
 ) -> list[ExecutiveAction]:
-    candidates = [
-        _action_from_priority(intelligence.top_priorities[0], intelligence) if intelligence.top_priorities and _priority_actionable(intelligence.top_priorities[0]) else None,
-        _action_from_project(intelligence.projects_at_risk[0]) if intelligence.projects_at_risk else None,
-        _action_from_followup(intelligence.followups_requiring_action[0]) if intelligence.followups_requiring_action else None,
-        _action_from_open_loop(intelligence.open_loops[0]) if intelligence.open_loops else None,
-        _action_from_meeting(meeting) if meeting and meeting.recommended_discussion else None,
-        _action_from_decision(intelligence.decisions_awaiting_attention[0]) if intelligence.decisions_awaiting_attention else None,
-        _action_from_supplier(intelligence.supplier_risks[0]) if intelligence.supplier_risks else None,
-        _action_from_priority(intelligence.top_priorities[1], intelligence) if len(intelligence.top_priorities) > 1 and _priority_actionable(intelligence.top_priorities[1]) else None,
-        _action_from_followup(intelligence.followups_requiring_action[1]) if len(intelligence.followups_requiring_action) > 1 else None,
-        _action_from_open_loop(intelligence.open_loops[1]) if len(intelligence.open_loops) > 1 else None,
-        _action_from_recommendation(intelligence.recommended_actions_today[0], "HIGH") if intelligence.recommended_actions_today else None,
-        _action_from_recommendation(open_loops.recommended_actions[0], "HIGH") if open_loops.recommended_actions else None,
-        _action_from_recommendation(followups.recommendations[0], "HIGH") if followups.recommendations else None,
-    ]
+    if isinstance(intents_or_intelligence, tuple):
+        intents = intents_or_intelligence
+    else:
+        from src.executive.intent_contract import build_executive_intents
+        from src.executive.read_model import build_unified_executive_read_model
+        from src.executive.executive_state import ExecutiveState
 
-    deduped: list[ExecutiveAction] = []
-    seen = set()
-    for action in candidates:
-        if action is None:
-            continue
-        key = action.action
-        if key in seen:
-            continue
-        seen.add(key)
-        deduped.append(action)
-
-    deduped.sort(key=lambda item: (-item.score, item.action))
-    return deduped[:10]
-
-
-def _action_from_priority(item, intelligence: ExecutiveIntelligence) -> ExecutiveAction:
-    action = _priority_recommended_action(item)
-    priority = _priority_level(item)
-    score = _priority_score(item)
-    return ExecutiveAction(
-        priority=priority,
-        action=f"{action} for {item.title}",
-        why_it_matters=item.detail,
-        supporting_evidence=f"Priority list elevates {item.title} with score {score}.",
-        expected_impact="Reduces governance drift and improves delivery accountability.",
-        confidence="HIGH" if priority in {"CRITICAL", "HIGH"} else "MEDIUM",
-        score=score,
-    )
-
-
-def _action_from_project(item) -> ExecutiveAction:
-    return ExecutiveAction(
-        priority="HIGH",
-        action=f"Review recovery path for project {item.title}",
-        why_it_matters=item.detail,
-        supporting_evidence=f"Project risk intelligence: {item.detail}",
-        expected_impact="Stops further slippage in project execution and clarifies next steps.",
-        confidence="HIGH",
-        score=92,
-    )
-
-
-def _action_from_followup(item) -> ExecutiveAction:
-    return ExecutiveAction(
-        priority="HIGH",
-        action=f"Close follow-up from {item.title}",
-        why_it_matters=item.detail,
-        supporting_evidence=f"Follow-up intelligence flags this as requiring action: {item.detail}",
-        expected_impact="Reduces overdue operational debt and improves execution cadence.",
-        confidence="MEDIUM",
-        score=88,
-    )
-
-
-def _action_from_open_loop(item) -> ExecutiveAction:
-    return ExecutiveAction(
-        priority="HIGH",
-        action=f"Convert open loop into owned action: {item.title}",
-        why_it_matters=item.detail,
-        supporting_evidence=f"Open loop intelligence identifies a critical or ownerless loop: {item.detail}",
-        expected_impact="Moves unresolved governance risk into accountable delivery.",
-        confidence="HIGH",
-        score=90,
-    )
-
-
-def _action_from_meeting(meeting) -> ExecutiveAction:
-    return ExecutiveAction(
-        priority="HIGH",
-        action=f"Prepare {meeting.subject} discussion around ownership and risk",
-        why_it_matters=meeting.recommended_discussion[0],
-        supporting_evidence="Meeting intelligence highlights unresolved owner, objective, and supplier linkage gaps.",
-        expected_impact="Improves meeting quality and turns relationship time into concrete decisions.",
-        confidence="MEDIUM",
-        score=84,
-    )
-
-
-def _action_from_decision(item) -> ExecutiveAction:
-    return ExecutiveAction(
-        priority="MEDIUM",
-        action=f"Resolve decision attention item: {item.title}",
-        why_it_matters=item.detail,
-        supporting_evidence=f"Decision intelligence flags this as awaiting attention: {item.detail}",
-        expected_impact="Prevents unresolved decisions from slowing dependent work.",
-        confidence="MEDIUM",
-        score=78,
-    )
-
-
-def _action_from_supplier(item) -> ExecutiveAction:
-    return ExecutiveAction(
-        priority="MEDIUM",
-        action=f"Review supplier risk posture for {item.title}",
-        why_it_matters=item.detail,
-        supporting_evidence=f"Supplier risk list ranks {item.title} as elevated: {item.detail}",
-        expected_impact="Improves third-party governance and narrows compliance exposure.",
-        confidence="MEDIUM",
-        score=76,
-    )
-
-
-def _action_from_recommendation(text: str, priority: str) -> ExecutiveAction:
-    score = 82 if priority == "HIGH" else 70
-    return ExecutiveAction(
-        priority=priority,
-        action=text,
-        why_it_matters=text,
-        supporting_evidence="Derived from existing intelligence recommendations.",
-        expected_impact="Focuses executive attention on already-evidenced next actions.",
-        confidence="MEDIUM",
-        score=score,
-    )
-
-
-def _priority_actionable(item) -> bool:
-    return _priority_score(item) >= 40 and _priority_level(item) in {"CRITICAL", "HIGH", "MEDIUM"}
-
-
-def _priority_match(item) -> re.Match[str] | None:
-    detail = getattr(item, "detail", "")
-    return PRIORITY_DETAIL_RE.match(detail)
-
-
-def _priority_score(item) -> int:
-    match = _priority_match(item)
-    return int(match.group("score")) if match else 0
-
-
-def _priority_level(item) -> str:
-    match = _priority_match(item)
-    return match.group("priority") if match else "LOW"
-
-
-def _priority_recommended_action(item) -> str:
-    match = _priority_match(item)
-    return match.group("action") if match else "Review and confirm executive treatment"
+        compatibility_state = ExecutiveState(
+            meetings=(meeting,) if meeting is not None else (),
+            followups=followups,
+            open_loops=open_loops,
+        )
+        read_model = build_unified_executive_read_model(compatibility_state)
+        intents = build_executive_intents(read_model, intents_or_intelligence)
+    return [intent_to_executive_action(intent) for intent in intents[:10]]
 
 
 def _build_risks(intelligence: ExecutiveIntelligence, meeting, open_loops) -> list[str]:

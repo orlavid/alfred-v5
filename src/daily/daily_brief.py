@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
+from src.executive.presentation_contract import build_executive_presentation_from_state
 from src.executive.executive_reasoning import build_executive_reasoning_from_state
+from src.executive.read_model import build_unified_executive_read_model
 from src.executive.executive_state import build_executive_state
 
 SECTION_HEADINGS = [
@@ -52,10 +54,17 @@ def build_daily_brief_from_state(
     *,
     reasoning=None,
 ) -> DailyBrief:
+    read_model = build_unified_executive_read_model(state)
     reasoning = reasoning or build_executive_reasoning_from_state(state)
-    meeting = state.meetings[0] if state.meetings else None
-    followups = state.followups
-    open_loops = state.open_loops
+    presentation = build_executive_presentation_from_state(state, reasoning=reasoning, read_model=read_model)
+    meeting = read_model.meetings[0] if read_model.meetings else None
+    followups = read_model.followups
+    open_loops = read_model.open_loops
+    priorities_section = presentation.sections["priorities"]
+    meetings_section = presentation.sections["meetings"]
+    followups_section = presentation.sections["followups"]
+    decisions_section = presentation.sections["decisions"]
+    actions_section = presentation.sections["recommended_actions"]
 
     executive_health = [
         f"Overall health: {reasoning.overall_health}.",
@@ -68,15 +77,18 @@ def build_daily_brief_from_state(
         reasoning.key_themes[3] if len(reasoning.key_themes) > 3 else "Open loop posture unchanged.",
     ]
 
-    top_three_priorities = [action.action for action in reasoning.top_actions[:3]] or ["No evidence found."]
+    top_three_priorities = [item.title for item in priorities_section.items[:3]] or ["No evidence found."]
 
     meetings_requiring_preparation = _dedupe(
-        ([meeting.recommended_discussion[0]] + meeting.risks[:2]) if meeting and meeting.recommended_discussion else (meeting.risks[:3] if meeting else [])
+        (
+            [meetings_section.items[0].summary] + list(meetings_section.items[0].extensions.get("risks", ())[:2])
+            if meetings_section.items
+            else ((meeting.risks[:3] if meeting else []))
+        )
     )[:3] or ["No active meeting identified."]
 
     followups_due_today = _dedupe(
-        [item.summary for item in followups.due_today]
-        + [item.summary for item in followups.overdue[:3]]
+        [item.title for item in followups_section.items[:3]]
     )[:3] or ["No active follow-up identified."]
 
     open_loops_blocking_progress = _dedupe(
@@ -86,9 +98,9 @@ def build_daily_brief_from_state(
 
     risks_escalating = reasoning.risks_requiring_immediate_attention[:3]
 
-    decisions_awaiting_you = reasoning.decisions_required[:3]
+    decisions_awaiting_you = [item.title for item in decisions_section.items[:3]] or reasoning.decisions_required[:3]
 
-    recommended_agenda = reasoning.recommended_agenda_for_today[:5]
+    recommended_agenda = [item.title for item in actions_section.items[:5]] or reasoning.recommended_agenda_for_today[:5]
 
     one_page_executive_summary = [
         reasoning.executive_conclusion[0] if reasoning.executive_conclusion else "No evidence found.",

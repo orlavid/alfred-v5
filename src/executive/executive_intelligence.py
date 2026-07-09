@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
+from src.executive.read_model import UnifiedExecutiveReadModel, build_unified_executive_read_model
 from src.executive.executive_state import ExecutiveState, build_executive_state
 from src.followups.followup_intelligence import FollowupItem
 from src.openloops.open_loop_intelligence import OpenLoopItem
@@ -30,6 +31,7 @@ SECTION_HEADINGS = [
 class ExecutiveLineItem:
     title: str
     detail: str
+    context: dict[str, object] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -58,21 +60,22 @@ def build_executive_intelligence(
 
 
 def build_executive_intelligence_from_state(state: ExecutiveState) -> ExecutiveIntelligence:
-    meeting = state.meetings[0] if state.meetings else None
-    followups = state.followups
-    open_loops = state.open_loops
+    read_model = build_unified_executive_read_model(state)
+    meeting = read_model.meetings[0] if read_model.meetings else None
+    followups = read_model.followups
+    open_loops = read_model.open_loops
 
     health = _build_health_lines(state, meeting.subject if meeting else None)
-    top_priorities = _build_top_priorities(state)
-    objectives = _build_objectives(state)
-    meetings = _build_meetings(state)
-    projects = _build_projects(state)
+    top_priorities = _build_top_priorities(read_model)
+    objectives = _build_objectives(read_model)
+    meetings = _build_meetings(read_model)
+    projects = _build_projects(read_model)
     followup_items = _build_followups(followups)
     open_loop_items = _build_open_loops(open_loops)
-    people = _build_people(state)
-    supplier_risks = _build_supplier_risks(state)
-    decisions = _build_decisions(state)
-    actions = _build_actions(state)
+    people = _build_people(read_model)
+    supplier_risks = _build_supplier_risks(read_model)
+    decisions = _build_decisions(read_model)
+    actions = _build_actions(read_model)
     summary = _build_summary(
         state=state,
         top_priorities=top_priorities,
@@ -152,31 +155,65 @@ def _build_health_lines(state: ExecutiveState, meeting_subject: str | None) -> l
     ]
 
 
-def _build_top_priorities(state: ExecutiveState) -> list[ExecutiveLineItem]:
+def _build_top_priorities(read_model: UnifiedExecutiveReadModel) -> list[ExecutiveLineItem]:
     items = []
-    for priority in state.priorities[:10]:
-        detail = f"{priority['priority']} score {priority['priority_score']}. {priority['recommended_actions'][0]}"
-        items.append(ExecutiveLineItem(priority["title"], detail))
+    for priority in read_model.priorities[:10]:
+        detail_parts = [
+            f"{priority['priority']} score {priority['priority_score']}. {priority['next_step']}",
+            f"Status: {priority.get('status', 'ACTIVE')}",
+        ]
+        if priority.get("owner"):
+            detail_parts.append(f"Owner: {priority['owner']}")
+        if priority.get("deadline_or_recency"):
+            detail_parts.append(f"Timing: {priority['deadline_or_recency']}")
+        if priority.get("evidence_paths"):
+            detail_parts.append(f"Evidence: {', '.join(priority['evidence_paths'][:2])}")
+        items.append(
+            ExecutiveLineItem(
+                priority["title"],
+                "; ".join(detail_parts),
+                context=dict(priority),
+            )
+        )
     return items
 
 
-def _build_objectives(state: ExecutiveState) -> list[ExecutiveLineItem]:
+def _build_objectives(read_model: UnifiedExecutiveReadModel) -> list[ExecutiveLineItem]:
     items = []
-    for objective in state.objectives:
+    for objective in read_model.objectives:
         if objective.status not in {"AT RISK", "WATCH"}:
             continue
-        items.append(ExecutiveLineItem(objective.title, f"{objective.status}. {objective.recommendation}"))
+        items.append(
+            ExecutiveLineItem(
+                objective.title,
+                f"{objective.status}. {objective.recommendation}",
+                context={
+                    "entity_type": "objective",
+                    "status": objective.status,
+                    "next_step": objective.recommendation,
+                    "evidence_paths": [objective.path],
+                },
+            )
+        )
     return items[:10]
 
 
-def _build_meetings(state: ExecutiveState) -> list[ExecutiveLineItem]:
-    if not state.meetings:
+def _build_meetings(read_model: UnifiedExecutiveReadModel) -> list[ExecutiveLineItem]:
+    meeting_items = [item for item in read_model.work_items if item.work_item_type == "meeting"]
+    if not meeting_items:
         return []
-    meeting = state.meetings[0]
+    meeting = read_model.meetings[0]
+    work_item = meeting_items[0]
     items = [
         ExecutiveLineItem(
             meeting.subject,
             meeting.recommended_discussion[0] if meeting.recommended_discussion else "No evidence found.",
+            context={
+                "entity_type": "meeting",
+                "evidence_paths": list(work_item.evidence_paths[:3]),
+                "why_now": list(meeting.risks[:2]) or list(meeting.recommended_discussion[:2]),
+                "next_step": meeting.recommended_discussion[0] if meeting.recommended_discussion else "Prepare the meeting around the highest-friction issue.",
+            },
         )
     ]
     for risk in meeting.risks[:4]:
@@ -184,12 +221,23 @@ def _build_meetings(state: ExecutiveState) -> list[ExecutiveLineItem]:
     return items[:10]
 
 
-def _build_projects(state: ExecutiveState) -> list[ExecutiveLineItem]:
+def _build_projects(read_model: UnifiedExecutiveReadModel) -> list[ExecutiveLineItem]:
     items = []
-    for project in state.projects:
+    for project in read_model.projects:
         if project.status not in {"AT RISK", "WATCH"}:
             continue
-        items.append(ExecutiveLineItem(project.title, f"{project.status}. {project.recommendation}"))
+        items.append(
+            ExecutiveLineItem(
+                project.title,
+                f"{project.status}. {project.recommendation}",
+                context={
+                    "entity_type": "project",
+                    "status": project.status,
+                    "next_step": project.recommendation,
+                    "evidence_paths": [project.path],
+                },
+            )
+        )
     return items[:10]
 
 
@@ -202,7 +250,19 @@ def _build_followups(followups) -> list[ExecutiveLineItem]:
         followups.high_priority,
     ):
         due = item.due_date or "no explicit due date"
-        items.append(ExecutiveLineItem(item.title, f"{item.summary} Due: {due}; Priority: {item.priority}."))
+        items.append(
+            ExecutiveLineItem(
+                item.title,
+                f"{item.summary} Due: {due}; Priority: {item.priority}.",
+                context={
+                    "entity_type": "follow_up",
+                    "status": item.priority,
+                    "deadline_or_recency": due if item.due_date else None,
+                    "next_step": item.summary,
+                    "evidence_paths": [item.path],
+                },
+            )
+        )
     return items[:10]
 
 
@@ -226,7 +286,19 @@ def _build_open_loops(open_loops) -> list[ExecutiveLineItem]:
         open_loops.waiting_for,
         open_loops.missing_owners,
     ):
-        items.append(ExecutiveLineItem(item.title, f"{item.summary} Status: {item.status}; Owner: {item.owner}."))
+        items.append(
+            ExecutiveLineItem(
+                item.title,
+                f"{item.summary} Status: {item.status}; Owner: {item.owner}.",
+                context={
+                    "entity_type": "open_loop",
+                    "status": item.status,
+                    "owner": item.owner,
+                    "next_step": item.summary,
+                    "evidence_paths": [item.path],
+                },
+            )
+        )
     return items[:10]
 
 
@@ -243,25 +315,46 @@ def _merge_open_loop_lists(*groups: list[OpenLoopItem]) -> list[OpenLoopItem]:
     return merged
 
 
-def _build_people(state: ExecutiveState) -> list[ExecutiveLineItem]:
+def _build_people(read_model: UnifiedExecutiveReadModel) -> list[ExecutiveLineItem]:
     items = []
-    for person in state.people[:10]:
+    for person in read_model.people[:10]:
         items.append(ExecutiveLineItem(person.title, f"{person.risk} influence {person.influence}; companies {person.companies}; projects {person.projects}."))
     return items
 
 
-def _build_supplier_risks(state: ExecutiveState) -> list[ExecutiveLineItem]:
+def _build_supplier_risks(read_model: UnifiedExecutiveReadModel) -> list[ExecutiveLineItem]:
     items = []
-    for company in state.suppliers:
-        items.append(ExecutiveLineItem(company.title, f"{company.status}; links {company.links}; projects {company.projects}; people {company.people}."))
+    for company in read_model.suppliers:
+        items.append(
+            ExecutiveLineItem(
+                company.title,
+                f"{company.status}; links {company.links}; projects {company.projects}; people {company.people}.",
+                context={
+                    "entity_type": "company",
+                    "status": company.status,
+                    "next_step": "Validate ownership, dependency and supplier governance",
+                    "evidence_paths": [company.path],
+                },
+            )
+        )
     return items[:10]
 
 
-def _build_decisions(state: ExecutiveState) -> list[ExecutiveLineItem]:
+def _build_decisions(read_model: UnifiedExecutiveReadModel) -> list[ExecutiveLineItem]:
     items = []
-    for item in state.open_loops.missing_decisions[:5]:
-        items.append(ExecutiveLineItem(item.title, f"{item.summary} Owner: {item.owner}."))
-    for decision in state.decisions[:5]:
+    for item in read_model.open_loops.missing_decisions[:5]:
+        items.append(
+            ExecutiveLineItem(
+                item.title,
+                f"{item.summary} Owner: {item.owner}.",
+                context={
+                    "entity_type": "decision",
+                    "owner": item.owner,
+                    "next_step": item.summary,
+                },
+            )
+        )
+    for decision in read_model.decisions[:5]:
         items.append(
             ExecutiveLineItem(
                 decision["title"],
@@ -279,8 +372,8 @@ def _build_decisions(state: ExecutiveState) -> list[ExecutiveLineItem]:
     return deduped[:10]
 
 
-def _build_actions(state: ExecutiveState) -> list[str]:
-    return list(state.recommendations[:10])
+def _build_actions(read_model: UnifiedExecutiveReadModel) -> list[str]:
+    return list(read_model.actions[:10])
 
 
 def _build_summary(

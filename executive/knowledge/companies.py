@@ -11,6 +11,7 @@ class CompanyInsight:
     objectives: int
     score: int
     status: str
+    is_supplier: bool = False
 
 def analyze_companies(entities, graph):
     entity_lookup = {e.id: e for e in entities}

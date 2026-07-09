@@ -28,6 +28,7 @@ from executive.knowledge.executive_briefing import build_briefing
 from executive.intelligence.impact import calculate
 from executive.intelligence.entity_consolidation import consolidate, rewrite_graph
 from executive.knowledge.findings import Finding
+from executive.knowledge.entity_quality import build_executive_entity_quality
 from src.obsidian.live_vault import resolve_live_vault_path
 
 VAULT_ROOT = resolve_live_vault_path()
@@ -57,6 +58,18 @@ def analyze(evidence_root, vault_root=None):
     relationships = score_relationships(entities, graph)
     impact = calculate(graph, entities)
     resolution = resolution_summary_from_index(resolution_index)
+    entity_quality = build_executive_entity_quality(
+        entities,
+        resolution_model,
+        graph=graph,
+        objective_analysis=objective_analysis,
+        project_analysis=project_analysis,
+        company_analysis=company_analysis,
+        people_analysis=people_analysis,
+        decision_analysis=decision_analysis,
+        risk_analysis=risk_analysis,
+        ownership=ownership,
+    )
 
     findings = []
 
@@ -102,7 +115,12 @@ def analyze(evidence_root, vault_root=None):
     }
 
     priority_analysis = safe_execute(
-        lambda: build_priorities(priority_input, entities, graph),
+        lambda: build_priorities(
+            priority_input,
+            entities,
+            graph,
+            canonical_entities=entity_quality.canonical_entities,
+        ),
         fallback={"priority_count": 0, "top_priorities": []},
         label="prioritisation"
     )
@@ -144,6 +162,32 @@ def analyze(evidence_root, vault_root=None):
             "canonical_entities": [asdict(entity) for entity in resolution_model.canonical_entities],
             "aliases": [asdict(alias) for alias in resolution_model.aliases],
             "relationships": list(resolution_model.relationships),
+            "entity_quality": {
+                "canonical_count": len(entity_quality.canonical_entities),
+                "rejected_count": len(entity_quality.rejected_entities),
+                "canonical_examples": [
+                    {
+                        "entity_id": item.entity_id,
+                        "entity_type": item.entity_type,
+                        "canonical_name": item.canonical_name,
+                        "owner": item.owner,
+                        "status": item.status,
+                        "risk_level": item.risk_level,
+                        "evidence_paths": list(item.evidence_paths),
+                        "missing_fields": list(item.missing_fields),
+                    }
+                    for item in entity_quality.canonical_entities[:20]
+                ],
+                "rejected_examples": [
+                    {
+                        "title": item.title,
+                        "entity_type": item.entity_type,
+                        "path": item.path,
+                        "reasons": list(item.reasons),
+                    }
+                    for item in entity_quality.rejected_entities[:20]
+                ],
+            },
             "objectives": objective_analysis,
             "projects": project_analysis,
             "companies": company_analysis,

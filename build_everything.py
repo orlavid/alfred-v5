@@ -25,6 +25,7 @@ STEPS = [
     ("Executive Pipeline", [sys.executable, "build_executive_pipeline.py"]),
     ("Live Knowledge Certification", [sys.executable, "build_live_knowledge_certification.py"]),
     ("Knowledge Certification", [sys.executable, "build_knowledge_certification.py"]),
+    ("Executive Intelligence Validation", [sys.executable, "build_executive_intelligence_validation.py"]),
     ("Knowledge Mining", [sys.executable, "build_knowledge_mining_report.py"]),
     ("Alfred Archaeology", [sys.executable, "build_archaeology_report.py"]),
     ("Knowledge Housekeeping", [sys.executable, "build_knowledge_housekeeping.py"]),

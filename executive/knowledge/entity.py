@@ -10,3 +10,4 @@ class VaultEntity:
     tags: list[str] = field(default_factory=list)
     links: list[str] = field(default_factory=list)
     relationships: list[dict] = field(default_factory=list)
+    source_text: str = ""
