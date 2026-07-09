@@ -12,8 +12,8 @@ export function ActionsPage({ data }: { data: DashboardPayload }) {
       <div className="grid gap-6 xl:grid-cols-2">
         <SectionCard title="Plan Today" kicker="Execution">
           <ul className="space-y-2 text-sm leading-6 text-ink/80">
-            {data.plan_today.map((item) => (
-              <li key={item}>- {item}</li>
+            {data.plan_today.map((item, index) => (
+              <li key={`${item.type}-${index}`}>- {item.summary}</li>
             ))}
           </ul>
         </SectionCard>

@@ -1,6 +1,13 @@
 export type DashboardPayload = {
   burning_fires: Array<{ type: string; summary: string }>;
-  plan_today: string[];
+  plan_today: Array<{
+    type: string;
+    summary: string;
+    confidence: string;
+    origin: string;
+    provider: string;
+    source_notes: string[];
+  }>;
   next_best_action: {
     priority: string;
     action: string;

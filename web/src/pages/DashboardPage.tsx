@@ -62,11 +62,11 @@ export function DashboardPage({ data }: DashboardPageProps) {
         <SectionCard title="Plan Today" kicker="Execution">
           <ol className="space-y-3">
             {data.plan_today.map((item, index) => (
-              <li key={item} className="flex gap-4 rounded-2xl border border-ink/10 bg-white/60 p-4">
+              <li key={`${item.type}-${index}`} className="flex gap-4 rounded-2xl border border-ink/10 bg-white/60 p-4">
                 <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-accent text-sm font-semibold text-white">
                   {index + 1}
                 </span>
-                <p className="text-sm leading-6 text-ink">{item}</p>
+                <p className="text-sm leading-6 text-ink">{item.summary}</p>
               </li>
             ))}
           </ol>
