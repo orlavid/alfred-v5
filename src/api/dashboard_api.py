@@ -794,26 +794,34 @@ def _build_meetings_page(read_model, presentation=None) -> dict[str, Any]:
     else:
         meeting_item = presentation.sections["meetings"].items[0] if presentation.sections["meetings"].items else None
     meeting = read_model.meetings[0]
+    meeting_purpose = list(getattr(meeting, "meeting_purpose", []))
+    relationship_history = list(getattr(meeting, "relationship_history", []))
+    commercial_issues = list(getattr(meeting, "commercial_issues", []))
+    recent_changes = list(getattr(meeting, "recent_changes", []))
+    dependencies = list(getattr(meeting, "dependencies", []))
+    recommended_questions = list(getattr(meeting, "recommended_questions", []))
+    recommended_decisions = list(getattr(meeting, "recommended_decisions", []))
+    evidence_references = list(getattr(meeting, "evidence_references", []))
     return {
         "subject": meeting.subject,
-        "meeting_purpose": list(meeting_item.extensions.get("meeting_purpose", meeting.meeting_purpose)) if meeting_item else meeting.meeting_purpose,
+        "meeting_purpose": list(meeting_item.extensions.get("meeting_purpose", meeting_purpose)) if meeting_item else meeting_purpose,
         "executive_summary": list(meeting_item.extensions.get("executive_summary", meeting.executive_summary)) if meeting_item else meeting.executive_summary,
-        "relationship_history": list(meeting_item.extensions.get("relationship_history", meeting.relationship_history)) if meeting_item else meeting.relationship_history,
+        "relationship_history": list(meeting_item.extensions.get("relationship_history", relationship_history)) if meeting_item else relationship_history,
         "related_people": list(meeting_item.extensions.get("related_people", [item.title for item in meeting.related_people])) if meeting_item else [item.title for item in meeting.related_people],
         "related_projects": list(meeting_item.extensions.get("related_projects", [item.title for item in meeting.related_projects])) if meeting_item else [item.title for item in meeting.related_projects],
         "related_companies": list(meeting_item.extensions.get("related_companies", [item.title for item in meeting.related_companies])) if meeting_item else [item.title for item in meeting.related_companies],
         "related_objectives": list(meeting_item.extensions.get("related_objectives", [item.title for item in meeting.related_objectives])) if meeting_item else [item.title for item in meeting.related_objectives],
         "related_decisions": list(meeting_item.extensions.get("related_decisions", [item.title for item in meeting.related_decisions])) if meeting_item else [item.title for item in meeting.related_decisions],
         "risks": list(meeting_item.extensions.get("risks", meeting.risks)) if meeting_item else meeting.risks,
-        "commercial_issues": list(meeting_item.extensions.get("commercial_issues", meeting.commercial_issues)) if meeting_item else meeting.commercial_issues,
-        "recent_changes": list(meeting_item.extensions.get("recent_changes", meeting.recent_changes)) if meeting_item else meeting.recent_changes,
+        "commercial_issues": list(meeting_item.extensions.get("commercial_issues", commercial_issues)) if meeting_item else commercial_issues,
+        "recent_changes": list(meeting_item.extensions.get("recent_changes", recent_changes)) if meeting_item else recent_changes,
         "open_loops": list(meeting_item.extensions.get("open_loops", [item.title for item in meeting.open_loops])) if meeting_item else [item.title for item in meeting.open_loops],
         "follow_ups": list(meeting_item.extensions.get("follow_ups", [item.title for item in meeting.follow_ups])) if meeting_item else [item.title for item in meeting.follow_ups],
-        "dependencies": list(meeting_item.extensions.get("dependencies", meeting.dependencies)) if meeting_item else meeting.dependencies,
+        "dependencies": list(meeting_item.extensions.get("dependencies", dependencies)) if meeting_item else dependencies,
         "recommended_discussion": list(meeting_item.extensions.get("recommended_discussion", meeting.recommended_discussion)) if meeting_item else meeting.recommended_discussion,
-        "recommended_questions": list(meeting_item.extensions.get("recommended_questions", meeting.recommended_questions)) if meeting_item else meeting.recommended_questions,
-        "recommended_decisions": list(meeting_item.extensions.get("recommended_decisions", meeting.recommended_decisions)) if meeting_item else meeting.recommended_decisions,
-        "evidence_references": list(meeting_item.extensions.get("evidence_references", meeting.evidence_references)) if meeting_item else meeting.evidence_references,
+        "recommended_questions": list(meeting_item.extensions.get("recommended_questions", recommended_questions)) if meeting_item else recommended_questions,
+        "recommended_decisions": list(meeting_item.extensions.get("recommended_decisions", recommended_decisions)) if meeting_item else recommended_decisions,
+        "evidence_references": list(meeting_item.extensions.get("evidence_references", evidence_references)) if meeting_item else evidence_references,
         "confidence": meeting_item.confidence if meeting_item else meeting.confidence,
     }
 
