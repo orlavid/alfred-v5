@@ -28,6 +28,7 @@ run_logged "$LOG_FILE" "build executive pipeline" "$PYTHON_EXEC" build_executive
 run_logged "$LOG_FILE" "build daily brief" "$PYTHON_EXEC" build_daily_brief.py
 run_logged "$LOG_FILE" "certify live knowledge" "$ROOT_DIR/scripts/vps/certify_live_knowledge.sh" "$LOG_FILE.knowledge"
 run_logged "$LOG_FILE" "build knowledge certification" "$PYTHON_EXEC" build_knowledge_certification.py
+run_logged "$LOG_FILE" "build semantic equivalence validation" "$PYTHON_EXEC" build_semantic_equivalence_validation.py
 run_logged "$LOG_FILE" "build operational readiness" "$PYTHON_EXEC" build_operational_readiness.py
 run_logged "$LOG_FILE" "build UI" npm run build
 run_logged "$LOG_FILE" "ask Alfred: focus today" "$PYTHON_EXEC" build_ask_alfred.py "What should I focus on today?"
@@ -45,6 +46,8 @@ run_logged "$LOG_FILE" "report Alfred status" "$ROOT_DIR/scripts/install/status_
 [[ -f "$APP_DIR/output/Ask_Alfred.md" ]] || fail_line "$LOG_FILE" "Ask Alfred output missing"
 [[ -f "$APP_DIR/output/Knowledge_Certification.md" ]] || fail_line "$LOG_FILE" "knowledge certification markdown output missing"
 [[ -f "$APP_DIR/output/Knowledge_Certification.json" ]] || fail_line "$LOG_FILE" "knowledge certification json output missing"
+[[ -f "$APP_DIR/output/Semantic_Equivalence_Validation.md" ]] || fail_line "$LOG_FILE" "semantic equivalence markdown output missing"
+[[ -f "$APP_DIR/output/Semantic_Equivalence_Validation.json" ]] || fail_line "$LOG_FILE" "semantic equivalence json output missing"
 [[ -f "$APP_DIR/dist/index.html" ]] || fail_line "$LOG_FILE" "ui build output missing"
 
 grep -q "Overall Health: GREEN" "$APP_DIR/output/Operational_Readiness_Report.md" || fail_line "$LOG_FILE" "operational readiness is not GREEN"

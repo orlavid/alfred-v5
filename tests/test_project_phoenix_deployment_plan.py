@@ -67,6 +67,7 @@ def test_gate3_validation_script_checks_required_outputs():
         "build_executive_pipeline.py",
         "build_daily_brief.py",
         "build_knowledge_certification.py",
+        "build_semantic_equivalence_validation.py",
         "build_operational_readiness.py",
         "build_ask_alfred.py",
         "certify_live_knowledge.sh",
