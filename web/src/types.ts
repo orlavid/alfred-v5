@@ -27,14 +27,29 @@ export type DashboardPayload = {
   objectives: {
     health: Record<string, number>;
     items: Array<{
+      objective_id: string;
       title: string;
+      source_path: string;
+      source_entity_id: string;
+      route: string;
       lifecycle: string;
       confidence: string;
+      health: string;
+      progress_indicator: string;
+      owner: string;
+      last_meaningful_activity: string;
+      next_checkpoint_or_deadline: string;
+      supporting_project_count: number;
+      linked_decision_count: number;
+      open_action_count: number;
+      key_risk_or_blocker: string;
       supporting_projects: string[];
       linked_decisions: string[];
       stale_evidence: boolean;
       recommended_next_action: string;
+      missing_fields: string[];
     }>;
+    details?: Record<string, ObjectiveDetail>;
     summary: string[];
   };
   projects: {
@@ -154,6 +169,82 @@ export type DashboardPayload = {
     sources: string[];
     confidence: string;
   };
+};
+
+export type LinkedObjectiveItem = {
+  title: string;
+  path: string;
+  reason: string;
+  route: string;
+};
+
+export type SmartAssessmentDimension = {
+  current_assessment: string;
+  evidence: string[];
+  missing_or_weak_definition: string;
+  suggested_improvement: string;
+};
+
+export type ObjectiveDetail = {
+  objective_id: string;
+  route: string;
+  title: string;
+  source_entity_id: string;
+  source_path: string;
+  executive_definition: string;
+  owner: string;
+  delegates: string[];
+  current_status: string;
+  health: string;
+  rag_rating: string;
+  progress_assessment: string;
+  evidence_confidence: string;
+  start_date: string;
+  target_date: string;
+  last_review_date: string;
+  next_review_date: string;
+  last_meaningful_activity: string;
+  next_checkpoint_or_deadline: string;
+  supporting_projects: LinkedObjectiveItem[];
+  linked_decisions: LinkedObjectiveItem[];
+  risks_and_blockers: Array<LinkedObjectiveItem & { type: string }>;
+  open_actions: Array<{
+    work_item_id: string;
+    title: string;
+    type: string;
+    status: string;
+    priority: string;
+    path: string;
+    reason: string;
+    route: string;
+  }>;
+  follow_ups: Array<{
+    work_item_id: string;
+    title: string;
+    type: string;
+    status: string;
+    priority: string;
+    path: string;
+    reason: string;
+    route: string;
+  }>;
+  relevant_meetings: LinkedObjectiveItem[];
+  related_people: LinkedObjectiveItem[];
+  evidence_sources: Array<{
+    label: string;
+    path: string;
+    reason: string;
+  }>;
+  recent_changes: string[];
+  recommended_next_action: string;
+  missing_information: string[];
+  smart_assessment: Record<string, SmartAssessmentDimension>;
+  proposed_smart_refinement: string[];
+  stale_evidence: boolean;
+  linked_decision_titles: string[];
+  relevant_meeting_titles: string[];
+  source_work_item_ids: string[];
+  provenance: Record<string, string[]>;
 };
 
 export type AdminComponent = {

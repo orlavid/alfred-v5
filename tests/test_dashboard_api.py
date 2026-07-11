@@ -100,3 +100,61 @@ def test_dashboard_does_not_depend_on_direct_followup_or_open_loop_builders():
 
     assert "build_followup_intelligence(" not in source
     assert "build_open_loop_intelligence(" not in source
+
+
+def test_objective_management_payload_includes_summary_and_detail_fields(tmp_path):
+    vault = tmp_path / "vault"
+    (vault / "09 Governance" / "Objectives").mkdir(parents=True)
+    (vault / "03 Projects").mkdir(parents=True)
+    (vault / "09 Governance" / "Decisions").mkdir(parents=True)
+    (vault / "08 Follow Ups").mkdir(parents=True)
+    (vault / "07 Open Loops").mkdir(parents=True)
+
+    (vault / "09 Governance" / "Objectives" / "2026 Executive Objectives.md").write_text(
+        "# 2026 Executive Objectives\n\n"
+        "## Objectives\n\n"
+        "- Operational Governance\n"
+    )
+    (vault / "09 Governance" / "Objectives" / "Operational Governance.md").write_text(
+        "# Operational Governance\n"
+        "Type: Objective\n"
+        "Status: Supported\n"
+        "Last Activity: 2026-07-01\n"
+    )
+    (vault / "03 Projects" / "Governance Programme.md").write_text(
+        "# Governance Programme\n"
+        "Status: Active\n"
+        "Owner: Jane Smith\n"
+        "[[Operational Governance]]\n"
+    )
+    (vault / "09 Governance" / "Decisions" / "Governance Approval.md").write_text(
+        "# Governance Approval\n"
+        "[[Operational Governance]]\n"
+    )
+    (vault / "08 Follow Ups" / "Follow Up Actions.md").write_text(
+        "# Follow Up Actions\n\n"
+        "## Follow-Up Actions\n\n"
+        "- Confirm governance checkpoint this week\n"
+    )
+    (vault / "07 Open Loops" / "Open Loop Register.md").write_text(
+        "# Open Loop Register\n\n"
+        "## LOOP-001\n"
+        "Issue: Governance decision pending\n"
+        "Status: OPEN\n"
+        "Priority: HIGH\n"
+        "Owner: Jane Smith\n"
+    )
+
+    payload = get_dashboard_home(tmp_path / "evidence", vault_root=vault)
+
+    assert payload["objectives"]["items"]
+    item = next(item for item in payload["objectives"]["items"] if item["title"] == "Operational Governance")
+    detail = payload["objectives"]["details"][item["objective_id"]]
+
+    assert item["title"] == "Operational Governance"
+    assert item["route"].startswith("/objectives/")
+    assert item["supporting_project_count"] >= 1
+    assert "current_status" in detail
+    assert "smart_assessment" in detail
+    assert detail["evidence_sources"]
+    assert detail["provenance"]["objective"]

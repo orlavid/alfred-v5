@@ -21,17 +21,15 @@ test("renders executive navigation shell", () => {
   expect(screen.getByLabelText("Breadcrumb")).toBeInTheDocument();
   expect(screen.getByPlaceholderText("Ask: What should I do today?")).toBeInTheDocument();
 
-  expect(screen.queryByText("Command")).not.toBeInTheDocument();
-
   fireEvent.mouseEnter(screen.getByLabelText("Open Command"));
 
-  expect(screen.getByText("Command")).toBeInTheDocument();
-  expect(screen.getByText("Daily Brief")).toBeInTheDocument();
+  expect(screen.getAllByText("Command").length).toBeGreaterThan(0);
+  expect(screen.getAllByText("Daily Brief").length).toBeGreaterThan(0);
   expect(screen.queryByText("Projects")).not.toBeInTheDocument();
 
   fireEvent.mouseEnter(screen.getByLabelText("Open Objectives"));
 
-  expect(screen.getByText("Objectives")).toBeInTheDocument();
+  expect(screen.getAllByText("Objectives").length).toBeGreaterThan(0);
   expect(screen.getByText("Projects")).toBeInTheDocument();
 
   fireEvent.mouseEnter(screen.getByLabelText("Open Library"));

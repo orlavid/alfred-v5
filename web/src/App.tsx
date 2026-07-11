@@ -3,6 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { SectionCard } from "@/components/SectionCard";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { ObjectivesPage } from "@/pages/ObjectivesPage";
+import { ObjectiveDetailPage } from "@/pages/ObjectiveDetailPage";
 import { ProjectsPage } from "@/pages/ProjectsPage";
 import { MeetingsPage } from "@/pages/MeetingsPage";
 import { BoardPage } from "@/pages/BoardPage";
@@ -54,6 +55,7 @@ export function App() {
           <Route path="/daily-brief" element={<DailyBriefPage data={data} />} />
           <Route path="/executive-summary" element={<ExecutiveSummaryPage data={data} />} />
           <Route path="/objectives" element={<ObjectivesPage data={data} />} />
+          <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={data} />} />
           <Route path="/projects" element={<ProjectsPage data={data} />} />
           <Route
             path="/programmes"
