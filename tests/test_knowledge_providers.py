@@ -74,6 +74,35 @@ def test_domain_providers_extract_independently(tmp_path: Path):
     assert all(entity.type == "open_loop" for entity in open_loops)
 
 
+def test_project_provider_excludes_monitoring_and_generated_artefacts(tmp_path: Path):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+    (vault / "03 Projects" / "2026-05-29 Watchlist - ai_governance.md").write_text(
+        "# 2026-05-29 Watchlist - ai_governance\nproject watchlist only.\n"
+    )
+    (vault / "03 Projects" / "Latest Entity Graph.md").write_text(
+        "# Latest Entity Graph\nproject inventory graph.\n"
+    )
+    (vault / "03 Projects" / "2026.md").write_text(
+        "---\ntags: [personal-notes, programme]\n---\nStrategic year framing only.\n"
+    )
+    (vault / "01 Daily Logs" / "2026-07-04 Daily.md").write_text(
+        "# 2026-07-04 Daily\nReviewed [[03 Projects/Project Phoenix]] and [[03 Projects/TPRM 2.0]].\n"
+    )
+    (vault / "03 Projects" / "TPRM 2.0.md").write_text(
+        "---\ntags: [personal-notes, tprm, vendor-governance]\n---\n"
+        "Programme delivery remains active. [[04 Companies/Acme Capital]].\n"
+    )
+
+    projects = extract_provider_entities(vault, domains=("projects",))
+    titles = sorted(entity.title for entity in projects)
+
+    assert "Project Phoenix" in titles
+    assert "TPRM 2.0" in titles
+    assert "2026-05-29 Watchlist - ai_governance" not in titles
+    assert "Latest Entity Graph" not in titles
+    assert "2026" not in titles
+
+
 def test_objective_provider_matches_legacy_selection_and_excludes_monitoring_notes(tmp_path: Path):
     vault = _build_obsidian_vault(tmp_path / "vault")
     (vault / "09 Governance" / "Watchlists").mkdir(parents=True)

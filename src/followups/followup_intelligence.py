@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+import json
+import os
 import re
 from typing import Iterable
 
@@ -67,6 +69,14 @@ ACTION_MARKERS = (
     "respond",
 )
 
+SECOND_BRAIN_ROOT = Path(os.environ.get("ALFRED_SECOND_BRAIN_ROOT", "/opt/second-brain"))
+DAILY_GOVERNANCE_INDEX = Path(
+    os.environ.get(
+        "ALFRED_DAILY_GOVERNANCE_INDEX",
+        str(SECOND_BRAIN_ROOT / "executive" / "daily_governance_index.json"),
+    )
+)
+
 
 @dataclass(frozen=True)
 class FollowupItem:
@@ -97,9 +107,12 @@ def build_followup_intelligence(vault_root: Path | None = None, today: date | No
     # ExecutiveState is the canonical consumer for user-facing runtime knowledge.
     resolved_vault = resolve_live_vault_path(vault_root)
     effective_today = today or date.today()
-    notes = load_vault(resolved_vault)
-
-    items = _collect_followups(notes, effective_today)
+    daily_governance_items = _collect_daily_governance_followups(effective_today)
+    if daily_governance_items:
+        items = daily_governance_items
+    else:
+        notes = load_vault(resolved_vault)
+        items = _collect_followups(notes, effective_today)
     overdue = _filter_items(items, lambda item: _parse_due_date(item.due_date) is not None and _parse_due_date(item.due_date) < effective_today)
     due_today = _filter_items(items, lambda item: _parse_due_date(item.due_date) == effective_today)
     due_this_week = _filter_items(
@@ -126,6 +139,70 @@ def build_followup_intelligence(vault_root: Path | None = None, today: date | No
         recommendations=recommendations,
         executive_summary=executive_summary,
     )
+
+
+def _collect_daily_governance_followups(today: date) -> list[FollowupItem]:
+    if not DAILY_GOVERNANCE_INDEX.exists():
+        return []
+    try:
+        payload = json.loads(DAILY_GOVERNANCE_INDEX.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+    items: list[FollowupItem] = []
+    seen: set[str] = set()
+    records = payload.get("records", []) if isinstance(payload, dict) else []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if record.get("type") != "follow_up_action":
+            continue
+        if str(record.get("status", "open")).lower() != "open":
+            continue
+        summary = _clean_line(str(record.get("text", "")))
+        if not summary:
+            continue
+        key = normalise_name(summary)
+        if key in seen:
+            continue
+        seen.add(key)
+        note_date = _parse_record_date(record.get("date"))
+        due_date = _infer_due_date(summary, note_date, today)
+        lowered = summary.lower()
+        waiting_on_others = any(marker in lowered for marker in WAITING_MARKERS)
+        priority = "HIGH" if any(marker in lowered for marker in HIGH_PRIORITY_MARKERS) else "NORMAL"
+        items.append(
+            FollowupItem(
+                title=summary,
+                path=_relative_source_path(record.get("source")),
+                source_kind="daily_governance_index",
+                due_date=due_date.isoformat() if due_date else None,
+                priority=priority,
+                waiting_on_others=waiting_on_others,
+                summary=summary.rstrip(".") + ".",
+            )
+        )
+
+    items.sort(key=lambda item: (_sort_due_date(item.due_date), item.priority != "HIGH", item.path, item.summary))
+    return items[:200]
+
+
+def _parse_record_date(value: object) -> date | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _relative_source_path(value: object) -> str:
+    if not isinstance(value, str) or not value:
+        return ""
+    marker = "/docker/obsidian-vault/"
+    if marker in value:
+        return value.split(marker, 1)[1]
+    return value
 
 
 def render_followup_intelligence(report: FollowupIntelligence) -> str:

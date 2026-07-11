@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+import json
+import os
 import re
 from typing import Iterable
 
@@ -62,6 +64,14 @@ STALL_MARKERS = (
     "cannot progress",
 )
 
+SECOND_BRAIN_ROOT = Path(os.environ.get("ALFRED_SECOND_BRAIN_ROOT", "/opt/second-brain"))
+DAILY_GOVERNANCE_INDEX = Path(
+    os.environ.get(
+        "ALFRED_DAILY_GOVERNANCE_INDEX",
+        str(SECOND_BRAIN_ROOT / "executive" / "daily_governance_index.json"),
+    )
+)
+
 
 @dataclass(frozen=True)
 class OpenLoopItem:
@@ -91,8 +101,12 @@ def build_open_loop_intelligence(vault_root: Path | None = None) -> OpenLoopInte
     # Deprecated direct retrieval path retained for the default knowledge provider.
     # ExecutiveState is the canonical consumer for user-facing runtime knowledge.
     resolved_vault = resolve_live_vault_path(vault_root)
-    notes = load_vault(resolved_vault)
-    items = _collect_open_loops(notes)
+    daily_governance_items = _collect_daily_governance_open_loops()
+    if daily_governance_items:
+        items = daily_governance_items
+    else:
+        notes = load_vault(resolved_vault)
+        items = _collect_open_loops(notes)
 
     critical_open_loops = _filter_items(items, lambda item: item.priority in {"CRITICAL", "HIGH"} or item.status in {"BLOCKED", "OPEN"})
     waiting_for = _filter_items(items, lambda item: any(marker in item.summary.lower() for marker in WAITING_MARKERS) or item.status == "BLOCKED")
@@ -114,6 +128,78 @@ def build_open_loop_intelligence(vault_root: Path | None = None) -> OpenLoopInte
         recommended_actions=recommended_actions,
         executive_summary=executive_summary,
     )
+
+
+def _collect_daily_governance_open_loops() -> list[OpenLoopItem]:
+    if not DAILY_GOVERNANCE_INDEX.exists():
+        return []
+    try:
+        payload = json.loads(DAILY_GOVERNANCE_INDEX.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+    items: list[OpenLoopItem] = []
+    seen: set[str] = set()
+    records = payload.get("records", []) if isinstance(payload, dict) else []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if record.get("type") != "open_loop":
+            continue
+        if str(record.get("status", "open")).lower() != "open":
+            continue
+        summary = _clean_text(str(record.get("text", "")))
+        if not summary or _looks_like_bad_open_loop(summary):
+            continue
+        key = normalise_name(summary)
+        if key in seen:
+            continue
+        seen.add(key)
+        items.append(
+            OpenLoopItem(
+                title=summary[:160],
+                path=_relative_source_path(record.get("source")),
+                source_kind="daily_governance_index",
+                status="OPEN",
+                priority=_derive_daily_governance_priority(summary),
+                owner=(str(record.get("owner", "")).strip() or "Unknown"),
+                summary=summary,
+            )
+        )
+
+    items.sort(key=lambda item: (_priority_rank(item.priority), _status_rank(item.status), item.path, item.summary))
+    return items[:250]
+
+
+def _looks_like_bad_open_loop(summary: str) -> bool:
+    lowered = summary.lower()
+    return any(
+        marker in lowered
+        for marker in (
+            "watchlist",
+            "strategic memory synthesis",
+            "latest entity graph",
+            "governance charter",
+            "what was on my follow up and open loops",
+            "what as on my follow up and open loops",
+        )
+    )
+
+
+def _derive_daily_governance_priority(summary: str) -> str:
+    lowered = summary.lower()
+    if any(marker in lowered for marker in ("deadline", "due", "eod", "urgent", "critical", "approval", "awaiting")):
+        return "HIGH"
+    return "MEDIUM"
+
+
+def _relative_source_path(value: object) -> str:
+    if not isinstance(value, str) or not value:
+        return ""
+    marker = "/docker/obsidian-vault/"
+    if marker in value:
+        return value.split(marker, 1)[1]
+    return value
 
 
 def render_open_loop_intelligence(report: OpenLoopIntelligence) -> str:
