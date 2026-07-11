@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 import json
@@ -95,6 +95,7 @@ class OpenLoopIntelligence:
     missing_owners: list[OpenLoopItem]
     recommended_actions: list[str]
     executive_summary: list[str]
+    all_items: list[OpenLoopItem] = field(default_factory=list)
 
 
 def build_open_loop_intelligence(vault_root: Path | None = None) -> OpenLoopIntelligence:
@@ -127,6 +128,7 @@ def build_open_loop_intelligence(vault_root: Path | None = None) -> OpenLoopInte
         missing_owners=missing_owners,
         recommended_actions=recommended_actions,
         executive_summary=executive_summary,
+        all_items=items,
     )
 
 

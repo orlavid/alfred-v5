@@ -63,6 +63,65 @@ export type DashboardPayload = {
     }>;
     summary: string[];
   };
+  followups: {
+    counts: {
+      total: number;
+      overdue: number;
+      due_today: number;
+      due_this_week: number;
+      waiting_on_others: number;
+      high_priority: number;
+    };
+    items: Array<{
+      work_item_id: string;
+      title: string;
+      summary: string;
+      source_path: string;
+      status: string;
+      priority: string;
+      owner: string;
+      due_date: string;
+      source_date: string;
+      recency: string;
+      buckets: string[];
+      classification: string;
+      confidence: string;
+      evidence_paths: string[];
+      provenance: Record<string, string[]>;
+    }>;
+    summary: string[];
+    recommendations: string[];
+  };
+  open_loops: {
+    counts: {
+      total: number;
+      critical: number;
+      waiting_for: number;
+      stalled_projects: number;
+      missing_decisions: number;
+      missing_owners: number;
+    };
+    items: Array<{
+      work_item_id: string;
+      title: string;
+      summary: string;
+      source_path: string;
+      status: string;
+      priority: string;
+      owner: string;
+      due_date: string;
+      source_date: string;
+      recency: string;
+      buckets: string[];
+      classification: string;
+      confidence: string;
+      related_entities: string[];
+      evidence_paths: string[];
+      provenance: Record<string, string[]>;
+    }>;
+    summary: string[];
+    recommended_actions: string[];
+  };
   meetings: {
     subject: string;
     executive_summary: string[];

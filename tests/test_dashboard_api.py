@@ -19,6 +19,8 @@ def test_get_dashboard_home_returns_expected_shape():
     assert "generated_from" in payload
     assert "objectives" in payload
     assert "projects" in payload
+    assert "followups" in payload
+    assert "open_loops" in payload
     assert "meetings" in payload
     assert "board" in payload
     assert "ask_alfred" in payload
@@ -31,6 +33,8 @@ def test_get_dashboard_home_returns_expected_shape():
     assert isinstance(payload["operating_picture"], dict)
     assert isinstance(payload["navigation_priorities"], list)
     assert isinstance(payload["interruption_policy"], dict)
+    assert isinstance(payload["followups"]["items"], list)
+    assert isinstance(payload["open_loops"]["items"], list)
     assert payload["generated_from"]["runtime_model"] == "ExecutiveState"
     assert "Executive Reasoning" in payload["generated_from"]["sources"]
     assert payload["board"]["members"]
@@ -79,6 +83,8 @@ def test_build_dashboard_api_generates_json_output():
     assert "navigation_priorities" in payload
     assert "interruption_policy" in payload
     assert "generated_from" in payload
+    assert "followups" in payload
+    assert "open_loops" in payload
     assert "board" in payload
     assert "admin_configuration" in payload
 
@@ -158,3 +164,59 @@ def test_objective_management_payload_includes_summary_and_detail_fields(tmp_pat
     assert "smart_assessment" in detail
     assert detail["evidence_sources"]
     assert detail["provenance"]["objective"]
+
+
+def test_dashboard_payload_exposes_full_followup_and_open_loop_collections(tmp_path, monkeypatch):
+    from src.openloops import open_loop_intelligence as open_loop_module
+
+    vault = tmp_path / "vault"
+    (vault / "09 Governance" / "Objectives").mkdir(parents=True)
+    (vault / "08 Follow Ups").mkdir(parents=True)
+    (vault / "01 Daily Logs").mkdir(parents=True)
+
+    (vault / "09 Governance" / "Objectives" / "2026 Executive Objectives.md").write_text(
+        "# 2026 Executive Objectives\n\n"
+        "## Objectives\n\n"
+        "- Operational Governance\n"
+    )
+    (vault / "08 Follow Ups" / "Follow Up Actions.md").write_text(
+        "# Follow Up Actions\n\n"
+        "## Follow-Up Actions\n\n"
+        "- Complete procurement KPI update by 2026-07-13\n"
+        "- Await Finance confirmation on invoice routing\n"
+    )
+    (vault / "01 Daily Logs" / "2026-07-10.md").write_text(
+        "# 2026-07-10\n\n"
+        "Follow-up: Complete procurement KPI update by 2026-07-13.\n"
+        "Open loop: Await Finance confirmation on invoice routing.\n"
+    )
+    index = tmp_path / "daily_governance_index.json"
+    index.write_text(
+        """{
+  "records": [
+    {
+      "id": "DG-20260710-OPEN_LOOP-1",
+      "date": "2026-07-10",
+      "type": "open_loop",
+      "text": "Await Finance confirmation on invoice routing.",
+      "status": "open",
+      "source": "/docker/obsidian-vault/01 Daily Logs/2026-07-10.md"
+    }
+  ]
+}"""
+    )
+    monkeypatch.setattr(open_loop_module, "DAILY_GOVERNANCE_INDEX", index)
+
+    payload = get_dashboard_home(tmp_path / "evidence", vault_root=vault)
+
+    assert payload["followups"]["counts"]["total"] >= 1
+    assert len(payload["followups"]["items"]) >= 1
+    assert payload["followups"]["items"][0]["title"]
+    assert payload["followups"]["items"][0]["source_path"]
+    assert payload["followups"]["items"][0]["evidence_paths"]
+    assert payload["open_loops"]["counts"]["total"] == len(payload["open_loops"]["items"])
+    if payload["open_loops"]["items"]:
+        assert payload["open_loops"]["items"][0]["title"]
+        assert payload["open_loops"]["items"][0]["source_path"]
+        assert payload["open_loops"]["items"][0]["evidence_paths"]
+    assert len(payload["followups"]["items"]) >= len(payload["daily_brief"]["followups_due_today"])

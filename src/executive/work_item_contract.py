@@ -109,6 +109,7 @@ def project_followups_from_work_items(
         high_priority=high_priority,
         recommendations=list(source.recommendations),
         executive_summary=list(source.executive_summary),
+        all_items=[_work_item_to_followup(item) for item in followup_items],
     )
 
 
@@ -133,6 +134,7 @@ def project_open_loops_from_work_items(
         missing_owners=missing_owners,
         recommended_actions=list(source.recommended_actions),
         executive_summary=list(source.executive_summary),
+        all_items=[_work_item_to_open_loop(item) for item in loop_items if item.work_item_type == "open_loop"],
     )
 
 

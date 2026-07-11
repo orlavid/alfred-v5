@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -22,6 +23,7 @@ from src.objectives.objective_intelligence import (
 )
 from src.operations.doctor import build_operational_readiness
 from src.operations.environment_discovery import build_doctor_summary, build_environment_inventory
+from executive.knowledge.resolver import normalise_name
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EVIDENCE_ROOT = ROOT / "evidence" / "alfred-inventory"
@@ -64,6 +66,8 @@ def get_dashboard_home(
         "interruption_policy": _build_interruption_policy(state, burning_fires, next_best_action),
         "objectives": _build_objectives_page(state),
         "projects": _build_projects_page(state),
+        "followups": _build_followups_page(state),
+        "open_loops": _build_open_loops_page(state),
         "meetings": _build_meetings_page(read_model, presentation),
         "board": _build_board_page(state),
         "ask_alfred": _build_ask_alfred_page(state),
@@ -765,6 +769,62 @@ def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
     }
 
 
+def _build_followups_page(state: ExecutiveState) -> dict[str, Any]:
+    work_item_lookup = {
+        (item.evidence_paths[0] if item.evidence_paths else "", normalise_name(item.title)): item
+        for item in state.work_items
+        if item.work_item_type == "follow_up"
+    }
+    items = [
+        _serialize_followup_item(item, work_item_lookup.get((item.path, normalise_name(item.summary))))
+        for item in sorted(
+            state.followups.all_items,
+            key=_followup_item_sort_key,
+        )
+    ]
+    return {
+        "counts": {
+            "total": len(items),
+            "overdue": len(state.followups.overdue),
+            "due_today": len(state.followups.due_today),
+            "due_this_week": len(state.followups.due_this_week),
+            "waiting_on_others": len(state.followups.waiting_on_others),
+            "high_priority": len(state.followups.high_priority),
+        },
+        "items": items,
+        "summary": list(state.followups.executive_summary),
+        "recommendations": list(state.followups.recommendations),
+    }
+
+
+def _build_open_loops_page(state: ExecutiveState) -> dict[str, Any]:
+    work_item_lookup = {
+        (item.evidence_paths[0] if item.evidence_paths else "", normalise_name(str(item.extensions.get("summary", item.title)))): item
+        for item in state.work_items
+        if item.work_item_type in {"open_loop", "decision_review"}
+    }
+    items = [
+        _serialize_open_loop_item(item, work_item_lookup.get((item.path, normalise_name(item.summary))))
+        for item in sorted(
+            state.open_loops.all_items,
+            key=_open_loop_item_sort_key,
+        )
+    ]
+    return {
+        "counts": {
+            "total": len(items),
+            "critical": len(state.open_loops.critical_open_loops),
+            "waiting_for": len(state.open_loops.waiting_for),
+            "stalled_projects": len(state.open_loops.stalled_projects),
+            "missing_decisions": len(state.open_loops.missing_decisions),
+            "missing_owners": len(state.open_loops.missing_owners),
+        },
+        "items": items,
+        "summary": list(state.open_loops.executive_summary),
+        "recommended_actions": list(state.open_loops.recommended_actions),
+    }
+
+
 def _build_meetings_page(read_model, presentation=None) -> dict[str, Any]:
     if not read_model.meetings:
         return {
@@ -1029,6 +1089,199 @@ def _dedupe_strings(values: list[str]) -> list[str]:
         seen.add(value)
         deduped.append(value)
     return deduped
+
+
+def _serialize_followup_item(item: Any, work_item: Any | None) -> dict[str, Any]:
+    source_date = _source_date_from_path(item.path)
+    buckets = tuple(work_item.extensions.get("buckets", ())) if work_item is not None else ()
+    return {
+        "work_item_id": work_item.work_item_id if work_item is not None else f"follow_up::{item.path}::{normalise_name(item.summary)}",
+        "title": item.summary,
+        "source_path": item.path,
+        "status": (work_item.status if work_item is not None else None) or "Not defined",
+        "priority": item.priority or "Not defined",
+        "owner": (work_item.owner if work_item is not None else None) or "Not defined",
+        "due_date": item.due_date or "Not defined",
+        "source_date": source_date or "No evidence found",
+        "recency": source_date or "No evidence found",
+        "buckets": [_format_bucket(bucket) for bucket in buckets],
+        "classification": _followup_item_classification(item, work_item),
+        "confidence": work_item.confidence if work_item is not None else ("MEDIUM" if item.due_date or item.priority == "HIGH" else "LOW"),
+        "summary": item.summary,
+        "evidence_paths": [item.path],
+        "provenance": {key: list(value) for key, value in (work_item.provenance.items() if work_item is not None else {"evidence_paths": (item.path,)}.items())},
+    }
+
+
+def _serialize_open_loop_item(item: Any, work_item: Any | None) -> dict[str, Any]:
+    source_date = _source_date_from_path(item.path)
+    buckets = tuple(work_item.extensions.get("buckets", ())) if work_item is not None else ()
+    return {
+        "work_item_id": work_item.work_item_id if work_item is not None else f"open_loop::{item.path}::{normalise_name(item.summary)}",
+        "title": item.summary,
+        "source_path": item.path,
+        "status": item.status or "Not defined",
+        "priority": item.priority or "Not defined",
+        "owner": item.owner or "Not defined",
+        "due_date": "Not defined",
+        "source_date": source_date or "No evidence found",
+        "recency": source_date or "No evidence found",
+        "buckets": [_format_bucket(bucket) for bucket in buckets],
+        "classification": _open_loop_item_classification(item, work_item),
+        "confidence": work_item.confidence if work_item is not None else ("HIGH" if item.priority in {"CRITICAL", "HIGH"} else "MEDIUM"),
+        "summary": item.summary,
+        "related_entities": list(work_item.related_entities) if work_item is not None else ([item.title] if item.title else []),
+        "evidence_paths": [item.path],
+        "provenance": {key: list(value) for key, value in (work_item.provenance.items() if work_item is not None else {"evidence_paths": (item.path,)}.items())},
+    }
+
+
+def _followup_item_sort_key(item: Any) -> tuple[int, str, str]:
+    lowered = item.summary.lower()
+    if item.due_date and item.due_date < date.today().isoformat():
+        rank = 0
+    elif item.due_date == date.today().isoformat():
+        rank = 1
+    elif item.priority == "HIGH":
+        rank = 2
+    elif item.due_date:
+        rank = 3
+    elif item.waiting_on_others:
+        rank = 4
+    else:
+        rank = 5
+    recency = _source_date_from_path(item.path) or ""
+    return (rank, _descending_date_key(recency), item.summary.lower())
+
+
+def _open_loop_item_sort_key(item: Any) -> tuple[int, str, str]:
+    lowered = item.summary.lower()
+    if item.priority in {"CRITICAL", "HIGH"}:
+        rank = 0
+    elif any(marker in lowered for marker in ("awaiting", "waiting", "blocked", "pending")):
+        rank = 1
+    elif item.owner in {"Unknown", "Not mentioned", "None"}:
+        rank = 2
+    else:
+        rank = 3
+    recency = _source_date_from_path(item.path) or ""
+    return (rank, _descending_date_key(recency), item.summary.lower())
+
+
+def _followup_sort_key(item: Any) -> tuple[int, str, str]:
+    buckets = set(item.extensions.get("buckets", ()))
+    if "overdue" in buckets:
+        rank = 0
+    elif "due_today" in buckets:
+        rank = 1
+    elif "high_priority" in buckets:
+        rank = 2
+    elif "due_this_week" in buckets:
+        rank = 3
+    elif "waiting_on_others" in buckets:
+        rank = 4
+    else:
+        rank = 5
+    recency = _work_item_source_date(item) or ""
+    return (rank, _descending_date_key(recency), item.title.lower())
+
+
+def _open_loop_sort_key(item: Any) -> tuple[int, str, str]:
+    buckets = set(item.extensions.get("buckets", ()))
+    if "critical_open_loops" in buckets:
+        rank = 0
+    elif "waiting_for" in buckets:
+        rank = 1
+    elif "missing_owners" in buckets:
+        rank = 2
+    elif "stalled_projects" in buckets:
+        rank = 3
+    else:
+        rank = 4
+    recency = _work_item_source_date(item) or ""
+    return (rank, _descending_date_key(recency), item.title.lower())
+
+
+def _work_item_source_date(item: Any) -> str | None:
+    if item.last_activity:
+        return item.last_activity
+    if item.created:
+        return item.created
+    for path in item.evidence_paths:
+        matched = re.search(r"(20\d{2}-\d{2}-\d{2})", path)
+        if matched:
+            return matched.group(1)
+    return None
+
+
+def _source_date_from_path(path: str) -> str | None:
+    matched = re.search(r"(20\d{2}-\d{2}-\d{2})", path)
+    if matched:
+        return matched.group(1)
+    return None
+
+
+def _descending_date_key(value: str) -> str:
+    return "".join(chr(255 - ord(char)) for char in value) if value else chr(255) * 10
+
+
+def _format_bucket(bucket: str) -> str:
+    return bucket.replace("_", " ").title()
+
+
+def _followup_classification(item: Any) -> str:
+    buckets = set(item.extensions.get("buckets", ()))
+    if "overdue" in buckets:
+        return "Overdue"
+    if "due_today" in buckets:
+        return "Due Today"
+    if "high_priority" in buckets:
+        return "High Priority"
+    if "due_this_week" in buckets:
+        return "Due This Week"
+    if "waiting_on_others" in buckets:
+        return "Waiting On Others"
+    return "Current"
+
+
+def _open_loop_classification(item: Any) -> str:
+    buckets = set(item.extensions.get("buckets", ()))
+    if "critical_open_loops" in buckets:
+        return "Critical"
+    if "waiting_for" in buckets:
+        return "Waiting For"
+    if "missing_owners" in buckets:
+        return "Missing Owner"
+    if "stalled_projects" in buckets:
+        return "Stalled Project"
+    return "Current"
+
+
+def _followup_item_classification(item: Any, work_item: Any | None) -> str:
+    if work_item is not None:
+        return _followup_classification(work_item)
+    if item.due_date and item.due_date < date.today().isoformat():
+        return "Overdue"
+    if item.due_date == date.today().isoformat():
+        return "Due Today"
+    if item.priority == "HIGH":
+        return "High Priority"
+    if item.waiting_on_others:
+        return "Waiting On Others"
+    return "Current"
+
+
+def _open_loop_item_classification(item: Any, work_item: Any | None) -> str:
+    if work_item is not None:
+        return _open_loop_classification(work_item)
+    lowered = item.summary.lower()
+    if item.priority in {"CRITICAL", "HIGH"}:
+        return "Critical"
+    if any(marker in lowered for marker in ("awaiting", "waiting", "blocked", "pending")):
+        return "Waiting For"
+    if item.owner in {"Unknown", "Not mentioned", "None"}:
+        return "Missing Owner"
+    return "Current"
 
 
 def _dedupe_dicts(values: list[dict[str, str]], *, key_fields: tuple[str, ...]) -> list[dict[str, str]]:

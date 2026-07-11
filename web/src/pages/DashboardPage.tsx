@@ -10,8 +10,8 @@ type DashboardPageProps = {
 const PATH_MAP: Record<string, string> = {
   Priorities: "/",
   Meetings: "/meetings",
-  "Follow-ups": "/daily-brief",
-  "Open Loops": "/daily-brief",
+  "Follow-ups": "/follow-ups",
+  "Open Loops": "/open-loops",
   Decisions: "/daily-brief",
 };
 

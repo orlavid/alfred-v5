@@ -24,6 +24,18 @@ const payload: DashboardPayload = {
   interruption_policy: { level: "filter", rule: "Only interrupt for priority issues." },
   objectives: { health: { total: 1, supported: 1, at_risk: 0, watch: 0 }, items: [], summary: [] },
   projects: { health: { total: 1, supported: 1, at_risk: 0, watch: 0 }, items: [], summary: [] },
+  followups: {
+    counts: { total: 0, overdue: 0, due_today: 0, due_this_week: 0, waiting_on_others: 0, high_priority: 0 },
+    items: [],
+    summary: [],
+    recommendations: [],
+  },
+  open_loops: {
+    counts: { total: 0, critical: 0, waiting_for: 0, stalled_projects: 0, missing_decisions: 0, missing_owners: 0 },
+    items: [],
+    summary: [],
+    recommended_actions: [],
+  },
   meetings: {
     subject: "Barclays",
     executive_summary: [],

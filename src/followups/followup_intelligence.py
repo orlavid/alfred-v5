@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 import json
@@ -100,6 +100,7 @@ class FollowupIntelligence:
     high_priority: list[FollowupItem]
     recommendations: list[str]
     executive_summary: list[str]
+    all_items: list[FollowupItem] = field(default_factory=list)
 
 
 def build_followup_intelligence(vault_root: Path | None = None, today: date | None = None) -> FollowupIntelligence:
@@ -131,6 +132,7 @@ def build_followup_intelligence(vault_root: Path | None = None, today: date | No
     return FollowupIntelligence(
         generated_at=datetime.now(UTC).isoformat(),
         followup_count=len(items),
+        all_items=items,
         overdue=overdue,
         due_today=due_today,
         due_this_week=due_this_week,
