@@ -69,6 +69,8 @@ def test_compatibility_projections_preserve_existing_followup_and_open_loop_surf
     assert len(followups.high_priority) == len(adapter.get_followups().high_priority)
     assert len(open_loops.critical_open_loops) == len(adapter.get_open_loops().critical_open_loops)
     assert len(open_loops.missing_decisions) == len(adapter.get_open_loops().missing_decisions)
+    assert len(followups.all_items) == adapter.get_followups().followup_count
+    assert len(open_loops.all_items) == adapter.get_open_loops().open_loop_count
 
 
 def test_work_items_support_existing_action_consumers(tmp_path: Path):

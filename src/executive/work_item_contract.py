@@ -101,7 +101,7 @@ def project_followups_from_work_items(
 
     return FollowupIntelligence(
         generated_at=source.generated_at,
-        followup_count=len(followup_items),
+        followup_count=source.followup_count,
         overdue=overdue,
         due_today=due_today,
         due_this_week=due_this_week,
@@ -109,7 +109,7 @@ def project_followups_from_work_items(
         high_priority=high_priority,
         recommendations=list(source.recommendations),
         executive_summary=list(source.executive_summary),
-        all_items=[_work_item_to_followup(item) for item in followup_items],
+        all_items=list(source.all_items) if source.all_items else [_work_item_to_followup(item) for item in followup_items],
     )
 
 
@@ -126,7 +126,7 @@ def project_open_loops_from_work_items(
 
     return OpenLoopIntelligence(
         generated_at=source.generated_at,
-        open_loop_count=len([item for item in work_items if item.work_item_type == "open_loop"]),
+        open_loop_count=source.open_loop_count,
         critical_open_loops=critical,
         waiting_for=waiting_for,
         stalled_projects=stalled,
@@ -134,7 +134,7 @@ def project_open_loops_from_work_items(
         missing_owners=missing_owners,
         recommended_actions=list(source.recommended_actions),
         executive_summary=list(source.executive_summary),
-        all_items=[_work_item_to_open_loop(item) for item in loop_items if item.work_item_type == "open_loop"],
+        all_items=list(source.all_items) if source.all_items else [_work_item_to_open_loop(item) for item in loop_items if item.work_item_type == "open_loop"],
     )
 
 
