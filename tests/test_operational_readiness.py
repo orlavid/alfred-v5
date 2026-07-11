@@ -59,6 +59,8 @@ def test_build_operational_readiness_reports_freshness_and_services(tmp_path):
         "LIVE_KNOWLEDGE_CERTIFICATION.md",
         "Knowledge_Certification.md",
         "Knowledge_Certification.json",
+        "Semantic_Equivalence_Validation.md",
+        "Semantic_Equivalence_Validation.json",
     ):
         (output / name).write_text("ok")
 
@@ -124,6 +126,8 @@ python:
         "LIVE_KNOWLEDGE_CERTIFICATION.md",
         "Knowledge_Certification.md",
         "Knowledge_Certification.json",
+        "Semantic_Equivalence_Validation.md",
+        "Semantic_Equivalence_Validation.json",
         "Environment_Inventory.json",
         "Environment_Inventory.md",
     ):

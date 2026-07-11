@@ -74,6 +74,52 @@ def test_domain_providers_extract_independently(tmp_path: Path):
     assert all(entity.type == "open_loop" for entity in open_loops)
 
 
+def test_objective_provider_matches_legacy_selection_and_excludes_monitoring_notes(tmp_path: Path):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+    (vault / "09 Governance" / "Watchlists").mkdir(parents=True)
+    (vault / "07 AI Memory" / "Strategic Synthesis").mkdir(parents=True)
+    (vault / "09 Governance" / "Objectives").mkdir(parents=True)
+    (vault / "09 Governance" / "Objectives" / "2026 Executive Objectives.md").write_text(
+        "# 2026 Executive Objectives\n\n"
+        "## Objectives\n\n"
+        "1. Operational Governance\n"
+        "2. Data and AI Strategies\n"
+        "3. Risk Management\n"
+        "4. Employee Development\n"
+        "5. Cost Management\n"
+        "6. Performance and Value Realisation\n"
+    )
+
+    (vault / "09 Governance" / "Watchlists" / "2026-05-29 Watchlist - strategic_drift.md").write_text(
+        "# 2026-05-29 Watchlist - strategic_drift\nObjective: monitor a potential drift signal.\n"
+    )
+    (vault / "09 Governance" / "Objectives" / "2026-05-28 Open Loop - platform_resilience.md").write_text(
+        "# 2026-05-28 Open Loop - platform_resilience\nObjective: resolve the resilience blocker.\n"
+    )
+    (vault / "07 AI Memory" / "Strategic Synthesis" / "Strategic Memory Synthesis.md").write_text(
+        "# Strategic Memory Synthesis\nObjective: synthesise historic notes.\n"
+    )
+    notes = load_obsidian_notes(vault)
+    current_titles = sorted(note.title for note in notes if note.kind == "objective")
+    new_titles = sorted(entity.title for entity in extract_provider_entities(vault, domains=("objectives",)))
+    legacy_titles = [
+        "Cost Management",
+        "Data and AI Strategies",
+        "Employee Development",
+        "Objective Alpha",
+        "Operational Governance",
+        "Performance and Value Realisation",
+        "Risk Management",
+    ]
+
+    assert "2026-05-29 Watchlist - strategic_drift" in current_titles
+    assert "Strategic Memory Synthesis" in current_titles
+    assert "2026-05-28 Open Loop - platform_resilience" in current_titles
+    assert "2026 Executive Objectives" in current_titles
+    assert current_titles != legacy_titles
+    assert new_titles == legacy_titles
+
+
 def _build_obsidian_vault(vault: Path) -> Path:
     (vault / "01 Daily Logs").mkdir(parents=True)
     (vault / "02 People").mkdir(parents=True)

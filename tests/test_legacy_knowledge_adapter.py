@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from src.api.dashboard_api import get_dashboard_home
 from src.alfred.ask import ask_alfred
 from src.executive.executive_state import build_executive_state
 from src.knowledge.providers.legacy_adapter import build_legacy_knowledge_adapter
@@ -168,6 +169,50 @@ python:
     assert response.executive_answer[0] != "No evidence found."
     assert response.recommended_next_actions
     assert response.recommended_next_actions[0] != "No evidence found."
+
+
+def test_legacy_objective_path_excludes_monitoring_and_ai_artefacts(tmp_path: Path):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+    (vault / "09 Governance" / "Watchlists").mkdir(parents=True)
+    (vault / "07 AI Memory" / "Strategic Synthesis").mkdir(parents=True)
+    (vault / "09 Governance" / "Objectives").mkdir(parents=True)
+    (vault / "09 Governance" / "Objectives" / "2026 Executive Objectives.md").write_text(
+        "# 2026 Executive Objectives\n\n"
+        "## Objectives\n\n"
+        "1. Operational Governance\n"
+        "2. Data and AI Strategies\n"
+        "3. Risk Management\n"
+        "4. Employee Development\n"
+        "5. Cost Management\n"
+        "6. Performance and Value Realisation\n"
+    )
+
+    (vault / "09 Governance" / "Watchlists" / "2026-05-29 Watchlist - strategic_drift.md").write_text(
+        "# 2026-05-29 Watchlist - strategic_drift\nObjective: monitor strategic drift.\n"
+    )
+    (vault / "09 Governance" / "Objectives" / "2026-05-28 Open Loop - platform_resilience.md").write_text(
+        "# 2026-05-28 Open Loop - platform_resilience\nObjective: unblock platform resilience work.\n"
+    )
+    (vault / "07 AI Memory" / "Strategic Synthesis" / "Strategic Memory Synthesis.md").write_text(
+        "# Strategic Memory Synthesis\nObjective: summarise the historical record.\n"
+    )
+    adapter = build_legacy_knowledge_adapter(Path("evidence/alfred-inventory"), vault_root=vault)
+    state = build_executive_state(Path("evidence/alfred-inventory"), vault_root=vault)
+    dashboard = get_dashboard_home(Path("evidence/alfred-inventory"), vault_root=vault)
+    objective_titles = [item.title for item in adapter.get_objectives()]
+    state_titles = [item.title for item in state.objectives]
+    dashboard_titles = [item["title"] for item in dashboard["objectives"]["items"]]
+    assert objective_titles == [
+        "Cost Management",
+        "Data and AI Strategies",
+        "Employee Development",
+        "Objective Alpha",
+        "Operational Governance",
+        "Performance and Value Realisation",
+        "Risk Management",
+    ]
+    assert state_titles == objective_titles
+    assert dashboard_titles == objective_titles
 
 
 def _build_obsidian_vault(vault: Path) -> Path:
