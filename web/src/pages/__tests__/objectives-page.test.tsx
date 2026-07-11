@@ -123,6 +123,18 @@ const payload: DashboardPayload = {
             route: "/follow-ups",
           },
         ],
+        open_loops: [
+          {
+            work_item_id: "open_loop::1",
+            title: "Resolve governance approval dependency.",
+            type: "open_loop",
+            status: "OPEN",
+            priority: "HIGH",
+            path: "07 Open Loops/Open Loop Register.md",
+            reason: "Open loop; status OPEN; priority HIGH.",
+            route: "/open-loops",
+          },
+        ],
         relevant_meetings: [],
         related_people: [],
         evidence_sources: [
@@ -135,6 +147,24 @@ const payload: DashboardPayload = {
         recent_changes: ["Last meaningful activity recorded on 2026-07-01."],
         recommended_next_action: "Add an explicit review cadence for this objective.",
         missing_information: ["Accountable owner is not defined."],
+        contributors: [],
+        priority: "Not defined",
+        progress_percentage: null,
+        success_measures: [],
+        milestones: [],
+        resources: [],
+        dependencies: [],
+        management_notes: [],
+        audit_history: [],
+        smart_enrichment_proposal: null,
+        relationship_options: {
+          supporting_projects: [],
+          linked_decisions: [],
+          follow_ups: [],
+          open_loops: [],
+          relevant_meetings: [],
+          related_people: [],
+        },
         smart_assessment: {
           specific: {
             current_assessment: "Evidence-backed",
@@ -265,7 +295,7 @@ test("objective detail route renders SMART assessment and supporting content", (
   render(
     <MemoryRouter initialEntries={["/objectives/obj-123"]}>
       <Routes>
-        <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={payload} />} />
+        <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={payload} onRefresh={async () => undefined} />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -283,7 +313,7 @@ test("clicking an objective card opens the detail workspace", () => {
     <MemoryRouter initialEntries={["/objectives"]}>
       <Routes>
         <Route path="/objectives" element={<ObjectivesPage data={payload} />} />
-        <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={payload} />} />
+        <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={payload} onRefresh={async () => undefined} />} />
       </Routes>
     </MemoryRouter>,
   );

@@ -1,7 +1,7 @@
 import type { DashboardPayload } from "@/types";
 
 export async function loadDashboard(): Promise<DashboardPayload> {
-  const response = await fetch("/api/dashboard-home.json");
+  const response = await fetch("/api/dashboard-home.json", { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`Failed to load dashboard data: ${response.status}`);
   }

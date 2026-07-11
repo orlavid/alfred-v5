@@ -12,5 +12,5 @@ PORT="$(awk '/^  ui_port:/ {print $2; exit}' "$CONFIG_FILE" 2>/dev/null || echo 
 [[ -x "$VENV_PYTHON" ]] || { echo "FAIL: missing runtime python: $VENV_PYTHON" >&2; exit 1; }
 [[ -f "$APP_DIR/dist/index.html" ]] || { echo "FAIL: missing built UI at $APP_DIR/dist/index.html" >&2; exit 1; }
 
-cd "$APP_DIR/dist"
-exec "$VENV_PYTHON" -m http.server "$PORT" --bind "$HOST"
+cd "$APP_DIR"
+exec "$VENV_PYTHON" -m src.runtime.app_server

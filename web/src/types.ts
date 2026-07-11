@@ -231,6 +231,8 @@ export type DashboardPayload = {
 };
 
 export type LinkedObjectiveItem = {
+  id?: string;
+  work_item_id?: string;
   title: string;
   path: string;
   reason: string;
@@ -253,11 +255,14 @@ export type ObjectiveDetail = {
   executive_definition: string;
   owner: string;
   delegates: string[];
+  contributors: string[];
   current_status: string;
   health: string;
   rag_rating: string;
   progress_assessment: string;
+  progress_percentage: number | null;
   evidence_confidence: string;
+  priority: string;
   start_date: string;
   target_date: string;
   last_review_date: string;
@@ -287,6 +292,16 @@ export type ObjectiveDetail = {
     reason: string;
     route: string;
   }>;
+  open_loops: Array<{
+    work_item_id: string;
+    title: string;
+    type: string;
+    status: string;
+    priority: string;
+    path: string;
+    reason: string;
+    route: string;
+  }>;
   relevant_meetings: LinkedObjectiveItem[];
   related_people: LinkedObjectiveItem[];
   evidence_sources: Array<{
@@ -294,6 +309,45 @@ export type ObjectiveDetail = {
     path: string;
     reason: string;
   }>;
+  success_measures: string[];
+  milestones: Array<{
+    milestone_id: string;
+    title: string;
+    due_date: string;
+    status: string;
+    completed_at: string | null;
+  }>;
+  resources: string[];
+  dependencies: string[];
+  management_notes: Array<{
+    note_id: string;
+    text: string;
+    timestamp: string;
+    source: string;
+    reason: string;
+  }>;
+  audit_history: Array<{
+    audit_id: string;
+    timestamp: string;
+    action: string;
+    field: string;
+    previous_value: unknown;
+    new_value: unknown;
+    source: string;
+    reason: string;
+  }>;
+  smart_enrichment_proposal: {
+    proposal_id: string;
+    created_at: string;
+    status: string;
+    source: string;
+    reason: string;
+    summary_lines: string[];
+    field_proposals: Record<string, unknown>;
+    evidence_paths: string[];
+    accepted_fields?: string[];
+  } | null;
+  relationship_options: Record<string, LinkedObjectiveItem[]>;
   recent_changes: string[];
   recommended_next_action: string;
   missing_information: string[];

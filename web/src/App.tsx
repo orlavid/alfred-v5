@@ -19,20 +19,31 @@ import { ExecutiveSummaryPage } from "@/pages/ExecutiveSummaryPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 import { loadDashboard } from "@/lib/loadDashboard";
 import type { DashboardPayload } from "@/types";
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 export function App() {
   const [data, setData] = useState<DashboardPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [askQuery, setAskQuery] = useState("What should I do today?");
 
+  const refreshDashboard = async () => {
+    const payload = await loadDashboard();
+    startTransition(() => {
+      setData(payload);
+      setAskQuery(payload.ask_alfred.questions[0] ?? "What should I do today?");
+      setError(null);
+    });
+  };
+
   useEffect(() => {
     let cancelled = false;
     loadDashboard()
       .then((payload) => {
         if (!cancelled) {
-          setData(payload);
-          setAskQuery(payload.ask_alfred.questions[0] ?? "What should I do today?");
+          startTransition(() => {
+            setData(payload);
+            setAskQuery(payload.ask_alfred.questions[0] ?? "What should I do today?");
+          });
         }
       })
       .catch((reason: Error) => {
@@ -55,7 +66,7 @@ export function App() {
           <Route path="/daily-brief" element={<DailyBriefPage data={data} />} />
           <Route path="/executive-summary" element={<ExecutiveSummaryPage data={data} />} />
           <Route path="/objectives" element={<ObjectivesPage data={data} />} />
-          <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={data} />} />
+          <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={data} onRefresh={refreshDashboard} />} />
           <Route path="/projects" element={<ProjectsPage data={data} />} />
           <Route
             path="/programmes"
