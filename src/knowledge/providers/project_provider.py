@@ -49,11 +49,19 @@ PROJECT_SIGNAL_RE = re.compile(
     r"(?is)\b("
     r"project|programme|program|initiative|implementation|migration|rollout|workstream|"
     r"vendor management|procurement|tprm|due diligence|contract|remediation|target|milestone|"
-    r"delivery|phase\s+\d+|operating model|review|approval|action"
+    r"delivery|phase\s+\d+|operating model|review|approval|action|objective|scope|"
+    r"transition|onboarding|business case"
     r")\b"
 )
 PROJECT_TAG_RE = re.compile(
-    r"(?im)tags:\s*\[([^\]]+)\]|(?<!\w)#(programme|project-[a-z0-9_-]+|vendor-governance|procurement-support|tprm)\b"
+    r"(?im)^tags:\s*\[[^\]]*\b(programme|project-[a-z0-9_-]+|vendor-governance|procurement-support|tprm)\b[^\]]*\]"
+    r"|(?<!\w)#(programme|project-[a-z0-9_-]+|vendor-governance|procurement-support|tprm)\b"
+)
+PROJECT_STRUCTURE_RE = re.compile(
+    r"(?im)^##\s+.*\b("
+    r"context|objective|scope|service model|delivery options|follow-up tasks|meeting notes|"
+    r"next steps|risk|actions underway|timeline|dependencies"
+    r")\b"
 )
 
 
@@ -122,10 +130,12 @@ def _is_legacy_project_note(note: VaultNote, references: set[str]) -> bool:
     if lowered_title in {"finance", "legal", "itinerary", "data types"}:
         return False
 
-    explicit_reference = path in references
     explicit_marker = bool(PROJECT_TAG_RE.search(note.text))
     project_signal = bool(PROJECT_SIGNAL_RE.search(note.text))
     title_signal = bool(PROJECT_SIGNAL_RE.search(title))
+    structured_project_note = bool(PROJECT_STRUCTURE_RE.search(note.text))
+    tags = {tag.lower() for tag in _extract_tags(note.text)}
+    lowered_text = note.text.lower()
     links = _extract_links(note.text)
     executive_path_links = any(
         link.startswith(("04 Companies/", "04 Decisions/", "02 People/", "05 Meetings/", "01 Daily Logs/", "09 Governance/Objectives/", "09 Objectives/"))
@@ -140,10 +150,16 @@ def _is_legacy_project_note(note: VaultNote, references: set[str]) -> bool:
         marker in note.text.lower()
         for marker in ("status:", "owner:", "accountable:", "deadline:", "target date:", "next review:")
     )
+    if ("insurance-tech" in tags or "insurance-tech" in lowered_text) and not (
+        title_signal or structured_project_note or explicit_marker or explicit_metadata
+    ):
+        return False
 
     return (
-        explicit_reference
-        or explicit_marker
-        or ((project_signal or title_signal) and linked_to_executive_domains)
+        explicit_marker
+        or title_signal
+        or project_signal
+        or structured_project_note
         or (title_signal and explicit_metadata)
+        or (linked_to_executive_domains and (title_signal or project_signal or structured_project_note))
     )

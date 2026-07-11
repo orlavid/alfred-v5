@@ -103,6 +103,45 @@ def test_project_provider_excludes_monitoring_and_generated_artefacts(tmp_path: 
     assert "2026" not in titles
 
 
+def test_project_provider_matches_live_legacy_project_shape(tmp_path: Path):
+    vault = _build_obsidian_vault(tmp_path / "vault")
+    project_dir = vault / "03 Projects"
+
+    (project_dir / "24x7.md").write_text(
+        "## Minutes - 24x7 Major Incident Coverage\n\n"
+        "## Context / Objective\n\n"
+        "- COO priority to implement 24x7 coverage for major incidents.\n\n"
+        "## Scope Definition\n\n"
+        "- Network\n"
+    )
+    (project_dir / "Barclays.md").write_text(
+        "[[Phillip @FML/Talend and Mentor/Megan|Megan]]\n\n"
+        "Will run project once ERP is finished.\n"
+    )
+    (project_dir / "Project Norman.md").write_text(
+        "# Project Norman\n\n"
+        "Responsibility will be split across TFP and the managing agent.\n"
+    )
+    (project_dir / "Fireant.md").write_text(
+        "---\ntags: [personal-notes, insurance-tech]\n---\n"
+        "[[Phil Murfet]] / Andy Marshall\n\n"
+        "Exposure management application context only.\n"
+    )
+    (project_dir / "Syndicate.md").write_text(
+        "---\ntags: [personal-notes, insurance-tech]\n---\n"
+        "Meeting notes about ASTA obligations and onboarding.\n"
+    )
+
+    projects = extract_provider_entities(vault, domains=("projects",))
+    titles = sorted(entity.title for entity in projects)
+
+    assert "24x7" in titles
+    assert "Barclays" in titles
+    assert "Project Norman" in titles
+    assert "Fireant" not in titles
+    assert "Syndicate" not in titles
+
+
 def test_objective_provider_matches_legacy_selection_and_excludes_monitoring_notes(tmp_path: Path):
     vault = _build_obsidian_vault(tmp_path / "vault")
     (vault / "09 Governance" / "Watchlists").mkdir(parents=True)
