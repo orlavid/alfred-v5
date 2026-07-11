@@ -3,8 +3,11 @@ import inspect
 import json
 import subprocess
 import sys
+from types import SimpleNamespace
 
 from src.api.dashboard_api import get_dashboard_home
+from src.followups.followup_intelligence import FollowupIntelligence, FollowupItem
+from src.openloops.open_loop_intelligence import OpenLoopIntelligence, OpenLoopItem
 
 
 def test_get_dashboard_home_returns_expected_shape():
@@ -220,3 +223,156 @@ def test_dashboard_payload_exposes_full_followup_and_open_loop_collections(tmp_p
         assert payload["open_loops"]["items"][0]["source_path"]
         assert payload["open_loops"]["items"][0]["evidence_paths"]
     assert len(payload["followups"]["items"]) >= len(payload["daily_brief"]["followups_due_today"])
+
+
+def test_dashboard_payload_preserves_full_canonical_work_item_collections(monkeypatch):
+    import src.api.dashboard_api as dashboard_api_module
+
+    followup_items = [
+        FollowupItem(
+            title=f"Follow-up {index}",
+            path=f"01 Daily Logs/2026-07-{index:02d}.md",
+            source_kind="daily_governance_index",
+            due_date=None,
+            priority="HIGH" if index <= 4 else "NORMAL",
+            waiting_on_others=index in {2, 5, 9},
+            summary=f"Follow-up item {index}.",
+        )
+        for index in range(1, 13)
+    ]
+    open_loop_items = [
+        OpenLoopItem(
+            title=f"Open Loop {index}",
+            path=f"01 Daily Logs/2026-07-{index:02d}.md",
+            source_kind="daily_governance_index",
+            status="OPEN",
+            priority="HIGH" if index <= 5 else "MEDIUM",
+            owner="Unknown" if index % 3 == 0 else "Jane Smith",
+            summary=f"Open loop item {index}.",
+        )
+        for index in range(1, 12)
+    ]
+
+    followups = FollowupIntelligence(
+        generated_at="2026-07-11T00:00:00Z",
+        followup_count=len(followup_items),
+        overdue=followup_items[:1],
+        due_today=followup_items[1:2],
+        due_this_week=followup_items[2:5],
+        waiting_on_others=[followup_items[1], followup_items[4], followup_items[8]],
+        high_priority=followup_items[:4],
+        recommendations=[],
+        executive_summary=[],
+        all_items=followup_items,
+    )
+    open_loops = OpenLoopIntelligence(
+        generated_at="2026-07-11T00:00:00Z",
+        open_loop_count=len(open_loop_items),
+        critical_open_loops=open_loop_items[:5],
+        waiting_for=open_loop_items[:4],
+        stalled_projects=open_loop_items[4:6],
+        missing_decisions=open_loop_items[6:8],
+        missing_owners=[item for item in open_loop_items if item.owner == "Unknown"],
+        recommended_actions=[],
+        executive_summary=[],
+        all_items=open_loop_items,
+    )
+
+    state = SimpleNamespace(
+        followups=followups,
+        open_loops=open_loops,
+        work_items=(),
+        confidence="HIGH",
+        canonical_entities=(),
+        objectives=(),
+        projects=(),
+        companies=(),
+        people=(),
+        meetings=(),
+        decisions=(),
+        policies=(),
+        risks=(),
+        board=SimpleNamespace(
+            registry_summary=(),
+            board_members=(),
+            weekly_board_meeting=(),
+            monthly_board_meeting=(),
+            standing_agenda=(),
+        ),
+        engine_result={"health": {"status": "GREEN", "score": 95}},
+        objective_health={"total": 0, "supported": 0, "at_risk": 0, "watch": 0},
+        project_health={"total": 0, "supported": 0, "at_risk": 0, "watch": 0},
+        recommendations=(),
+        relationship_graph=SimpleNamespace(statistics={"node_count": 0, "edge_count": 0}),
+        summary=(),
+        priorities=(),
+        suppliers=(),
+        vault={},
+        entities=(),
+        neighbours={},
+        knowledge_model=SimpleNamespace(confidence="HIGH"),
+    )
+    read_model = SimpleNamespace(
+        open_loops=open_loops,
+        followups=followups,
+        meetings=(),
+        work_items=(),
+        entities=(),
+        evidence_summaries={},
+    )
+    reasoning = SimpleNamespace(
+        overall_health="GREEN",
+        confidence="HIGH",
+        top_actions=[],
+        intents=[],
+        key_themes=[],
+        risks_requiring_immediate_attention=[],
+        decisions_required=[],
+    )
+    presentation = SimpleNamespace(
+        confidence="HIGH",
+        sections={
+            "risks": SimpleNamespace(items=()),
+            "recommended_actions": SimpleNamespace(items=()),
+            "priorities": SimpleNamespace(items=()),
+            "meetings": SimpleNamespace(items=()),
+            "followups": SimpleNamespace(items=()),
+        },
+    )
+    brief = SimpleNamespace(
+        executive_health=[],
+        overnight_changes=[],
+        top_three_priorities=[],
+        meetings_requiring_preparation=[],
+        followups_due_today=[item.summary for item in followup_items[:3]],
+        open_loops_blocking_progress=[item.summary for item in open_loop_items[:3]],
+        risks_escalating=[],
+        decisions_awaiting_you=[],
+        recommended_agenda=[],
+        one_page_executive_summary=[],
+        confidence="HIGH",
+    )
+
+    monkeypatch.setattr(dashboard_api_module, "build_executive_state", lambda *args, **kwargs: state)
+    monkeypatch.setattr(dashboard_api_module, "build_unified_executive_read_model", lambda *_args, **_kwargs: read_model)
+    monkeypatch.setattr(dashboard_api_module, "build_executive_reasoning_from_state", lambda *_args, **_kwargs: reasoning)
+    monkeypatch.setattr(dashboard_api_module, "build_daily_brief_from_state", lambda *_args, **_kwargs: brief)
+    monkeypatch.setattr(dashboard_api_module, "build_executive_presentation_from_state", lambda *_args, **_kwargs: presentation)
+    monkeypatch.setattr(dashboard_api_module, "_build_objectives_page", lambda *_args, **_kwargs: {"health": {}, "items": [], "summary": []})
+    monkeypatch.setattr(dashboard_api_module, "_build_projects_page", lambda *_args, **_kwargs: {"health": {}, "items": [], "summary": []})
+    monkeypatch.setattr(dashboard_api_module, "_build_meetings_page", lambda *_args, **_kwargs: {"subject": "No active meeting identified.", "executive_summary": [], "related_people": [], "related_projects": [], "related_companies": [], "related_objectives": [], "related_decisions": [], "risks": [], "open_loops": [], "follow_ups": [], "recommended_discussion": [], "confidence": "LOW"})
+    monkeypatch.setattr(dashboard_api_module, "_build_board_page", lambda *_args, **_kwargs: {"summary": [], "members": [], "weekly_meeting": [], "monthly_meeting": [], "standing_agenda": []})
+    monkeypatch.setattr(dashboard_api_module, "_build_ask_alfred_page", lambda *_args, **_kwargs: {"questions": [], "responses": []})
+    monkeypatch.setattr(dashboard_api_module, "_build_knowledge_page", lambda *_args, **_kwargs: {"summary": [], "entity_counts": {}, "graph": {"node_count": 0, "edge_count": 0, "top_nodes": []}})
+    monkeypatch.setattr(dashboard_api_module, "_build_admin_configuration_page", lambda *_args, **_kwargs: {"overview": {"environment_score": 100, "overall_health": "GREEN", "architecture_rule": "", "summary_lines": []}, "sections": {"core_configuration": [], "vault": [], "ai_providers": [], "knowledge_sources": [], "runtime": [], "services": [], "security": [], "diagnostics": [], "deployment": [], "required_actions": []}, "auto_configured": {}, "doctor_summary": {"environment_score": 100, "healthy": [], "warnings": [], "disabled": [], "recommended_actions": [], "summary_lines": []}, "actions": []})
+
+    payload = get_dashboard_home(Path("evidence/alfred-inventory"))
+
+    assert payload["followups"]["counts"]["total"] == 12
+    assert len(payload["followups"]["items"]) == 12
+    assert payload["followups"]["items"][-1]["work_item_id"].startswith("follow_up::")
+    assert len(payload["daily_brief"]["followups_due_today"]) == 3
+    assert payload["open_loops"]["counts"]["total"] == 11
+    assert len(payload["open_loops"]["items"]) == 11
+    assert payload["open_loops"]["items"][-1]["work_item_id"].startswith("open_loop::")
+    assert len(payload["daily_brief"]["open_loops_blocking_progress"]) == 3

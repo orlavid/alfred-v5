@@ -46,6 +46,9 @@ def build_executive_work_items(
     items: list[ExecutiveWorkItemContract] = []
 
     grouped_followups: dict[tuple[str, str], tuple[FollowupItem, set[str]]] = {}
+    for item in followups.all_items:
+        key = (item.path, normalise_name(item.summary))
+        grouped_followups.setdefault(key, (item, set()))
     for group_name, group in (
         ("overdue", followups.overdue),
         ("due_today", followups.due_today),
@@ -64,6 +67,9 @@ def build_executive_work_items(
         items.append(_followup_to_work_item(item, followups.generated_at, tuple(sorted(buckets))))
 
     grouped_loops: dict[tuple[str, str], tuple[OpenLoopItem, set[str]]] = {}
+    for item in open_loops.all_items:
+        key = (item.path, normalise_name(item.summary))
+        grouped_loops.setdefault(key, (item, set()))
     for group_name, group in (
         ("critical_open_loops", open_loops.critical_open_loops),
         ("waiting_for", open_loops.waiting_for),
