@@ -25,7 +25,9 @@ from src.objectives.objective_intelligence import (
 )
 from src.operations.doctor import build_operational_readiness
 from src.operations.environment_discovery import build_doctor_summary, build_environment_inventory
-from executive.knowledge.resolver import normalise_name
+from executive.knowledge.entity_contract import DATE_TOKEN_RE, canonicalise_date, normalise_unknown
+from executive.knowledge.resolver import normalise_name, resolve_link_with_index
+from executive.knowledge.vault import VaultNote
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EVIDENCE_ROOT = ROOT / "evidence" / "alfred-inventory"
@@ -1279,26 +1281,22 @@ def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
 
 
 def _build_decisions_page(state: ExecutiveState, *, read_model=None) -> dict[str, Any]:
-    effective_read_model = read_model or build_unified_executive_read_model(state)
+    del read_model
     decision_contracts = {
         entity.primary_path: entity
         for entity in state.canonical_entities
         if _is_dashboard_decision_entity(entity)
     }
-    decision_index = {item.get("path"): item for item in state.decisions if item.get("path")}
-    decision_index_by_title = {item.get("title"): item for item in state.decisions if item.get("title")}
+    decision_notes = _dashboard_decision_notes(state)
     details: dict[str, Any] = {}
     items: list[dict[str, Any]] = []
-    contracts_used = len(decision_contracts)
+    source_notes = 0
 
-    for contract in sorted(decision_contracts.values(), key=lambda entity: (entity.canonical_name.lower(), entity.primary_path)):
-        decision = decision_index.get(contract.primary_path) or decision_index_by_title.get(contract.canonical_name) or {
-            "title": contract.canonical_name,
-            "importance": 0,
-            "path": contract.primary_path,
-        }
-        decision_id = _stable_decision_id(contract.entity_id)
-        detail = _build_decision_detail(state, effective_read_model, contract=contract, decision=decision, decision_id=decision_id)
+    for note in decision_notes:
+        source_notes += 1
+        contract = decision_contracts.get(note.path)
+        decision_id = _stable_decision_id(note.path)
+        detail = _build_decision_detail_from_note(state, note=note, contract=contract, decision_id=decision_id)
         details[decision_id] = detail
         items.append(
             {
@@ -1330,7 +1328,7 @@ def _build_decisions_page(state: ExecutiveState, *, read_model=None) -> dict[str
     return {
         "counts": {
             **status_counts,
-            "source_notes": contracts_used,
+            "source_notes": source_notes,
         },
         "items": items,
         "details": details,
@@ -1352,6 +1350,26 @@ def _is_dashboard_decision_entity(entity: CanonicalExecutiveEntityContract) -> b
     if "template" in lowered_title:
         return False
     return True
+
+
+def _dashboard_decision_notes(state: ExecutiveState) -> list[VaultNote]:
+    adapter = getattr(state, "adapter", None)
+    if adapter is None:
+        return []
+    notes: list[VaultNote] = []
+    seen: set[str] = set()
+    for note in adapter.notes:
+        if note.path in seen:
+            continue
+        if not note.path.startswith("04 Decisions/"):
+            continue
+        if "template" in note.title.lower():
+            continue
+        seen.add(note.path)
+        notes.append(note)
+    notes.sort(key=lambda note: (_decision_note_sort_date(note), note.title.lower(), note.path))
+    notes.reverse()
+    return notes
 
 
 def _build_project_detail(
@@ -1525,6 +1543,244 @@ def _build_decision_detail(
             "related_work_items": [item["path"] for item in related_work_items if item["path"]],
         },
     }
+
+
+def _build_decision_detail_from_note(
+    state: ExecutiveState,
+    *,
+    note: VaultNote,
+    contract: CanonicalExecutiveEntityContract | None,
+    decision_id: str,
+) -> dict[str, Any]:
+    related = _resolve_decision_note_relationships(state, note)
+    rationale = _decision_note_rationale(note)
+    decision_date = _decision_note_date(note) or (contract.created if contract else None) or "Not defined"
+    current_status = _decision_note_status(note) or (contract.status if contract else None) or "Not defined"
+    owner = _decision_note_owner(note) or (contract.owner if contract else None) or "Not defined"
+    confidence = (
+        contract.confidence
+        if contract is not None
+        else ("HIGH" if rationale != "No rationale found in the source evidence." and decision_date != "Not defined" else "MEDIUM")
+    )
+    recent_changes = [f"Last evidence date recorded on {decision_date}."] if decision_date != "Not defined" else ["No evidence found."]
+    missing_information = _decision_missing_information_from_note(
+        owner=owner,
+        status=current_status,
+        decision_date=decision_date,
+        rationale=rationale,
+    )
+    related_work_items = _related_decision_work_items_from_note(state, note, related)
+    importance = (
+        len(related["objectives"]) * 100
+        + len(related["projects"]) * 40
+        + len(related["companies"]) * 20
+        + len(related["people"]) * 10
+        + len(related["meetings"]) * 10
+        + len(related_work_items)
+    )
+    source_entity_id = contract.entity_id if contract is not None else note.path
+
+    return {
+        "decision_id": decision_id,
+        "route": f"/decisions/{decision_id}",
+        "title": note.title,
+        "source_entity_id": source_entity_id,
+        "source_path": note.path,
+        "decision_date": decision_date,
+        "current_status": current_status,
+        "owner": owner,
+        "importance": importance,
+        "evidence_confidence": confidence,
+        "rationale": rationale,
+        "related_projects": related["projects"],
+        "related_objectives": related["objectives"],
+        "related_people": related["people"],
+        "related_companies": related["companies"],
+        "related_work_items": related_work_items,
+        "relevant_meetings": related["meetings"],
+        "evidence_sources": [{"label": note.title, "path": note.path, "reason": "Canonical decision source note."}],
+        "recent_changes": recent_changes,
+        "missing_information": missing_information,
+        "stale_evidence": decision_date == "Not defined",
+        "source_entities": [source_entity_id],
+        "source_work_items": [item["work_item_id"] for item in related_work_items if item.get("work_item_id")],
+        "provenance": {
+            "decision": [note.path],
+            "owner": [note.path] if owner != "Not defined" else [],
+            "status": [note.path] if current_status != "Not defined" else [],
+            "related_projects": [item["path"] for item in related["projects"] if item["path"]],
+            "related_objectives": [item["path"] for item in related["objectives"] if item["path"]],
+            "related_people": [item["path"] for item in related["people"] if item["path"]],
+            "related_companies": [item["path"] for item in related["companies"] if item["path"]],
+            "related_work_items": [item["path"] for item in related_work_items if item["path"]],
+        },
+    }
+
+
+def _decision_note_sort_date(note: VaultNote) -> str:
+    return _decision_note_date(note) or "0000-00-00"
+
+
+def _decision_note_owner(note: VaultNote) -> str | None:
+    return normalise_unknown(_decision_note_field(note.text, ("Owner", "Accountable Owner")))
+
+
+def _decision_note_status(note: VaultNote) -> str | None:
+    return normalise_unknown(_decision_note_field(note.text, ("Status", "Review Status")))
+
+
+def _decision_note_date(note: VaultNote) -> str | None:
+    explicit = _decision_note_field(note.text, ("Date", "Created", "Date Extracted", "Meeting Date"))
+    if explicit:
+        match = DATE_TOKEN_RE.search(explicit)
+        if match:
+            return canonicalise_date(match.group(1))
+    match = DATE_TOKEN_RE.search(note.text)
+    return canonicalise_date(match.group(1)) if match else None
+
+
+def _decision_note_rationale(note: VaultNote) -> str:
+    for label in ("Decision", "Decision Statement", "Reasoning", "Context"):
+        value = _decision_note_field(note.text, (label,))
+        if value:
+            return value
+    for line in note.text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or stripped.startswith("---") or stripped.startswith("[["):
+            continue
+        if ":" in stripped and len(stripped.split(":", 1)[0]) < 30:
+            _, value = stripped.split(":", 1)
+            cleaned = value.strip()
+            if cleaned:
+                return cleaned
+        if len(stripped) > 20:
+            return stripped
+    return "No rationale found in the source evidence."
+
+
+def _decision_note_field(text: str, labels: tuple[str, ...]) -> str | None:
+    for label in labels:
+        inline = re.search(rf"(?im)^(?:{re.escape(label)}):\s*(.+?)\s*$", text)
+        if inline:
+            return inline.group(1).strip()
+        section = re.search(
+            rf"(?ims)^#+\s*{re.escape(label)}\s*$\n+(.+?)(?=\n#|\Z)",
+            text,
+        )
+        if section:
+            lines = [line.strip(" -\t") for line in section.group(1).splitlines() if line.strip()]
+            if lines:
+                return lines[0]
+    return None
+
+
+def _resolve_decision_note_relationships(state: ExecutiveState, note: VaultNote) -> dict[str, list[dict[str, str]]]:
+    if state.adapter is None:
+        return {"projects": [], "objectives": [], "people": [], "companies": [], "meetings": []}
+
+    route_lookup = {
+        entity.path: entity
+        for entity in state.canonical_entities
+    }
+    seen: set[tuple[str, str]] = set()
+    grouped = {"projects": [], "objectives": [], "people": [], "companies": [], "meetings": []}
+
+    for raw_link in re.findall(r"\[\[([^\]]+)\]\]", note.text):
+        resolved = resolve_link_with_index(raw_link.split("|")[0].strip(), state.adapter.resolution_index)
+        if resolved is None:
+            continue
+        path = getattr(resolved, "path", "")
+        title = getattr(resolved, "title", raw_link)
+        entity_type = getattr(resolved, "type", "")
+        key = (entity_type, path)
+        if key in seen:
+            continue
+        seen.add(key)
+        item = {
+            "title": title,
+            "path": path,
+            "reason": "Explicit note link in the canonical decision record.",
+            "route": _route_for_decision_related_item(route_lookup.get(path), entity_type, path),
+        }
+        if entity_type == "project":
+            grouped["projects"].append(item)
+        elif entity_type == "objective":
+            grouped["objectives"].append(item)
+        elif entity_type == "person":
+            grouped["people"].append(item)
+        elif entity_type == "company":
+            grouped["companies"].append(item)
+        elif entity_type == "meeting":
+            grouped["meetings"].append(item)
+    return grouped
+
+
+def _route_for_decision_related_item(
+    contract: CanonicalExecutiveEntityContract | None,
+    entity_type: str,
+    path: str,
+) -> str:
+    if entity_type == "project" and contract is not None:
+        return f"/projects/{_stable_project_id(contract.entity_id)}"
+    if entity_type == "objective" and contract is not None:
+        return f"/objectives/{_stable_objective_id(contract.entity_id)}"
+    if entity_type == "decision":
+        return f"/decisions/{_stable_decision_id(path)}"
+    if entity_type == "meeting":
+        return "/meetings"
+    if entity_type == "company":
+        return "/companies"
+    if entity_type == "person":
+        return "/people"
+    return ""
+
+
+def _related_decision_work_items_from_note(
+    state: ExecutiveState,
+    note: VaultNote,
+    related: dict[str, list[dict[str, str]]],
+) -> list[dict[str, str]]:
+    related_names = {note.title}
+    for bucket in related.values():
+        related_names.update(item["title"] for item in bucket)
+    items: list[dict[str, str]] = []
+    for item in state.work_items:
+        names = set(item.related_entities)
+        legacy_title = item.extensions.get("legacy_title")
+        if isinstance(legacy_title, str) and legacy_title:
+            names.add(legacy_title)
+        if not related_names.intersection(names):
+            continue
+        items.append(
+            {
+                "work_item_id": item.work_item_id,
+                "title": item.title,
+                "path": item.evidence_paths[0] if item.evidence_paths else "",
+                "reason": _work_item_reason(item),
+                "route": "/follow-ups" if item.work_item_type == "follow_up" else "/open-loops",
+                "type": item.work_item_type,
+            }
+        )
+    return items
+
+
+def _decision_missing_information_from_note(
+    *,
+    owner: str,
+    status: str,
+    decision_date: str,
+    rationale: str,
+) -> list[str]:
+    items: list[str] = []
+    if owner == "Not defined":
+        items.append("Accountable owner is not defined.")
+    if status == "Not defined":
+        items.append("Decision status is not defined.")
+    if decision_date == "Not defined":
+        items.append("Decision date is not defined.")
+    if rationale == "No rationale found in the source evidence.":
+        items.append("Decision rationale is not explicit in the source evidence.")
+    return items or ["No material missing information identified."]
 
 
 def _build_followups_page(state: ExecutiveState) -> dict[str, Any]:
