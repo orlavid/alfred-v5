@@ -57,3 +57,21 @@ def test_decision_payload_preserves_full_collection(tmp_path):
 
     assert payload["decisions"]["counts"]["total"] == len(payload["decisions"]["items"])
     assert len(payload["decisions"]["items"]) == 6
+
+
+def test_decision_payload_excludes_non_register_noise(tmp_path):
+    vault = tmp_path / "vault"
+    (vault / "04 Decisions").mkdir(parents=True)
+    (vault / "01 Daily Logs").mkdir(parents=True)
+    (vault / "10 Briefings").mkdir(parents=True)
+
+    (vault / "04 Decisions" / "Decision 1.md").write_text("# Decision 1\nStatus: OPEN\nApprove supplier change.\n")
+    (vault / "04 Decisions" / "Decision Template.md").write_text("# Decision Template\nStatus: DRAFT\n")
+    (vault / "01 Daily Logs" / "2026-07-12.md").write_text("# 2026-07-12\nDecision: revisit the forecast model.\n")
+    (vault / "10 Briefings" / "Decision Summary.md").write_text("# Decision Summary\nA generated summary.\n")
+
+    payload = get_dashboard_home(tmp_path / "evidence", vault_root=vault)
+
+    assert payload["decisions"]["counts"]["source_notes"] == 1
+    assert [item["title"] for item in payload["decisions"]["items"]] == ["Decision 1"]
+    assert all(item["source_path"].startswith("04 Decisions/") for item in payload["decisions"]["items"])

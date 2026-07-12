@@ -889,7 +889,7 @@ def _project_decisions(
 ) -> tuple[dict[str, Any], ...]:
     projected = []
     for contract in canonical_entities:
-        if contract.entity_type != "decision":
+        if not _is_canonical_decision_contract(contract):
             continue
         titles_by_type = context["counts"].get(contract.entity_id, {}).get("titles_by_type", {})
         projects = len(titles_by_type.get("project", ()))
@@ -913,6 +913,18 @@ def _project_decisions(
         )
     projected.sort(key=lambda item: (-item["importance"], item["title"].lower()))
     return tuple(projected)
+
+
+def _is_canonical_decision_contract(contract: CanonicalExecutiveEntityContract) -> bool:
+    if contract.entity_type != "decision":
+        return False
+    path = contract.primary_path.replace("\\", "/")
+    lowered_title = contract.canonical_name.lower()
+    if not path.startswith("04 Decisions/"):
+        return False
+    if "template" in lowered_title:
+        return False
+    return True
 
 
 def _project_status_from_links(linked: int) -> str:

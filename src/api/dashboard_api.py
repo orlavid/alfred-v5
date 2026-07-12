@@ -1281,19 +1281,22 @@ def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
 def _build_decisions_page(state: ExecutiveState, *, read_model=None) -> dict[str, Any]:
     effective_read_model = read_model or build_unified_executive_read_model(state)
     decision_contracts = {
-        entity.canonical_name: entity
+        entity.primary_path: entity
         for entity in state.canonical_entities
-        if entity.entity_type == "decision"
+        if _is_dashboard_decision_entity(entity)
     }
+    decision_index = {item.get("path"): item for item in state.decisions if item.get("path")}
+    decision_index_by_title = {item.get("title"): item for item in state.decisions if item.get("title")}
     details: dict[str, Any] = {}
     items: list[dict[str, Any]] = []
-    contracts_used = 0
+    contracts_used = len(decision_contracts)
 
-    for decision in state.decisions:
-        contract = decision_contracts.get(decision["title"])
-        if contract is None:
-            continue
-        contracts_used += 1
+    for contract in sorted(decision_contracts.values(), key=lambda entity: (entity.canonical_name.lower(), entity.primary_path)):
+        decision = decision_index.get(contract.primary_path) or decision_index_by_title.get(contract.canonical_name) or {
+            "title": contract.canonical_name,
+            "importance": 0,
+            "path": contract.primary_path,
+        }
         decision_id = _stable_decision_id(contract.entity_id)
         detail = _build_decision_detail(state, effective_read_model, contract=contract, decision=decision, decision_id=decision_id)
         details[decision_id] = detail
@@ -1337,6 +1340,18 @@ def _build_decisions_page(state: ExecutiveState, *, read_model=None) -> dict[str
             f"Statuses defined: {status_counts['defined_status']}.",
         ],
     }
+
+
+def _is_dashboard_decision_entity(entity: CanonicalExecutiveEntityContract) -> bool:
+    if entity.entity_type != "decision":
+        return False
+    path = entity.primary_path.replace("\\", "/")
+    lowered_title = entity.canonical_name.lower()
+    if not path.startswith("04 Decisions/"):
+        return False
+    if "template" in lowered_title:
+        return False
+    return True
 
 
 def _build_project_detail(
