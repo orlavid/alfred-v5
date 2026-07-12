@@ -2,8 +2,10 @@ import type {
   DashboardBootstrapPayload,
   DecisionsDomainPayload,
   FollowupsDomainPayload,
+  ObjectiveDetail,
   ObjectivesDomainPayload,
   OpenLoopsDomainPayload,
+  ProjectDetail,
   ProjectsDomainPayload,
   SnapshotInfo,
 } from "@/types";
@@ -24,8 +26,16 @@ export async function loadObjectivesDomain(): Promise<ObjectivesDomainPayload> {
   return fetchJson<ObjectivesDomainPayload>("/api/objectives.json");
 }
 
+export async function loadObjectiveDetail(objectiveId: string): Promise<ObjectiveDetail> {
+  return fetchJson<ObjectiveDetail>(`/api/objectives/${objectiveId}.json`);
+}
+
 export async function loadProjectsDomain(): Promise<ProjectsDomainPayload> {
   return fetchJson<ProjectsDomainPayload>("/api/projects.json");
+}
+
+export async function loadProjectDetail(projectId: string): Promise<ProjectDetail> {
+  return fetchJson<ProjectDetail>(`/api/projects/${projectId}.json`);
 }
 
 export async function loadDecisionsDomain(): Promise<DecisionsDomainPayload> {

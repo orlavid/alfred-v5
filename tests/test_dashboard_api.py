@@ -87,6 +87,8 @@ def test_build_dashboard_api_generates_json_output():
     assert projects_output.exists()
 
     payload = json.loads(output.read_text())
+    objectives_payload = json.loads(objectives_output.read_text())
+    projects_payload = json.loads(projects_output.read_text())
     assert "burning_fires" in payload
     assert "plan_today" in payload
     assert "next_best_action" in payload
@@ -100,6 +102,8 @@ def test_build_dashboard_api_generates_json_output():
     assert "admin_configuration" in payload
     assert objectives_output.stat().st_size > 0
     assert projects_output.stat().st_size > 0
+    assert "details" not in objectives_payload
+    assert "details" not in projects_payload
     assert public_output.stat().st_size < 100_000
 
 

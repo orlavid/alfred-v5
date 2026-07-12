@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import { loadProjectsDomain } from "@/lib/loadDashboard";
+import { loadProjectDetail, loadProjectsDomain } from "@/lib/loadDashboard";
 import { postProjectAction } from "@/lib/projectApi";
 import { useDomainPayload } from "@/lib/useDomainPayload";
 import type {
@@ -63,13 +63,45 @@ export function ProjectDetailPage({ data, onRefresh }: Props) {
     [data.projects],
   );
   const { data: domain, error: domainError, setData: setDomain } = useDomainPayload(embeddedDomain, loadProjectsDomain);
-  const detail = projectId ? domain?.details?.[projectId] : undefined;
+  const embeddedDetail = projectId ? domain?.details?.[projectId] : undefined;
+  const [detail, setDetail] = useState<ProjectDetail | null>(embeddedDetail ?? null);
+  const [detailError, setDetailError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [noteText, setNoteText] = useState("");
   const [milestoneTitle, setMilestoneTitle] = useState("");
   const [milestoneDueDate, setMilestoneDueDate] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!projectId) {
+      setDetail(null);
+      setDetailError(null);
+      return;
+    }
+    if (embeddedDetail) {
+      setDetail(embeddedDetail);
+      setDetailError(null);
+      return;
+    }
+    let cancelled = false;
+    loadProjectDetail(projectId)
+      .then((payload) => {
+        if (!cancelled) {
+          setDetail(payload);
+          setDetailError(null);
+        }
+      })
+      .catch((reason: Error) => {
+        if (!cancelled) {
+          setDetail(null);
+          setDetailError(reason.message);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [embeddedDetail, projectId]);
 
   useEffect(() => {
     if (!detail) {
@@ -109,7 +141,7 @@ export function ProjectDetailPage({ data, onRefresh }: Props) {
     return <Navigate to="/projects" replace />;
   }
 
-  if (!detail && !domain && !domainError) {
+  if (!detail && !detailError && !domain && !domainError) {
     return (
       <SectionCard title="Loading Project" kicker="Project Workspace">
         <p className="text-sm leading-6 text-ink/70">Reading the latest published project workspace.</p>
@@ -121,7 +153,7 @@ export function ProjectDetailPage({ data, onRefresh }: Props) {
     return (
       <SectionCard title="Project Not Found" kicker="Project Workspace">
         <p className="text-sm leading-6 text-ink/70">
-          {domainError ?? "No project management workspace was found for this link."}
+          {detailError ?? domainError ?? "No project management workspace was found for this link."}
         </p>
         <Link to="/projects" className="mt-4 inline-flex text-sm font-semibold text-accent">
           Back to projects
@@ -136,7 +168,13 @@ export function ProjectDetailPage({ data, onRefresh }: Props) {
     try {
       await postProjectAction(projectId, payload);
       await onRefresh();
-      setDomain(await loadProjectsDomain());
+      const [nextDomain, nextDetail] = await Promise.all([
+        loadProjectsDomain(),
+        loadProjectDetail(projectId),
+      ]);
+      setDomain(nextDomain);
+      setDetail(nextDetail);
+      setDetailError(null);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Project action failed.");
     } finally {

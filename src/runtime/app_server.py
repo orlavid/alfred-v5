@@ -39,6 +39,8 @@ from src.management.projects import (
 ROOT = Path(__file__).resolve().parents[2]
 OBJECTIVE_ACTION_PATH = re.compile(r"^/api/objectives/([^/]+)/actions$")
 PROJECT_ACTION_PATH = re.compile(r"^/api/projects/([^/]+)/actions$")
+OBJECTIVE_DETAIL_PATH = re.compile(r"^/api/objectives/([^/]+)\.json$")
+PROJECT_DETAIL_PATH = re.compile(r"^/api/projects/([^/]+)\.json$")
 DOMAIN_API_PATH = re.compile(r"^/api/(objectives|projects|decisions|followups|open-loops|risks|companies|people|governance|operations|meetings|daily-brief)\.json$")
 
 
@@ -55,6 +57,12 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
             return
         if parsed.path == "/api/refresh-status.json":
             self._send_json(self.server.snapshot_store.read_refresh_status())
+            return
+        if match := OBJECTIVE_DETAIL_PATH.match(parsed.path):
+            self._send_json(self.server.snapshot_store.read_domain_detail("objectives", match.group(1)))
+            return
+        if match := PROJECT_DETAIL_PATH.match(parsed.path):
+            self._send_json(self.server.snapshot_store.read_domain_detail("projects", match.group(1)))
             return
         if match := DOMAIN_API_PATH.match(parsed.path):
             domain = match.group(1).replace("-", "_")
@@ -148,8 +156,7 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
                 reason=reason,
             )
         elif action == "run_smart_enrichment":
-            dashboard = self.server.snapshot_store.read_domain("objectives")
-            detail = dashboard["details"][objective_id]
+            detail = self.server.snapshot_store.read_domain_detail("objectives", objective_id)
             create_smart_proposal(objective_id, detail, actor=actor, reason=reason)
         elif action == "accept_smart_proposal":
             accept_smart_proposal(objective_id, selected_fields=payload.get("fields"), actor=actor, reason=reason)

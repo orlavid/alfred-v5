@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import { loadObjectivesDomain } from "@/lib/loadDashboard";
+import { loadObjectiveDetail, loadObjectivesDomain } from "@/lib/loadDashboard";
 import { postObjectiveAction } from "@/lib/objectiveApi";
 import { useDomainPayload } from "@/lib/useDomainPayload";
 import type {
@@ -64,7 +64,9 @@ export function ObjectiveDetailPage({ data, onRefresh }: Props) {
     [data.objectives],
   );
   const { data: domain, error: domainError, setData: setDomain } = useDomainPayload(embeddedDomain, loadObjectivesDomain);
-  const detail = objectiveId ? domain?.details?.[objectiveId] : undefined;
+  const embeddedDetail = objectiveId ? domain?.details?.[objectiveId] : undefined;
+  const [detail, setDetail] = useState<ObjectiveDetail | null>(embeddedDetail ?? null);
+  const [detailError, setDetailError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [noteText, setNoteText] = useState("");
   const [milestoneTitle, setMilestoneTitle] = useState("");
@@ -72,6 +74,36 @@ export function ObjectiveDetailPage({ data, onRefresh }: Props) {
   const [selectedProposalFields, setSelectedProposalFields] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!objectiveId) {
+      setDetail(null);
+      setDetailError(null);
+      return;
+    }
+    if (embeddedDetail) {
+      setDetail(embeddedDetail);
+      setDetailError(null);
+      return;
+    }
+    let cancelled = false;
+    loadObjectiveDetail(objectiveId)
+      .then((payload) => {
+        if (!cancelled) {
+          setDetail(payload);
+          setDetailError(null);
+        }
+      })
+      .catch((reason: Error) => {
+        if (!cancelled) {
+          setDetail(null);
+          setDetailError(reason.message);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [embeddedDetail, objectiveId]);
 
   useEffect(() => {
     if (!detail) {
@@ -107,7 +139,7 @@ export function ObjectiveDetailPage({ data, onRefresh }: Props) {
     return <Navigate to="/objectives" replace />;
   }
 
-  if (!detail && !domain && !domainError) {
+  if (!detail && !detailError && !domain && !domainError) {
     return (
       <SectionCard title="Loading Objective" kicker="Objective Workspace">
         <p className="text-sm leading-6 text-ink/70">Reading the latest published objective workspace.</p>
@@ -119,7 +151,7 @@ export function ObjectiveDetailPage({ data, onRefresh }: Props) {
     return (
       <SectionCard title="Objective Not Found" kicker="Objective Workspace">
         <p className="text-sm leading-6 text-ink/70">
-          {domainError ?? "No objective management workspace was found for this link."}
+          {detailError ?? domainError ?? "No objective management workspace was found for this link."}
         </p>
         <Link to="/objectives" className="mt-4 inline-flex text-sm font-semibold text-accent">
           Back to objectives
@@ -134,7 +166,13 @@ export function ObjectiveDetailPage({ data, onRefresh }: Props) {
     try {
       await postObjectiveAction(objectiveId, payload);
       await onRefresh();
-      setDomain(await loadObjectivesDomain());
+      const [nextDomain, nextDetail] = await Promise.all([
+        loadObjectivesDomain(),
+        loadObjectiveDetail(objectiveId),
+      ]);
+      setDomain(nextDomain);
+      setDetail(nextDetail);
+      setDetailError(null);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Objective action failed.");
     } finally {

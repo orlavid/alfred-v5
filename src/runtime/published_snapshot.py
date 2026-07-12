@@ -46,6 +46,7 @@ class SnapshotPublicationResult:
     snapshot_dir: Path
     bootstrap_size_bytes: int
     domain_sizes: dict[str, int]
+    detail_domain_sizes: dict[str, dict[str, int]]
     build_timestamp: str
     source_vault_timestamp: str | None
     deployed_commit: str
@@ -167,9 +168,15 @@ class SnapshotStore:
             files_dir = staging_dir / "api"
             files_dir.mkdir(parents=True, exist_ok=True)
             domain_sizes: dict[str, int] = {}
+            detail_domain_sizes: dict[str, dict[str, int]] = {}
             for name, data in snapshot["domains"].items():
                 size = _write_json(files_dir / f"{name}.json", data)
                 domain_sizes[name] = size
+            for domain_name, items in snapshot["detail_domains"].items():
+                detail_domain_sizes[domain_name] = {}
+                for record_id, data in items.items():
+                    size = _write_json(files_dir / domain_name / f"{record_id}.json", data)
+                    detail_domain_sizes[domain_name][record_id] = size
             bootstrap_size = _write_json(files_dir / "dashboard-home.json", snapshot["bootstrap"])
 
             _write_json(staged_output_dir / "Dashboard_Home.json", snapshot["bootstrap"])
@@ -182,7 +189,7 @@ class SnapshotStore:
 
             readiness = build_operational_readiness(output_dir=staged_output_dir)
             validation_findings = _validate_snapshot_payloads(
-                [staged_output_dir / "Dashboard_Home.json", *files_dir.glob("*.json")]
+                [staged_output_dir / "Dashboard_Home.json", *files_dir.rglob("*.json")]
             )
             validation_status = "PASS" if not validation_findings else "FAIL"
 
@@ -218,6 +225,14 @@ class SnapshotStore:
                 "trigger": trigger,
                 "bootstrap_payload_size_bytes": bootstrap_size,
                 "domain_payload_sizes": domain_sizes,
+                "detail_domain_payload_sizes": {
+                    domain_name: {
+                        "count": len(items),
+                        "total_bytes": sum(items.values()),
+                        "max_bytes": max(items.values()) if items else 0,
+                    }
+                    for domain_name, items in detail_domain_sizes.items()
+                },
             }
             _write_json(target_version_dir / "refresh-status.json", refresh_status)
             duration = (datetime.now(UTC) - started).total_seconds()
@@ -226,6 +241,7 @@ class SnapshotStore:
                 snapshot_dir=target_version_dir,
                 bootstrap_size_bytes=bootstrap_size,
                 domain_sizes=domain_sizes,
+                detail_domain_sizes=detail_domain_sizes,
                 build_timestamp=build_timestamp,
                 source_vault_timestamp=status.source_vault_timestamp,
                 deployed_commit=status.deployed_commit or "unknown",
@@ -266,6 +282,9 @@ class SnapshotStore:
 
     def read_domain(self, name: str) -> dict[str, Any]:
         return self._read_current_json(f"api/{name}.json")
+
+    def read_domain_detail(self, domain: str, record_id: str) -> dict[str, Any]:
+        return self._read_current_json(f"api/{domain}/{record_id}.json")
 
     def read_refresh_status(self) -> dict[str, Any]:
         current = self.current_snapshot_dir() / "refresh-status.json"
@@ -376,8 +395,16 @@ def _build_snapshot_payloads(
         "generated_from": payload["generated_from"],
     }
     domains = {
-        "objectives": payload["objectives"],
-        "projects": payload["projects"],
+        "objectives": {
+            "health": payload["objectives"]["health"],
+            "items": payload["objectives"]["items"],
+            "summary": payload["objectives"]["summary"],
+        },
+        "projects": {
+            "health": payload["projects"]["health"],
+            "items": payload["projects"]["items"],
+            "summary": payload["projects"]["summary"],
+        },
         "decisions": payload["decisions"],
         "followups": payload["followups"],
         "open_loops": payload["open_loops"],
@@ -417,14 +444,20 @@ def _build_snapshot_payloads(
         "meetings": payload["meetings"],
         "daily_brief": payload["daily_brief"],
     }
+    detail_domains = {
+        "objectives": payload["objectives"].get("details", {}),
+        "projects": payload["projects"].get("details", {}),
+    }
     refresh_status = {
         **bootstrap["snapshot"],
         "bootstrap_payload_size_bytes": 0,
         "domain_payload_sizes": {},
+        "detail_domain_payload_sizes": {},
     }
     return {
         "bootstrap": bootstrap,
         "domains": domains,
+        "detail_domains": detail_domains,
         "manifest": manifest,
         "refresh_status": refresh_status,
     }

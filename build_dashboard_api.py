@@ -25,10 +25,10 @@ def main() -> None:
     result = store.publish_snapshot(trigger="build_dashboard_api")
     current_api_dir = store.current_snapshot_dir() / "api"
 
-    for existing in PUBLIC.glob("*.json"):
-        existing.unlink()
-    for file in current_api_dir.glob("*.json"):
-        shutil.copy2(file, PUBLIC / file.name)
+    if PUBLIC.exists():
+        shutil.rmtree(PUBLIC)
+    PUBLIC.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(current_api_dir, PUBLIC, dirs_exist_ok=True)
 
     bootstrap = json.loads((current_api_dir / "dashboard-home.json").read_text())
     output = OUT / "Dashboard_Home.json"
@@ -38,6 +38,14 @@ def main() -> None:
         "snapshot_version": result.version,
         "bootstrap_payload_size_bytes": result.bootstrap_size_bytes,
         "domain_payload_sizes": result.domain_sizes,
+        "detail_domain_payload_sizes": {
+            domain_name: {
+                "count": len(items),
+                "total_bytes": sum(items.values()),
+                "max_bytes": max(items.values()) if items else 0,
+            }
+            for domain_name, items in result.detail_domain_sizes.items()
+        },
     }, indent=2, sort_keys=True))
 
 

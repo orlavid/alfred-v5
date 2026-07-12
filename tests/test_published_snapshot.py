@@ -130,6 +130,43 @@ def test_snapshot_publish_creates_bootstrap_and_domain_files(monkeypatch, tmp_pa
     assert refresh_status["bootstrap_payload_size_bytes"] == result.bootstrap_size_bytes
 
 
+def test_snapshot_splits_objective_and_project_details_into_record_files(monkeypatch, tmp_path):
+    store = _seed_snapshot_environment(monkeypatch, tmp_path, label="details")
+    monkeypatch.setattr(
+        snapshot_module,
+        "get_dashboard_home",
+        lambda *_args, **_kwargs: {
+            **_payload("details"),
+            "objectives": {
+                "health": {"total": 1},
+                "summary": [],
+                "items": [{"objective_id": "obj-1", "title": "Objective 1", "route": "/objectives/obj-1"}],
+                "details": {"obj-1": {"objective_id": "obj-1", "title": "Objective 1"}},
+            },
+            "projects": {
+                "health": {"total": 1},
+                "summary": [],
+                "items": [{"project_id": "proj-1", "title": "Project 1", "route": "/projects/proj-1"}],
+                "details": {"proj-1": {"project_id": "proj-1", "title": "Project 1"}},
+            },
+        },
+    )
+
+    result = store.publish_snapshot(trigger="split")
+
+    objectives = store.read_domain("objectives")
+    projects = store.read_domain("projects")
+    objective_detail = store.read_domain_detail("objectives", "obj-1")
+    project_detail = store.read_domain_detail("projects", "proj-1")
+
+    assert "details" not in objectives
+    assert "details" not in projects
+    assert objective_detail["objective_id"] == "obj-1"
+    assert project_detail["project_id"] == "proj-1"
+    assert result.detail_domain_sizes["objectives"]["obj-1"] > 0
+    assert result.detail_domain_sizes["projects"]["proj-1"] > 0
+
+
 def test_snapshot_failed_refresh_preserves_previous_snapshot(monkeypatch, tmp_path):
     store = _seed_snapshot_environment(monkeypatch, tmp_path, label="before")
     initial = store.publish_snapshot(trigger="initial")
