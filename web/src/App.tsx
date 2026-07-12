@@ -6,6 +6,8 @@ import { ObjectivesPage } from "@/pages/ObjectivesPage";
 import { ObjectiveDetailPage } from "@/pages/ObjectiveDetailPage";
 import { ProjectsPage } from "@/pages/ProjectsPage";
 import { ProjectDetailPage } from "@/pages/ProjectDetailPage";
+import { DecisionsPage } from "@/pages/DecisionsPage";
+import { DecisionDetailPage } from "@/pages/DecisionDetailPage";
 import { MeetingsPage } from "@/pages/MeetingsPage";
 import { BoardPage } from "@/pages/BoardPage";
 import { AskAlfredPage } from "@/pages/AskAlfredPage";
@@ -70,6 +72,8 @@ export function App() {
           <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={data} onRefresh={refreshDashboard} />} />
           <Route path="/projects" element={<ProjectsPage data={data} />} />
           <Route path="/projects/:projectId" element={<ProjectDetailPage data={data} onRefresh={refreshDashboard} />} />
+          <Route path="/decisions" element={<DecisionsPage data={data} />} />
+          <Route path="/decisions/:decisionId" element={<DecisionDetailPage data={data} />} />
           <Route
             path="/programmes"
             element={<PlaceholderPage title="Programmes" kicker="Objectives" summary="Programme navigation is reserved for grouped objective delivery views." bullets={["Programme rollups will surface after dedicated backend page shaping is added.", "Use Projects and Objectives as the current canonical views."]} />}
@@ -86,10 +90,6 @@ export function App() {
           <Route
             path="/companies"
             element={<PlaceholderPage title="Companies" kicker="kNowledge" summary="Company context will eventually expose counterparties, suppliers, and governance posture." bullets={["Current supplier pressure is still visible from the dashboard and reasoning layers.", "A dedicated company route should remain read-only and backend-shaped."]} />}
-          />
-          <Route
-            path="/decisions"
-            element={<PlaceholderPage title="Decisions" kicker="kNowledge" summary="Decision navigation will hold explicit executive decisions and supporting context." bullets={["Decision summaries already appear in Daily Brief and Ask Alfred responses.", "A full decisions page should be fed from canonical decision data only."]} />}
           />
           <Route path="/knowledge" element={<KnowledgePage data={data} />} />
           <Route path="/knowledge-graph" element={<KnowledgePage data={data} />} />

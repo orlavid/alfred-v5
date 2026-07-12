@@ -12,7 +12,7 @@ const PATH_MAP: Record<string, string> = {
   Meetings: "/meetings",
   "Follow-ups": "/follow-ups",
   "Open Loops": "/open-loops",
-  Decisions: "/daily-brief",
+  Decisions: "/decisions",
 };
 
 export function DashboardPage({ data }: DashboardPageProps) {

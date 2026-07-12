@@ -77,6 +77,33 @@ export type DashboardPayload = {
     details?: Record<string, ProjectDetail>;
     summary: string[];
   };
+  decisions: {
+    counts: {
+      total: number;
+      defined_status: number;
+      owner_defined: number;
+      source_notes: number;
+    };
+    items: Array<{
+      decision_id: string;
+      title: string;
+      source_path: string;
+      source_entity_id: string;
+      route: string;
+      status: string;
+      owner: string;
+      decision_date: string;
+      related_project_count: number;
+      related_objective_count: number;
+      related_people_count: number;
+      evidence_confidence: string;
+      rationale: string;
+      missing_fields: string[];
+      importance: number;
+    }>;
+    details?: Record<string, DecisionDetail>;
+    summary: string[];
+  };
   followups: {
     counts: {
       total: number;
@@ -418,6 +445,40 @@ export type ProjectDetail = {
   recommended_next_action: string;
   missing_information: string[];
   stale_evidence: boolean;
+  provenance: Record<string, string[]>;
+};
+
+export type DecisionDetail = {
+  decision_id: string;
+  route: string;
+  title: string;
+  source_entity_id: string;
+  source_path: string;
+  decision_date: string;
+  current_status: string;
+  owner: string;
+  importance: number;
+  evidence_confidence: string;
+  rationale: string;
+  related_projects: LinkedObjectiveItem[];
+  related_objectives: LinkedObjectiveItem[];
+  related_people: LinkedObjectiveItem[];
+  related_companies: LinkedObjectiveItem[];
+  related_work_items: Array<{
+    work_item_id: string;
+    title: string;
+    path: string;
+    reason: string;
+    route: string;
+    type: string;
+  }>;
+  relevant_meetings: LinkedObjectiveItem[];
+  evidence_sources: ObjectiveDetail["evidence_sources"];
+  recent_changes: string[];
+  missing_information: string[];
+  stale_evidence: boolean;
+  source_entities: string[];
+  source_work_items: string[];
   provenance: Record<string, string[]>;
 };
 

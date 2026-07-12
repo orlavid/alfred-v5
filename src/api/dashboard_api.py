@@ -68,6 +68,7 @@ def get_dashboard_home(
         "interruption_policy": _build_interruption_policy(state, burning_fires, next_best_action),
         "objectives": _build_objectives_page(state),
         "projects": _build_projects_page(state),
+        "decisions": _build_decisions_page(state, read_model=read_model),
         "followups": _build_followups_page(state),
         "open_loops": _build_open_loops_page(state),
         "meetings": _build_meetings_page(read_model, presentation),
@@ -975,6 +976,95 @@ def _related_project_companies(state: ExecutiveState, contract: CanonicalExecuti
     return items
 
 
+def _related_decision_companies(state: ExecutiveState, contract: CanonicalExecutiveEntityContract) -> list[dict[str, str]]:
+    entity_lookup = {entity.id: entity for entity in state.entities}
+    company_lookup = {item.title: item for item in state.companies}
+    items: list[dict[str, str]] = []
+    for entity_id in state.neighbours.get(contract.primary_path, ()):
+        entity = entity_lookup.get(entity_id)
+        if entity is None or getattr(entity, "type", None) != "company":
+            continue
+        company = company_lookup.get(entity.title)
+        reason = "Connected to the decision through the executive knowledge graph."
+        if company is not None:
+            reason = f"Linked to {company.projects} projects and {company.objectives} objectives."
+        items.append(
+            {
+                "id": _stable_related_id("company", entity.path),
+                "title": entity.title,
+                "path": entity.path,
+                "reason": reason,
+                "route": "/companies",
+            }
+        )
+    return items
+
+
+def _related_decision_work_items(state: ExecutiveState, contract: CanonicalExecutiveEntityContract) -> list[dict[str, str]]:
+    items: list[dict[str, str]] = []
+    for item in state.work_items:
+        related_names = set(item.related_entities)
+        legacy_title = item.extensions.get("legacy_title")
+        if isinstance(legacy_title, str) and legacy_title:
+            related_names.add(legacy_title)
+        if contract.canonical_name not in related_names:
+            continue
+        items.append(
+            {
+                "work_item_id": item.work_item_id,
+                "title": item.title,
+                "path": item.evidence_paths[0] if item.evidence_paths else "",
+                "reason": _work_item_reason(item),
+                "route": "/follow-ups" if item.work_item_type == "follow_up" else "/open-loops",
+                "type": item.work_item_type,
+            }
+        )
+    return items
+
+
+def _related_decision_meetings(state: ExecutiveState, contract: CanonicalExecutiveEntityContract) -> list[dict[str, str]]:
+    items: list[dict[str, str]] = []
+    for meeting in state.meetings:
+        if contract.canonical_name not in [item.title for item in meeting.related_decisions]:
+            continue
+        items.append(
+            {
+                "title": meeting.subject,
+                "path": meeting.matched_entities[0].path if meeting.matched_entities else "",
+                "reason": meeting.recommended_discussion[0] if meeting.recommended_discussion else "Relevant meeting context exists.",
+                "route": "/meetings",
+            }
+        )
+    return items
+
+
+def _decision_rationale(contract: CanonicalExecutiveEntityContract, raw_entities: dict[str, Any]) -> str:
+    snippet = _objective_definition(contract, raw_entities)
+    return snippet if snippet != "No evidence found." else "No rationale found in the source evidence."
+
+
+def _build_decision_recent_changes(contract: CanonicalExecutiveEntityContract, related_work_items: list[dict[str, str]]) -> list[str]:
+    changes: list[str] = []
+    if contract.last_activity:
+        changes.append(f"Last meaningful activity recorded on {contract.last_activity}.")
+    if related_work_items:
+        changes.append(f"{len(related_work_items)} related work item(s) currently reference this decision.")
+    return changes or ["No evidence found."]
+
+
+def _decision_missing_information(contract: CanonicalExecutiveEntityContract, *, rationale: str) -> list[str]:
+    items: list[str] = []
+    if not contract.owner:
+        items.append("Accountable owner is not defined.")
+    if not contract.status:
+        items.append("Decision status is not defined.")
+    if not contract.created and not contract.last_activity and not contract.review_date:
+        items.append("Decision date is not defined.")
+    if rationale == "No rationale found in the source evidence.":
+        items.append("Decision rationale is not explicit in the source evidence.")
+    return items or ["No material missing information identified."]
+
+
 def _project_blockers(contract: CanonicalExecutiveEntityContract, related_work_items: list[Any]) -> list[dict[str, str]]:
     items = []
     for item in related_work_items:
@@ -1093,6 +1183,10 @@ def _stable_project_id(entity_id: str) -> str:
     return hashlib.sha1(entity_id.encode("utf-8")).hexdigest()[:12]
 
 
+def _stable_decision_id(entity_id: str) -> str:
+    return hashlib.sha1(entity_id.encode("utf-8")).hexdigest()[:12]
+
+
 def _stable_related_id(kind: str, value: str) -> str:
     return hashlib.sha1(f"{kind}:{value}".encode("utf-8")).hexdigest()[:12]
 
@@ -1180,6 +1274,67 @@ def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
         "summary": [
             f"Projects tracked: {len(state.projects)}.",
             f"Projects at risk: {state.project_health.get('at_risk', 0)}.",
+        ],
+    }
+
+
+def _build_decisions_page(state: ExecutiveState, *, read_model=None) -> dict[str, Any]:
+    effective_read_model = read_model or build_unified_executive_read_model(state)
+    decision_contracts = {
+        entity.canonical_name: entity
+        for entity in state.canonical_entities
+        if entity.entity_type == "decision"
+    }
+    details: dict[str, Any] = {}
+    items: list[dict[str, Any]] = []
+    contracts_used = 0
+
+    for decision in state.decisions:
+        contract = decision_contracts.get(decision["title"])
+        if contract is None:
+            continue
+        contracts_used += 1
+        decision_id = _stable_decision_id(contract.entity_id)
+        detail = _build_decision_detail(state, effective_read_model, contract=contract, decision=decision, decision_id=decision_id)
+        details[decision_id] = detail
+        items.append(
+            {
+                "decision_id": decision_id,
+                "title": detail["title"],
+                "source_path": detail["source_path"],
+                "source_entity_id": detail["source_entity_id"],
+                "route": detail["route"],
+                "status": detail["current_status"],
+                "owner": detail["owner"],
+                "decision_date": detail["decision_date"],
+                "related_project_count": len(detail["related_projects"]),
+                "related_objective_count": len(detail["related_objectives"]),
+                "related_people_count": len(detail["related_people"]),
+                "evidence_confidence": detail["evidence_confidence"],
+                "rationale": detail["rationale"],
+                "missing_fields": detail["missing_information"],
+                "importance": detail["importance"],
+            }
+        )
+
+    status_counts = {"total": len(items), "defined_status": 0, "owner_defined": 0}
+    for detail in details.values():
+        if detail["current_status"] != "Not defined":
+            status_counts["defined_status"] += 1
+        if detail["owner"] != "Not defined":
+            status_counts["owner_defined"] += 1
+
+    return {
+        "counts": {
+            **status_counts,
+            "source_notes": contracts_used,
+        },
+        "items": items,
+        "details": details,
+        "summary": [
+            f"Decision records tracked: {len(items)}.",
+            f"Owners defined: {status_counts['owner_defined']}.",
+            f"Statuses defined: {status_counts['defined_status']}.",
         ],
     }
 
@@ -1274,6 +1429,85 @@ def _build_project_detail(
             "open_actions": [item["path"] for item in open_actions if item["path"]],
             "related_people": [item["path"] for item in related_people if item["path"]],
             "related_companies": [item["path"] for item in related_companies if item["path"]],
+        },
+    }
+
+
+def _build_decision_detail(
+    state: ExecutiveState,
+    read_model,
+    *,
+    contract: CanonicalExecutiveEntityContract,
+    decision: dict[str, Any],
+    decision_id: str,
+) -> dict[str, Any]:
+    del read_model
+    rationale = _decision_rationale(contract, {entity.id: entity for entity in state.entities})
+    related_projects = _related_contract_items(
+        contract.related_projects,
+        state.projects,
+        route_prefix="/projects",
+        id_kind="project",
+        route_lookup={
+            entity.canonical_name: f"/projects/{_stable_project_id(entity.entity_id)}"
+            for entity in state.canonical_entities
+            if entity.entity_type == "project"
+        },
+    )
+    related_objectives = _related_contract_items(
+        contract.related_objectives,
+        state.objectives,
+        route_prefix="/objectives",
+        id_kind="objective",
+        route_lookup={
+            entity.canonical_name: f"/objectives/{_stable_objective_id(entity.entity_id)}"
+            for entity in state.canonical_entities
+            if entity.entity_type == "objective"
+        },
+    )
+    related_people = _related_people_items(contract, state)
+    related_companies = _related_decision_companies(state, contract)
+    related_work_items = _related_decision_work_items(state, contract)
+    relevant_meetings = _related_decision_meetings(state, contract)
+    evidence_sources = _objective_evidence_sources(contract, {entity.id: entity for entity in state.entities})
+    decision_date = contract.created or contract.last_activity or contract.review_date or "Not defined"
+    current_status = contract.status or "Not defined"
+    recent_changes = _build_decision_recent_changes(contract, related_work_items)
+    missing_information = _decision_missing_information(contract, rationale=rationale)
+
+    return {
+        "decision_id": decision_id,
+        "route": f"/decisions/{decision_id}",
+        "title": contract.canonical_name,
+        "source_entity_id": contract.entity_id,
+        "source_path": contract.primary_path,
+        "decision_date": decision_date,
+        "current_status": current_status,
+        "owner": contract.owner or "Not defined",
+        "importance": decision["importance"],
+        "evidence_confidence": contract.confidence,
+        "rationale": rationale,
+        "related_projects": related_projects,
+        "related_objectives": related_objectives,
+        "related_people": related_people,
+        "related_companies": related_companies,
+        "related_work_items": related_work_items,
+        "relevant_meetings": relevant_meetings,
+        "evidence_sources": evidence_sources,
+        "recent_changes": recent_changes,
+        "missing_information": missing_information,
+        "stale_evidence": not bool(contract.last_activity),
+        "source_entities": [contract.entity_id],
+        "source_work_items": [item["work_item_id"] for item in related_work_items if item.get("work_item_id")],
+        "provenance": {
+            "decision": list(contract.evidence_paths),
+            "owner": list(contract.provenance.get("owner", ())),
+            "status": list(contract.provenance.get("status", ())),
+            "related_projects": [item["path"] for item in related_projects if item["path"]],
+            "related_objectives": [item["path"] for item in related_objectives if item["path"]],
+            "related_people": [item["path"] for item in related_people if item["path"]],
+            "related_companies": [item["path"] for item in related_companies if item["path"]],
+            "related_work_items": [item["path"] for item in related_work_items if item["path"]],
         },
     }
 
