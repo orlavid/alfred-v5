@@ -17,6 +17,7 @@ from src.executive.read_model import build_unified_executive_read_model
 from src.executive.executive_reasoning import ExecutiveReasoning, build_executive_reasoning_from_state
 from src.executive.executive_state import ExecutiveState, build_executive_state
 from src.management.objectives import load_objective_management_store, merge_objective_detail
+from src.management.projects import load_project_management_store, merge_project_detail
 from src.objectives.objective_intelligence import (
     ObjectiveView,
     build_objective_intelligence_from_state,
@@ -767,7 +768,7 @@ def _build_objective_relationship_options(state: ExecutiveState) -> dict[str, li
                 "reason": item.summary,
                 "route": "/follow-ups",
             }
-            for item in state.followups.all_items
+            for item in (state.followups.all_items if state.followups is not None else ())
         ],
         "open_loops": [
             {
@@ -777,7 +778,7 @@ def _build_objective_relationship_options(state: ExecutiveState) -> dict[str, li
                 "reason": item.summary,
                 "route": "/open-loops",
             }
-            for item in state.open_loops.all_items
+            for item in (state.open_loops.all_items if state.open_loops is not None else ())
         ],
         "related_people": [
             {
@@ -802,7 +803,293 @@ def _build_objective_relationship_options(state: ExecutiveState) -> dict[str, li
     }
 
 
+def _build_project_relationship_options(state: ExecutiveState) -> dict[str, list[dict[str, str]]]:
+    return {
+        "linked_objectives": [
+            {
+                "id": _stable_related_id("objective", objective.path),
+                "title": objective.title,
+                "path": objective.path,
+                "reason": objective.recommendation,
+                "route": f"/objectives/{_stable_objective_id(_project_entity_id_by_path(state, objective.path, 'objective'))}" if _project_entity_id_by_path(state, objective.path, "objective") else "/objectives",
+            }
+            for objective in state.objectives
+        ],
+        "linked_decisions": [
+            {
+                "id": _stable_related_id("decision", item.get("path", item["title"])),
+                "title": item["title"],
+                "path": item.get("path", ""),
+                "reason": f"Importance {item['importance']}; linked to {item['projects']} projects and {item['objectives']} objectives.",
+                "route": "/decisions",
+            }
+            for item in state.decisions
+        ],
+        "follow_ups": [
+            {
+                "id": _stable_related_id("follow_up", f"{item.path}:{normalise_name(item.summary)}"),
+                "title": item.title,
+                "path": item.path,
+                "reason": item.summary,
+                "route": "/follow-ups",
+            }
+            for item in (state.followups.all_items if state.followups is not None else ())
+        ],
+        "open_loops": [
+            {
+                "id": _stable_related_id("open_loop", f"{item.path}:{normalise_name(item.summary)}"),
+                "title": item.title,
+                "path": item.path,
+                "reason": item.summary,
+                "route": "/open-loops",
+            }
+            for item in (state.open_loops.all_items if state.open_loops is not None else ())
+        ],
+        "related_people": [
+            {
+                "id": _stable_related_id("person", person.path),
+                "title": person.title,
+                "path": person.path,
+                "reason": f"Linked to {person.projects} projects, {person.objectives} objectives, and {person.decisions} decisions.",
+                "route": "/people",
+            }
+            for person in state.people
+        ],
+        "relevant_meetings": [
+            {
+                "id": _stable_related_id("meeting", meeting.subject),
+                "title": meeting.subject,
+                "path": meeting.matched_entities[0].path if meeting.matched_entities else "",
+                "reason": meeting.recommended_discussion[0] if meeting.recommended_discussion else "Relevant meeting context exists.",
+                "route": "/meetings",
+            }
+            for meeting in state.meetings
+        ],
+        "related_companies": [
+            {
+                "id": _stable_related_id("company", company.path),
+                "title": company.title,
+                "path": company.path,
+                "reason": f"Linked to {company.projects} projects and {company.objectives} objectives.",
+                "route": "/companies",
+            }
+            for company in state.companies
+        ],
+    }
+
+
+def _project_entity_id_by_path(state: ExecutiveState, path: str, entity_type: str) -> str | None:
+    for entity in state.canonical_entities:
+        if entity.entity_type == entity_type and entity.primary_path == path:
+            return entity.entity_id
+    return None
+
+
+def _related_contract_items(names: tuple[str, ...] | list[str], items: tuple[Any, ...], *, route_prefix: str, id_kind: str, route_lookup: dict[str, str] | None = None) -> list[dict[str, str]]:
+    lookup = {item.title: item for item in items}
+    related_items: list[dict[str, str]] = []
+    for name in names:
+        item = lookup.get(name)
+        path = getattr(item, "path", "") if item is not None else ""
+        route = route_lookup.get(name, route_prefix) if route_lookup else route_prefix
+        related_items.append(
+            {
+                "id": _stable_related_id(id_kind, path or name),
+                "title": name,
+                "path": path,
+                "reason": "Connected in canonical executive state.",
+                "route": route,
+            }
+        )
+    return related_items
+
+
+def _related_project_work_items(state: ExecutiveState, contract: CanonicalExecutiveEntityContract) -> list[Any]:
+    return [
+        item
+        for item in state.work_items
+        if contract.canonical_name in item.related_projects
+        or contract.canonical_name in item.related_entities
+    ]
+
+
+def _related_project_decisions(contract: CanonicalExecutiveEntityContract, state: ExecutiveState) -> list[dict[str, str]]:
+    entity_lookup = {entity.id: entity for entity in state.entities}
+    decision_lookup = {item["title"]: item for item in state.decisions}
+    items: list[dict[str, str]] = []
+    for entity_id in state.neighbours.get(contract.primary_path, ()):
+        entity = entity_lookup.get(entity_id)
+        if entity is None or getattr(entity, "type", None) != "decision":
+            continue
+        decision = decision_lookup.get(entity.title)
+        if decision is None:
+            continue
+        items.append(
+            {
+                "title": decision["title"],
+                "path": decision.get("path", ""),
+                "reason": f"Importance {decision['importance']}; linked to {decision['projects']} projects and {decision['objectives']} objectives.",
+                "route": "/decisions",
+            }
+        )
+    return items
+
+
+def _related_project_meetings(state: ExecutiveState, contract: CanonicalExecutiveEntityContract) -> list[dict[str, str]]:
+    items: list[dict[str, str]] = []
+    for meeting in state.meetings:
+        if contract.canonical_name not in [item.title for item in meeting.related_projects]:
+            continue
+        items.append(
+            {
+                "title": meeting.subject,
+                "path": meeting.matched_entities[0].path if meeting.matched_entities else "",
+                "reason": meeting.recommended_discussion[0] if meeting.recommended_discussion else "Relevant meeting context exists.",
+                "route": "/meetings",
+            }
+        )
+    return items
+
+
+def _related_project_companies(state: ExecutiveState, contract: CanonicalExecutiveEntityContract) -> list[dict[str, str]]:
+    entity_lookup = {entity.id: entity for entity in state.entities}
+    company_lookup = {item.title: item for item in state.companies}
+    items: list[dict[str, str]] = []
+    for entity_id in state.neighbours.get(contract.primary_path, ()):
+        entity = entity_lookup.get(entity_id)
+        if entity is None or getattr(entity, "type", None) != "company":
+            continue
+        company = company_lookup.get(entity.title)
+        reason = "Connected to the project through the executive knowledge graph."
+        if company is not None:
+            reason = f"Linked to {company.projects} projects and {company.objectives} objectives."
+        items.append(
+            {
+                "id": _stable_related_id("company", entity.path),
+                "title": entity.title,
+                "path": entity.path,
+                "reason": reason,
+                "route": "/companies",
+            }
+        )
+    return items
+
+
+def _project_blockers(contract: CanonicalExecutiveEntityContract, related_work_items: list[Any]) -> list[dict[str, str]]:
+    items = []
+    for item in related_work_items:
+        if item.work_item_type not in {"open_loop", "decision_review", "follow_up"}:
+            continue
+        items.append(
+            {
+                "title": item.title,
+                "path": item.evidence_paths[0] if item.evidence_paths else "",
+                "reason": _work_item_reason(item),
+                "type": item.work_item_type,
+                "route": "/follow-ups" if item.work_item_type == "follow_up" else "/open-loops",
+            }
+        )
+    for dependency in contract.dependencies:
+        items.append(
+            {
+                "title": dependency,
+                "path": "",
+                "reason": "Dependency linked to the project in canonical executive state.",
+                "type": "dependency",
+                "route": "/open-loops",
+            }
+        )
+    deduped = []
+    seen: set[tuple[str, str]] = set()
+    for item in items:
+        key = (item["title"], item["type"])
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped[:12]
+
+
+def _build_project_progress_assessment(
+    contract: CanonicalExecutiveEntityContract,
+    linked_objectives: list[dict[str, str]],
+    linked_decisions: list[dict[str, str]],
+    related_work_items: list[Any],
+    project,
+) -> str:
+    signals = []
+    if contract.status:
+        signals.append(contract.status)
+    elif getattr(project, "status", None):
+        signals.append(project.status)
+    signals.append(f"{getattr(project, 'linked_entities', 0)} linked entities")
+    if linked_objectives:
+        signals.append(f"{len(linked_objectives)} linked objective(s)")
+    if linked_decisions:
+        signals.append(f"{len(linked_decisions)} linked decision(s)")
+    if related_work_items:
+        signals.append(f"{len(related_work_items)} open work item(s)")
+    return ", ".join(signals) if signals else "No evidence found."
+
+
+def _build_project_recent_changes(
+    contract: CanonicalExecutiveEntityContract,
+    linked_decisions: list[dict[str, str]],
+    related_work_items: list[Any],
+) -> list[str]:
+    changes = []
+    if contract.last_activity:
+        changes.append(f"Last meaningful activity recorded on {contract.last_activity}.")
+    if linked_decisions:
+        changes.append(f"{len(linked_decisions)} linked decision(s) remain active.")
+    if related_work_items:
+        changes.append(f"{len(related_work_items)} open work item(s) remain linked to this project.")
+    return changes or ["No evidence found."]
+
+
+def _project_missing_information(
+    contract: CanonicalExecutiveEntityContract,
+    *,
+    linked_objectives: list[dict[str, str]],
+    related_people: list[dict[str, str]],
+    executive_definition: str,
+) -> list[str]:
+    items: list[str] = []
+    if not contract.owner:
+        items.append("Accountable owner is not defined.")
+    if not contract.due_date:
+        items.append("Target date is not defined.")
+    if not contract.review_date:
+        items.append("Review cadence is not defined.")
+    if not linked_objectives:
+        items.append("No linked objectives are defined.")
+    if not related_people:
+        items.append("No related people are linked.")
+    if executive_definition == "No evidence found.":
+        items.append("Executive definition is not explicit in the current evidence.")
+    return items or ["No material missing information identified."]
+
+
+def _recalculate_project_missing_information(detail: dict[str, Any]) -> list[str]:
+    items: list[str] = []
+    if detail.get("owner", "Not defined") == "Not defined":
+        items.append("Accountable owner is not defined.")
+    if detail.get("target_date", "Not defined") == "Not defined":
+        items.append("Target date is not defined.")
+    if detail.get("last_review_date", "Not defined") == "Not defined" and detail.get("next_review_date", "Not defined") == "Not defined":
+        items.append("Review cadence is not defined.")
+    if not detail.get("linked_objectives"):
+        items.append("No linked objectives are defined.")
+    if not detail.get("related_people"):
+        items.append("No related people are linked.")
+    return list(dict.fromkeys(items)) or ["No material missing information identified."]
+
+
 def _stable_objective_id(entity_id: str) -> str:
+    return hashlib.sha1(entity_id.encode("utf-8")).hexdigest()[:12]
+
+
+def _stable_project_id(entity_id: str) -> str:
     return hashlib.sha1(entity_id.encode("utf-8")).hexdigest()[:12]
 
 
@@ -846,30 +1133,148 @@ def _future_review_date(review_date: str | None) -> str | None:
 
 
 def _build_projects_page(state: ExecutiveState) -> dict[str, Any]:
-    entity_lookup = {entity.id: entity for entity in state.entities}
+    project_contracts = {
+        entity.primary_path: entity
+        for entity in state.canonical_entities
+        if entity.entity_type == "project"
+    }
+    management_store = load_project_management_store()
+    details: dict[str, Any] = {}
     items = []
     for project in state.projects:
-        linked_titles = sorted(
-            entity_lookup[entity_id].title
-            for entity_id in state.neighbours.get(project.path, ())
-            if entity_id in entity_lookup and getattr(entity_lookup[entity_id], "type", None) == "objective"
-        )
+        contract = project_contracts.get(project.path)
+        if contract is None:
+            continue
+        project_id = _stable_project_id(contract.entity_id)
+        detail = _build_project_detail(state, contract=contract, project=project, project_id=project_id)
+        detail["relationship_options"] = _build_project_relationship_options(state)
+        detail = merge_project_detail(detail, management_store.get("projects", {}).get(project_id))
+        detail["missing_information"] = _recalculate_project_missing_information(detail)
+        details[project_id] = detail
         items.append(
             {
-                "title": project.title,
-                "status": project.status,
-                "objective_linkage": linked_titles,
-                "risk": getattr(project, "risk", "Unknown"),
-                "recommendation": project.recommendation,
+                "project_id": project_id,
+                "title": detail["title"],
+                "source_path": detail["source_path"],
+                "source_entity_id": detail["source_entity_id"],
+                "route": detail["route"],
+                "status": detail["current_status"],
+                "health": detail["health"],
+                "owner": detail["owner"],
+                "progress_indicator": detail["progress_assessment"],
+                "last_meaningful_activity": detail["last_meaningful_activity"],
+                "next_checkpoint_or_deadline": detail["next_checkpoint_or_deadline"],
+                "objective_linkage": [item["title"] for item in detail["linked_objectives"]],
+                "linked_decision_count": len(detail["linked_decisions"]),
+                "open_action_count": len(detail["open_actions"]),
+                "evidence_confidence": detail["evidence_confidence"],
+                "risk": detail["key_risk_or_blocker"],
+                "recommendation": detail["recommended_next_action"],
+                "missing_fields": detail["missing_information"],
             }
         )
     return {
         "health": state.project_health,
-        "items": items[:12],
+        "items": items,
+        "details": details,
         "summary": [
             f"Projects tracked: {len(state.projects)}.",
             f"Projects at risk: {state.project_health.get('at_risk', 0)}.",
         ],
+    }
+
+
+def _build_project_detail(
+    state: ExecutiveState,
+    *,
+    contract: CanonicalExecutiveEntityContract,
+    project,
+    project_id: str,
+) -> dict[str, Any]:
+    related_work_items = _related_project_work_items(state, contract)
+    objective_routes = {
+        entity.canonical_name: f"/objectives/{_stable_objective_id(entity.entity_id)}"
+        for entity in state.canonical_entities
+        if entity.entity_type == "objective"
+    }
+    linked_objectives = _related_contract_items(
+        contract.related_objectives,
+        state.objectives,
+        route_prefix="/objectives",
+        id_kind="objective",
+        route_lookup=objective_routes,
+    )
+    linked_decisions = _related_project_decisions(contract, state)
+    related_people = _related_people_items(contract, state)
+    related_companies = _related_project_companies(state, contract)
+    relevant_meetings = _related_project_meetings(state, contract)
+    blockers = _project_blockers(contract, related_work_items)
+    evidence_sources = _objective_evidence_sources(contract, {entity.id: entity for entity in state.entities})
+    current_status = contract.status or project.status or "Not defined"
+    rag_rating = _status_to_rag(current_status)
+    progress_assessment = _build_project_progress_assessment(contract, linked_objectives, linked_decisions, related_work_items, project)
+    executive_definition = _objective_definition(contract, {entity.id: entity for entity in state.entities})
+    last_review_date, next_review_date = _review_window(contract.review_date)
+    recent_changes = _build_project_recent_changes(contract, linked_decisions, related_work_items)
+    open_actions = _build_open_action_items(related_work_items)
+    followups = [item for item in open_actions if item["type"] == "follow_up"]
+    open_loops = [item for item in open_actions if item["type"] != "follow_up"]
+    next_checkpoint = contract.due_date or _future_review_date(contract.review_date) or "Not defined"
+    missing_information = _project_missing_information(contract, linked_objectives=linked_objectives, related_people=related_people, executive_definition=executive_definition)
+    recommended_next_action = project.recommendation
+
+    return {
+        "project_id": project_id,
+        "route": f"/projects/{project_id}",
+        "title": contract.canonical_name,
+        "source_entity_id": contract.entity_id,
+        "source_path": contract.primary_path,
+        "executive_definition": executive_definition,
+        "owner": contract.owner or "Not defined",
+        "delegates": list(contract.delegates),
+        "contributors": [],
+        "current_status": current_status,
+        "health": rag_rating,
+        "rag_rating": rag_rating,
+        "progress_assessment": progress_assessment,
+        "progress_percentage": None,
+        "priority": contract.priority or "Not defined",
+        "evidence_confidence": contract.confidence,
+        "start_date": contract.created or "Not defined",
+        "target_date": contract.due_date or "Not defined",
+        "last_review_date": last_review_date,
+        "next_review_date": next_review_date,
+        "last_meaningful_activity": contract.last_activity or "No evidence found",
+        "next_checkpoint_or_deadline": next_checkpoint,
+        "linked_objectives": linked_objectives,
+        "linked_decisions": linked_decisions,
+        "risks_and_blockers": blockers,
+        "open_actions": open_actions,
+        "follow_ups": followups,
+        "open_loops": open_loops,
+        "dependencies": list(contract.dependencies),
+        "relevant_meetings": relevant_meetings,
+        "related_people": related_people,
+        "related_companies": related_companies,
+        "evidence_sources": evidence_sources,
+        "recent_changes": recent_changes,
+        "recommended_next_action": recommended_next_action,
+        "key_risk_or_blocker": blockers[0]["title"] if blockers else "No evidence found",
+        "missing_information": missing_information,
+        "success_measures": [],
+        "milestones": [],
+        "resources": [],
+        "management_notes": [],
+        "audit_history": [],
+        "stale_evidence": contract.last_activity is None,
+        "provenance": {
+            "project": list(contract.evidence_paths),
+            "linked_objectives": [item["path"] for item in linked_objectives if item["path"]],
+            "linked_decisions": [item["path"] for item in linked_decisions if item["path"]],
+            "open_actions": [item["path"] for item in open_actions if item["path"]],
+            "related_people": [item["path"] for item in related_people if item["path"]],
+            "related_companies": [item["path"] for item in related_companies if item["path"]],
+        },
     }
 
 

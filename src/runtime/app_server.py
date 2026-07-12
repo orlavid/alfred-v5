@@ -24,9 +24,19 @@ from src.management.objectives import (
     set_objective_status,
     update_objective_fields,
 )
+from src.management.projects import (
+    add_linked_item as add_project_linked_item,
+    add_management_note as add_project_management_note,
+    add_milestone as add_project_milestone,
+    complete_milestone as complete_project_milestone,
+    remove_linked_item as remove_project_linked_item,
+    set_project_status,
+    update_project_fields,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 OBJECTIVE_ACTION_PATH = re.compile(r"^/api/objectives/([^/]+)/actions$")
+PROJECT_ACTION_PATH = re.compile(r"^/api/projects/([^/]+)/actions$")
 
 
 class AlfredAppHandler(SimpleHTTPRequestHandler):
@@ -50,6 +60,11 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
         if match := OBJECTIVE_ACTION_PATH.match(parsed.path):
             payload = self._read_json_body()
             response = self._handle_objective_action(match.group(1), payload)
+            self._send_json(response)
+            return
+        if match := PROJECT_ACTION_PATH.match(parsed.path):
+            payload = self._read_json_body()
+            response = self._handle_project_action(match.group(1), payload)
             self._send_json(response)
             return
         self.send_error(HTTPStatus.NOT_FOUND, "API route not found")
@@ -136,6 +151,54 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
             return {"status": "error", "message": f"Unsupported action: {action}"}
 
         return {"status": "ok", "action": action, "objective_id": objective_id}
+
+    def _handle_project_action(self, project_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        action = payload.get("action", "update_fields")
+        actor = payload.get("actor", "user")
+        reason = payload.get("reason", "")
+
+        if action == "update_fields":
+            update_project_fields(project_id, payload.get("changes", {}), actor=actor, reason=reason)
+        elif action == "add_management_note":
+            add_project_management_note(project_id, payload.get("text", ""), actor=actor, reason=reason)
+        elif action == "add_milestone":
+            add_project_milestone(
+                project_id,
+                title=payload.get("title", ""),
+                due_date=payload.get("due_date"),
+                actor=actor,
+                reason=reason,
+            )
+        elif action == "complete_milestone":
+            complete_project_milestone(project_id, payload.get("milestone_id", ""), actor=actor, reason=reason)
+        elif action == "link_item":
+            add_project_linked_item(
+                project_id,
+                payload.get("field", ""),
+                payload.get("item", {}),
+                current_items=payload.get("current_items"),
+                actor=actor,
+                reason=reason,
+            )
+        elif action == "unlink_item":
+            remove_project_linked_item(
+                project_id,
+                payload.get("field", ""),
+                payload.get("item_key", ""),
+                current_items=payload.get("current_items"),
+                actor=actor,
+                reason=reason,
+            )
+        elif action == "hold_project":
+            set_project_status(project_id, "HOLD", "AMBER", actor=actor, reason=reason or "Project placed on hold.")
+        elif action == "close_project":
+            set_project_status(project_id, "CLOSED", "GREEN", actor=actor, reason=reason or "Project closed.")
+        elif action == "reopen_project":
+            set_project_status(project_id, "SUPPORTED", "GREEN", actor=actor, reason=reason or "Project reopened.")
+        else:
+            return {"status": "error", "message": f"Unsupported action: {action}"}
+
+        return {"status": "ok", "action": action, "project_id": project_id}
 
 
 def main() -> None:

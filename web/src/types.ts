@@ -55,12 +55,26 @@ export type DashboardPayload = {
   projects: {
     health: Record<string, number>;
     items: Array<{
+      project_id: string;
       title: string;
+      source_path: string;
+      source_entity_id: string;
+      route: string;
       status: string;
+      health: string;
+      owner: string;
+      progress_indicator: string;
+      last_meaningful_activity: string;
+      next_checkpoint_or_deadline: string;
       objective_linkage: string[];
+      linked_decision_count: number;
+      open_action_count: number;
+      evidence_confidence: string;
       risk: string;
       recommendation: string;
+      missing_fields: string[];
     }>;
+    details?: Record<string, ProjectDetail>;
     summary: string[];
   };
   followups: {
@@ -357,6 +371,53 @@ export type ObjectiveDetail = {
   linked_decision_titles: string[];
   relevant_meeting_titles: string[];
   source_work_item_ids: string[];
+  provenance: Record<string, string[]>;
+};
+
+export type ProjectDetail = {
+  project_id: string;
+  route: string;
+  title: string;
+  source_entity_id: string;
+  source_path: string;
+  executive_definition: string;
+  owner: string;
+  delegates: string[];
+  contributors: string[];
+  current_status: string;
+  health: string;
+  rag_rating: string;
+  progress_assessment: string;
+  progress_percentage: number | null;
+  evidence_confidence: string;
+  priority: string;
+  start_date: string;
+  target_date: string;
+  last_review_date: string;
+  next_review_date: string;
+  last_meaningful_activity: string;
+  next_checkpoint_or_deadline: string;
+  linked_objectives: LinkedObjectiveItem[];
+  linked_decisions: LinkedObjectiveItem[];
+  related_companies: LinkedObjectiveItem[];
+  risks_and_blockers: Array<LinkedObjectiveItem & { type: string }>;
+  open_actions: ObjectiveDetail["open_actions"];
+  follow_ups: ObjectiveDetail["follow_ups"];
+  open_loops: ObjectiveDetail["open_loops"];
+  relevant_meetings: LinkedObjectiveItem[];
+  related_people: LinkedObjectiveItem[];
+  evidence_sources: ObjectiveDetail["evidence_sources"];
+  success_measures: string[];
+  milestones: ObjectiveDetail["milestones"];
+  resources: string[];
+  dependencies: string[];
+  management_notes: ObjectiveDetail["management_notes"];
+  audit_history: ObjectiveDetail["audit_history"];
+  relationship_options: Record<string, LinkedObjectiveItem[]>;
+  recent_changes: string[];
+  recommended_next_action: string;
+  missing_information: string[];
+  stale_evidence: boolean;
   provenance: Record<string, string[]>;
 };
 

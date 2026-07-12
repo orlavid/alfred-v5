@@ -5,6 +5,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { ObjectivesPage } from "@/pages/ObjectivesPage";
 import { ObjectiveDetailPage } from "@/pages/ObjectiveDetailPage";
 import { ProjectsPage } from "@/pages/ProjectsPage";
+import { ProjectDetailPage } from "@/pages/ProjectDetailPage";
 import { MeetingsPage } from "@/pages/MeetingsPage";
 import { BoardPage } from "@/pages/BoardPage";
 import { AskAlfredPage } from "@/pages/AskAlfredPage";
@@ -68,6 +69,7 @@ export function App() {
           <Route path="/objectives" element={<ObjectivesPage data={data} />} />
           <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={data} onRefresh={refreshDashboard} />} />
           <Route path="/projects" element={<ProjectsPage data={data} />} />
+          <Route path="/projects/:projectId" element={<ProjectDetailPage data={data} onRefresh={refreshDashboard} />} />
           <Route
             path="/programmes"
             element={<PlaceholderPage title="Programmes" kicker="Objectives" summary="Programme navigation is reserved for grouped objective delivery views." bullets={["Programme rollups will surface after dedicated backend page shaping is added.", "Use Projects and Objectives as the current canonical views."]} />}
