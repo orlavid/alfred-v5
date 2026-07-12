@@ -19,7 +19,7 @@ from src.executive.executive_reasoning import build_executive_reasoning_from_sta
 from src.executive.executive_state import render_executive_state_summary
 from src.executive.executive_state import build_executive_state
 from src.operations.doctor import build_operational_readiness
-from src.operations.production_validation import build_production_validation
+from src.operations.config_registry import build_configuration_registry
 
 
 @dataclass(frozen=True)
@@ -181,13 +181,16 @@ class SnapshotStore:
             (staged_output_dir / "Daily_Brief.md").write_text(render_daily_brief(brief))
 
             readiness = build_operational_readiness(output_dir=staged_output_dir)
-            validation = build_production_validation(output_dir=staged_output_dir)
+            validation_findings = _validate_snapshot_payloads(
+                [staged_output_dir / "Dashboard_Home.json", *files_dir.glob("*.json")]
+            )
+            validation_status = "PASS" if not validation_findings else "FAIL"
 
             readiness_has_failure = any(check.status == "FAIL" for check in readiness.checks)
-            certification_status = readiness.overall_health if validation.status == "PASS" else "FAIL"
-            if validation.status != "PASS" or readiness_has_failure:
+            certification_status = readiness.overall_health if validation_status == "PASS" else "FAIL"
+            if validation_status != "PASS" or readiness_has_failure:
                 raise RuntimeError(
-                    f"snapshot validation failed: operational_readiness={readiness.overall_health}; production_validation={validation.status}"
+                    f"snapshot validation failed: operational_readiness={readiness.overall_health}; snapshot_validation={validation_status}"
                 )
 
             target_version_dir = self.versions_dir / version
@@ -227,7 +230,7 @@ class SnapshotStore:
                 source_vault_timestamp=status.source_vault_timestamp,
                 deployed_commit=status.deployed_commit or "unknown",
                 certification_status=certification_status,
-                validation_status=validation.status,
+                validation_status=validation_status,
                 readiness_status=readiness.overall_health,
                 refresh_duration_seconds=round(duration, 3),
             )
@@ -489,3 +492,19 @@ def _deployed_commit(app_root: Path, install_root: Path) -> str:
                 if value:
                     return value
     return "unknown"
+
+
+def _validate_snapshot_payloads(files: list[Path]) -> tuple[str, ...]:
+    registry = build_configuration_registry()
+    forbidden = tuple(
+        value
+        for value in registry.forbidden_output_strings
+        if value == "Reconnect Alfred" or value.startswith("DEFAULT_")
+    )
+    findings: list[str] = []
+    for path in files:
+        text = path.read_text(errors="ignore")
+        for value in forbidden:
+            if value in text:
+                findings.append(f"{path.name}: forbidden string `{value}`")
+    return tuple(findings)

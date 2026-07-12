@@ -106,11 +106,6 @@ def _seed_snapshot_environment(monkeypatch, tmp_path: Path, label: str = "curren
         "build_operational_readiness",
         lambda output_dir=None: SimpleNamespace(overall_health="GREEN", checks=(_FakeCheck("PASS"),)),
     )
-    monkeypatch.setattr(
-        snapshot_module,
-        "build_production_validation",
-        lambda output_dir=None: SimpleNamespace(status="PASS"),
-    )
     return SnapshotStore(
         install_root=tmp_path,
         evidence_root=tmp_path / "evidence",
@@ -142,8 +137,8 @@ def test_snapshot_failed_refresh_preserves_previous_snapshot(monkeypatch, tmp_pa
 
     monkeypatch.setattr(
         snapshot_module,
-        "build_production_validation",
-        lambda output_dir=None: SimpleNamespace(status="FAIL"),
+        "_validate_snapshot_payloads",
+        lambda files: ("Dashboard_Home.json: forbidden string `Reconnect Alfred`",),
     )
 
     try:
@@ -178,3 +173,20 @@ def test_snapshot_serves_previous_content_while_refresh_runs(monkeypatch, tmp_pa
         time.sleep(0.05)
 
     assert store.read_bootstrap()["next_best_action"]["action"] == "after action"
+
+
+def test_snapshot_validation_blocks_runtime_placeholders(monkeypatch, tmp_path):
+    store = _seed_snapshot_environment(monkeypatch, tmp_path, label="placeholder")
+
+    def placeholder_payload(*_args, **_kwargs):
+        payload = _payload("placeholder")
+        payload["next_best_action"]["action"] = "Reconnect Alfred"
+        return payload
+
+    monkeypatch.setattr(snapshot_module, "get_dashboard_home", placeholder_payload)
+
+    try:
+        store.publish_snapshot(trigger="placeholder")
+        raise AssertionError("expected publish_snapshot to fail on runtime placeholder")
+    except RuntimeError as exc:
+        assert "snapshot_validation=FAIL" in str(exc)
