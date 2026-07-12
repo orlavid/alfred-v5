@@ -1,9 +1,18 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import { loadObjectivesDomain } from "@/lib/loadDashboard";
+import { useDomainPayload } from "@/lib/useDomainPayload";
+import type { DashboardBootstrapPayload, DashboardPayload, ObjectivesDomainPayload } from "@/types";
 
-export function ObjectivesPage({ data }: { data: DashboardPayload }) {
+export function ObjectivesPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
+  const embeddedDomain = useMemo(
+    () => ("items" in data.objectives ? (data.objectives as ObjectivesDomainPayload) : null),
+    [data.objectives],
+  );
+  const { data: domain, error } = useDomainPayload(embeddedDomain, loadObjectivesDomain);
+
   return (
     <div className="space-y-6">
       <SectionCard title="Objectives" kicker="Lifecycle">
@@ -17,7 +26,12 @@ export function ObjectivesPage({ data }: { data: DashboardPayload }) {
         </div>
       </SectionCard>
       <div className="grid gap-6 lg:grid-cols-2">
-        {data.objectives.items.map((item) => (
+        {error ? (
+          <SectionCard title="Objectives Unavailable" kicker="Snapshot">
+            <p className="text-sm leading-6 text-ink/70">{error}</p>
+          </SectionCard>
+        ) : null}
+        {domain?.items.map((item) => (
           <Link key={item.objective_id} to={item.route} className="block">
             <SectionCard
               title={item.title}
@@ -51,6 +65,11 @@ export function ObjectivesPage({ data }: { data: DashboardPayload }) {
             </SectionCard>
           </Link>
         ))}
+        {!error && !domain ? (
+          <SectionCard title="Loading Objectives" kicker="Snapshot">
+            <p className="text-sm leading-6 text-ink/70">Reading the latest published objective register.</p>
+          </SectionCard>
+        ) : null}
       </div>
     </div>
   );

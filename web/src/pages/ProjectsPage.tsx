@@ -2,18 +2,28 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import { loadProjectsDomain } from "@/lib/loadDashboard";
+import { useDomainPayload } from "@/lib/useDomainPayload";
+import type { DashboardBootstrapPayload, DashboardPayload, ProjectsDomainPayload } from "@/types";
 
 type SortOption = "attention" | "title" | "recent";
 
-export function ProjectsPage({ data }: { data: DashboardPayload }) {
+export function ProjectsPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("attention");
+  const embeddedDomain = useMemo(
+    () => ("items" in data.projects ? (data.projects as ProjectsDomainPayload) : null),
+    [data.projects],
+  );
+  const { data: domain, error } = useDomainPayload(embeddedDomain, loadProjectsDomain);
 
   const filteredItems = useMemo(() => {
+    if (!domain) {
+      return [];
+    }
     const lower = query.trim().toLowerCase();
-    const items = data.projects.items.filter((item) => {
+    const items = domain.items.filter((item) => {
       if (statusFilter !== "ALL" && item.status !== statusFilter) {
         return false;
       }
@@ -38,7 +48,7 @@ export function ProjectsPage({ data }: { data: DashboardPayload }) {
       }
       return attentionScore(right) - attentionScore(left);
     });
-  }, [data.projects.items, query, sortBy, statusFilter]);
+  }, [domain, query, sortBy, statusFilter]);
 
   return (
     <div className="space-y-6">
@@ -93,10 +103,20 @@ export function ProjectsPage({ data }: { data: DashboardPayload }) {
           </label>
           <div className="rounded-2xl border border-ink/10 bg-paper px-4 py-3 text-sm leading-6 text-ink/80">
             <p><span className="font-semibold text-ink">Visible:</span> {filteredItems.length}</p>
-            <p><span className="font-semibold text-ink">Canonical:</span> {data.projects.items.length}</p>
+            <p><span className="font-semibold text-ink">Canonical:</span> {domain?.items.length ?? 0}</p>
           </div>
         </div>
 
+        {error ? (
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">
+            {error}
+          </div>
+        ) : null}
+        {!error && !domain ? (
+          <div className="mt-6 rounded-2xl border border-ink/10 bg-white/70 p-4 text-sm leading-6 text-ink/70">
+            Reading the latest published project register.
+          </div>
+        ) : null}
         <div className="mt-6 space-y-4">
           {filteredItems.map((item) => (
             <Link
@@ -142,7 +162,7 @@ export function ProjectsPage({ data }: { data: DashboardPayload }) {
   );
 }
 
-function attentionScore(item: DashboardPayload["projects"]["items"][number]): number {
+function attentionScore(item: ProjectsDomainPayload["items"][number]): number {
   let score = 0;
   if (item.status === "AT RISK") {
     score += 100;

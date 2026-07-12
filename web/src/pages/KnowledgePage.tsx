@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/SectionCard";
-import type { DashboardPayload } from "@/types";
+import type { DashboardBootstrapPayload, DashboardPayload } from "@/types";
 
-export function KnowledgePage({ data }: { data: DashboardPayload }) {
+export function KnowledgePage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
   return (
     <div className="space-y-6">
       <SectionCard title="Knowledge" kicker="Model">

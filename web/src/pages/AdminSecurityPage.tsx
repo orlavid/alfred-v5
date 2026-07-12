@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/SectionCard";
-import type { AdminAction, AdminComponent, DashboardPayload } from "@/types";
+import type { AdminAction, AdminComponent, DashboardBootstrapPayload, DashboardPayload } from "@/types";
 
-const SECTION_ORDER: Array<[string, keyof DashboardPayload["admin_configuration"]["sections"]]> = [
+const SECTION_ORDER: Array<[string, keyof DashboardBootstrapPayload["admin_configuration"]["sections"]]> = [
   ["Core Configuration", "core_configuration"],
   ["Vault", "vault"],
   ["AI Providers", "ai_providers"],
@@ -14,7 +14,7 @@ const SECTION_ORDER: Array<[string, keyof DashboardPayload["admin_configuration"
   ["Required Actions", "required_actions"],
 ];
 
-export function AdminSecurityPage({ data }: { data: DashboardPayload }) {
+export function AdminSecurityPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
   const admin = data.admin_configuration;
 
   return (

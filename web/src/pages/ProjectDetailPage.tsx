@@ -2,11 +2,19 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
+import { loadProjectsDomain } from "@/lib/loadDashboard";
 import { postProjectAction } from "@/lib/projectApi";
-import type { DashboardPayload, LinkedObjectiveItem, ProjectDetail } from "@/types";
+import { useDomainPayload } from "@/lib/useDomainPayload";
+import type {
+  DashboardBootstrapPayload,
+  DashboardPayload,
+  LinkedObjectiveItem,
+  ProjectDetail,
+  ProjectsDomainPayload,
+} from "@/types";
 
 type Props = {
-  data: DashboardPayload;
+  data: DashboardBootstrapPayload | DashboardPayload;
   onRefresh: () => Promise<void>;
 };
 
@@ -50,7 +58,12 @@ const EMPTY_FORM: FormState = {
 
 export function ProjectDetailPage({ data, onRefresh }: Props) {
   const { projectId } = useParams();
-  const detail = projectId ? data.projects.details?.[projectId] : undefined;
+  const embeddedDomain = useMemo(
+    () => ("items" in data.projects ? (data.projects as ProjectsDomainPayload) : null),
+    [data.projects],
+  );
+  const { data: domain, error: domainError, setData: setDomain } = useDomainPayload(embeddedDomain, loadProjectsDomain);
+  const detail = projectId ? domain?.details?.[projectId] : undefined;
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [noteText, setNoteText] = useState("");
   const [milestoneTitle, setMilestoneTitle] = useState("");
@@ -96,10 +109,20 @@ export function ProjectDetailPage({ data, onRefresh }: Props) {
     return <Navigate to="/projects" replace />;
   }
 
+  if (!detail && !domain && !domainError) {
+    return (
+      <SectionCard title="Loading Project" kicker="Project Workspace">
+        <p className="text-sm leading-6 text-ink/70">Reading the latest published project workspace.</p>
+      </SectionCard>
+    );
+  }
+
   if (!detail) {
     return (
       <SectionCard title="Project Not Found" kicker="Project Workspace">
-        <p className="text-sm leading-6 text-ink/70">No project management workspace was found for this link.</p>
+        <p className="text-sm leading-6 text-ink/70">
+          {domainError ?? "No project management workspace was found for this link."}
+        </p>
         <Link to="/projects" className="mt-4 inline-flex text-sm font-semibold text-accent">
           Back to projects
         </Link>
@@ -113,6 +136,7 @@ export function ProjectDetailPage({ data, onRefresh }: Props) {
     try {
       await postProjectAction(projectId, payload);
       await onRefresh();
+      setDomain(await loadProjectsDomain());
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Project action failed.");
     } finally {

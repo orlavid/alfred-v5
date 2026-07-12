@@ -20,19 +20,34 @@ import { OpenLoopsPage } from "@/pages/OpenLoopsPage";
 import { ActionsPage } from "@/pages/ActionsPage";
 import { ExecutiveSummaryPage } from "@/pages/ExecutiveSummaryPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
-import { loadDashboard } from "@/lib/loadDashboard";
-import type { DashboardPayload } from "@/types";
+import { loadDashboard, loadRefreshStatus, requestRefreshNow } from "@/lib/loadDashboard";
+import type { DashboardBootstrapPayload, SnapshotInfo } from "@/types";
 import { startTransition, useEffect, useState } from "react";
 
 export function App() {
-  const [data, setData] = useState<DashboardPayload | null>(null);
+  const [data, setData] = useState<DashboardBootstrapPayload | null>(null);
+  const [snapshot, setSnapshot] = useState<SnapshotInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [askQuery, setAskQuery] = useState("What should I do today?");
 
   const refreshDashboard = async () => {
+    const refreshState = await requestRefreshNow();
+    startTransition(() => {
+      setSnapshot(refreshState);
+      setError(null);
+    });
+
+    let current = refreshState;
+    while (current.refresh_in_progress) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      current = await loadRefreshStatus();
+      startTransition(() => setSnapshot(current));
+    }
+
     const payload = await loadDashboard();
     startTransition(() => {
       setData(payload);
+      setSnapshot(payload.snapshot);
       setAskQuery(payload.ask_alfred.questions[0] ?? "What should I do today?");
       setError(null);
     });
@@ -45,6 +60,7 @@ export function App() {
         if (!cancelled) {
           startTransition(() => {
             setData(payload);
+            setSnapshot(payload.snapshot);
             setAskQuery(payload.ask_alfred.questions[0] ?? "What should I do today?");
           });
         }
@@ -60,7 +76,7 @@ export function App() {
   }, []);
 
   return (
-    <AppShell askQuery={askQuery} onAskQueryChange={setAskQuery}>
+    <AppShell askQuery={askQuery} onAskQueryChange={setAskQuery} snapshot={snapshot} onRefreshNow={() => { void refreshDashboard(); }}>
       {!data && !error ? <LoadingState /> : null}
       {error ? <ErrorState message={error} /> : null}
       {data ? (

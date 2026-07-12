@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import type { DashboardBootstrapPayload, DashboardPayload } from "@/types";
 
 type DashboardPageProps = {
-  data: DashboardPayload;
+  data: DashboardBootstrapPayload | DashboardPayload;
 };
 
 const PATH_MAP: Record<string, string> = {

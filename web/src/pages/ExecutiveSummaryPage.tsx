@@ -1,8 +1,8 @@
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import type { DashboardBootstrapPayload, DashboardPayload } from "@/types";
 
-export function ExecutiveSummaryPage({ data }: { data: DashboardPayload }) {
+export function ExecutiveSummaryPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
   return (
     <div className="space-y-6">
       <SectionCard title="Executive Summary" kicker="Command" action={<StatusPill value={data.generated_from.confidence} />}>

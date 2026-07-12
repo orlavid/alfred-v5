@@ -1,20 +1,38 @@
 import { Link, Navigate, useParams } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import { useMemo } from "react";
+import { loadDecisionsDomain } from "@/lib/loadDashboard";
+import { useDomainPayload } from "@/lib/useDomainPayload";
+import type { DashboardBootstrapPayload, DashboardPayload, DecisionsDomainPayload } from "@/types";
 
-export function DecisionDetailPage({ data }: { data: DashboardPayload }) {
+export function DecisionDetailPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
   const { decisionId } = useParams();
-  const detail = decisionId ? data.decisions.details?.[decisionId] : undefined;
+  const embeddedDomain = useMemo(
+    () => ("items" in data.decisions ? (data.decisions as DecisionsDomainPayload) : null),
+    [data.decisions],
+  );
+  const { data: domain, error } = useDomainPayload(embeddedDomain, loadDecisionsDomain);
+  const detail = decisionId ? domain?.details?.[decisionId] : undefined;
 
   if (!decisionId) {
     return <Navigate to="/decisions" replace />;
   }
 
+  if (!detail && !domain && !error) {
+    return (
+      <SectionCard title="Loading Decision" kicker="Decision Workspace">
+        <p className="text-sm leading-6 text-ink/70">Reading the latest published decision workspace.</p>
+      </SectionCard>
+    );
+  }
+
   if (!detail) {
     return (
       <SectionCard title="Decision Not Found" kicker="Decision Workspace">
-        <p className="text-sm leading-6 text-ink/70">No decision detail workspace was found for this link.</p>
+        <p className="text-sm leading-6 text-ink/70">
+          {error ?? "No decision detail workspace was found for this link."}
+        </p>
         <Link to="/decisions" className="mt-4 inline-flex text-sm font-semibold text-accent">
           Back to decisions
         </Link>

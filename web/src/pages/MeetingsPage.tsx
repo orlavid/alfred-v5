@@ -1,8 +1,8 @@
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import type { DashboardBootstrapPayload, DashboardPayload } from "@/types";
 
-export function MeetingsPage({ data }: { data: DashboardPayload }) {
+export function MeetingsPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
   const meeting = data.meetings;
   return (
     <div className="space-y-6">

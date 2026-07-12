@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import type { DashboardBootstrapPayload, DashboardPayload } from "@/types";
 
 function normalise(value: string) {
   return value.trim().toLowerCase();
@@ -12,7 +12,7 @@ export function AskAlfredPage({
   query,
   onQueryChange,
 }: {
-  data: DashboardPayload;
+  data: DashboardBootstrapPayload | DashboardPayload;
   query: string;
   onQueryChange: (value: string) => void;
 }) {

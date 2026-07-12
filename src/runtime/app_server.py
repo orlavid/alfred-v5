@@ -9,10 +9,11 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import os
 from pathlib import Path
 import re
+import threading
+import time
 from typing import Any
 from urllib.parse import urlparse
 
-from src.api.dashboard_api import get_dashboard_home
 from src.management.objectives import (
     accept_smart_proposal,
     add_linked_item,
@@ -24,6 +25,7 @@ from src.management.objectives import (
     set_objective_status,
     update_objective_fields,
 )
+from src.runtime.published_snapshot import SnapshotStore
 from src.management.projects import (
     add_linked_item as add_project_linked_item,
     add_management_note as add_project_management_note,
@@ -37,6 +39,7 @@ from src.management.projects import (
 ROOT = Path(__file__).resolve().parents[2]
 OBJECTIVE_ACTION_PATH = re.compile(r"^/api/objectives/([^/]+)/actions$")
 PROJECT_ACTION_PATH = re.compile(r"^/api/projects/([^/]+)/actions$")
+DOMAIN_API_PATH = re.compile(r"^/api/(objectives|projects|decisions|followups|open-loops|risks|companies|people|governance|operations|meetings|daily-brief)\.json$")
 
 
 class AlfredAppHandler(SimpleHTTPRequestHandler):
@@ -48,7 +51,14 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
         if parsed.path == "/api/dashboard-home.json":
-            self._send_json(get_dashboard_home())
+            self._send_json(self.server.snapshot_store.read_bootstrap())
+            return
+        if parsed.path == "/api/refresh-status.json":
+            self._send_json(self.server.snapshot_store.read_refresh_status())
+            return
+        if match := DOMAIN_API_PATH.match(parsed.path):
+            domain = match.group(1).replace("-", "_")
+            self._send_json(self.server.snapshot_store.read_domain(domain))
             return
         if parsed.path.startswith("/api/"):
             self.send_error(HTTPStatus.NOT_FOUND, "API route not found")
@@ -66,6 +76,10 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
             payload = self._read_json_body()
             response = self._handle_project_action(match.group(1), payload)
             self._send_json(response)
+            return
+        if parsed.path == "/api/refresh-now":
+            status = self.server.snapshot_store.refresh_async(trigger="manual")
+            self._send_json({"status": "accepted", "refresh": status.as_dict()}, status=202)
             return
         self.send_error(HTTPStatus.NOT_FOUND, "API route not found")
 
@@ -134,8 +148,8 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
                 reason=reason,
             )
         elif action == "run_smart_enrichment":
-            dashboard = get_dashboard_home()
-            detail = dashboard["objectives"]["details"][objective_id]
+            dashboard = self.server.snapshot_store.read_domain("objectives")
+            detail = dashboard["details"][objective_id]
             create_smart_proposal(objective_id, detail, actor=actor, reason=reason)
         elif action == "accept_smart_proposal":
             accept_smart_proposal(objective_id, selected_fields=payload.get("fields"), actor=actor, reason=reason)
@@ -149,7 +163,7 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
             set_objective_status(objective_id, "SUPPORTED", "GREEN", actor=actor, reason=reason or "Objective reopened.")
         else:
             return {"status": "error", "message": f"Unsupported action: {action}"}
-
+        self.server.snapshot_store.refresh_async(trigger="objective_action")
         return {"status": "ok", "action": action, "objective_id": objective_id}
 
     def _handle_project_action(self, project_id: str, payload: dict[str, Any]) -> dict[str, Any]:
@@ -197,7 +211,7 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
             set_project_status(project_id, "SUPPORTED", "GREEN", actor=actor, reason=reason or "Project reopened.")
         else:
             return {"status": "error", "message": f"Unsupported action: {action}"}
-
+        self.server.snapshot_store.refresh_async(trigger="project_action")
         return {"status": "ok", "action": action, "project_id": project_id}
 
 
@@ -217,12 +231,34 @@ def main() -> None:
     static_root = install_root / "app" / "dist"
     if not static_root.exists():
         static_root = ROOT / "dist"
+    evidence_root = ROOT / "evidence" / "alfred-inventory"
+    if (install_root / "app" / "evidence" / "alfred-inventory").exists():
+        evidence_root = install_root / "app" / "evidence" / "alfred-inventory"
+    snapshot_store = SnapshotStore(
+        install_root=install_root,
+        evidence_root=evidence_root,
+        vault_root=Path(os.environ.get("ALFRED_OBSIDIAN_VAULT", "/docker/obsidian-vault")),
+    )
+    snapshot_store.ensure_snapshot()
+    _start_daily_refresh(snapshot_store)
+
     handler = partial(AlfredAppHandler, directory=str(static_root))
     server = ThreadingHTTPServer((host, port), handler)
+    server.snapshot_store = snapshot_store  # type: ignore[attr-defined]
     try:
         server.serve_forever()
     finally:
         server.server_close()
+
+
+def _start_daily_refresh(snapshot_store: SnapshotStore) -> None:
+    def _runner() -> None:
+        while True:
+            time.sleep(24 * 60 * 60)
+            snapshot_store.refresh_async(trigger="scheduled")
+
+    thread = threading.Thread(target=_runner, daemon=True, name="alfred-snapshot-refresh")
+    thread.start()
 
 
 if __name__ == "__main__":

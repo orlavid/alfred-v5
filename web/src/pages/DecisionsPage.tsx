@@ -2,18 +2,28 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import { loadDecisionsDomain } from "@/lib/loadDashboard";
+import { useDomainPayload } from "@/lib/useDomainPayload";
+import type { DashboardBootstrapPayload, DashboardPayload, DecisionsDomainPayload } from "@/types";
 
 type SortOption = "importance" | "title" | "date";
 
-export function DecisionsPage({ data }: { data: DashboardPayload }) {
+export function DecisionsPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("importance");
+  const embeddedDomain = useMemo(
+    () => ("items" in data.decisions ? (data.decisions as DecisionsDomainPayload) : null),
+    [data.decisions],
+  );
+  const { data: domain, error } = useDomainPayload(embeddedDomain, loadDecisionsDomain);
 
   const filteredItems = useMemo(() => {
+    if (!domain) {
+      return [];
+    }
     const lower = query.trim().toLowerCase();
-    const items = data.decisions.items.filter((item) => {
+    const items = domain.items.filter((item) => {
       if (statusFilter !== "ALL" && item.status !== statusFilter) {
         return false;
       }
@@ -37,7 +47,7 @@ export function DecisionsPage({ data }: { data: DashboardPayload }) {
       }
       return right.importance - left.importance;
     });
-  }, [data.decisions.items, query, sortBy, statusFilter]);
+  }, [domain, query, sortBy, statusFilter]);
 
   return (
     <div className="space-y-6">
@@ -91,10 +101,20 @@ export function DecisionsPage({ data }: { data: DashboardPayload }) {
           </label>
           <div className="rounded-2xl border border-ink/10 bg-paper px-4 py-3 text-sm leading-6 text-ink/80">
             <p><span className="font-semibold text-ink">Visible:</span> {filteredItems.length}</p>
-            <p><span className="font-semibold text-ink">Canonical:</span> {data.decisions.items.length}</p>
+            <p><span className="font-semibold text-ink">Canonical:</span> {domain?.items.length ?? 0}</p>
           </div>
         </div>
 
+        {error ? (
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">
+            {error}
+          </div>
+        ) : null}
+        {!error && !domain ? (
+          <div className="mt-6 rounded-2xl border border-ink/10 bg-white/70 p-4 text-sm leading-6 text-ink/70">
+            Reading the latest published decision register.
+          </div>
+        ) : null}
         <div className="mt-6 space-y-4">
           {filteredItems.map((item) => (
             <Link

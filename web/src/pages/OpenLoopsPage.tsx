@@ -1,8 +1,17 @@
+import { useMemo } from "react";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import { loadOpenLoopsDomain } from "@/lib/loadDashboard";
+import { useDomainPayload } from "@/lib/useDomainPayload";
+import type { DashboardBootstrapPayload, DashboardPayload, OpenLoopsDomainPayload } from "@/types";
 
-export function OpenLoopsPage({ data }: { data: DashboardPayload }) {
+export function OpenLoopsPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
+  const embeddedDomain = useMemo(
+    () => ("items" in data.open_loops ? (data.open_loops as OpenLoopsDomainPayload) : null),
+    [data.open_loops],
+  );
+  const { data: domain, error } = useDomainPayload(embeddedDomain, loadOpenLoopsDomain);
+
   return (
     <div className="space-y-6">
       <SectionCard title="Open Loops" kicker="Management View">
@@ -36,8 +45,18 @@ export function OpenLoopsPage({ data }: { data: DashboardPayload }) {
         </div>
       </SectionCard>
       <SectionCard title="Full Open Loop Collection" kicker="Canonical">
+        {error ? (
+          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">
+            {error}
+          </div>
+        ) : null}
+        {!error && !domain ? (
+          <div className="mb-4 rounded-2xl border border-ink/10 bg-white/70 p-4 text-sm leading-6 text-ink/70">
+            Reading the latest published open-loop register.
+          </div>
+        ) : null}
         <div className="space-y-4">
-          {data.open_loops.items.map((item) => (
+          {domain?.items.map((item) => (
             <article key={item.work_item_id} className="rounded-2xl border border-ink/10 bg-white/70 p-5">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="space-y-3">

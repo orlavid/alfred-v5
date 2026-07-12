@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/SectionCard";
-import type { DashboardPayload } from "@/types";
+import type { DashboardBootstrapPayload, DashboardPayload } from "@/types";
 
-const SECTIONS: Array<[string, keyof DashboardPayload["daily_brief"]]> = [
+const SECTIONS: Array<[string, keyof DashboardBootstrapPayload["daily_brief"]]> = [
   ["Executive Health", "executive_health"],
   ["Overnight Changes", "overnight_changes"],
   ["Top Three Priorities", "top_three_priorities"],
@@ -14,7 +14,7 @@ const SECTIONS: Array<[string, keyof DashboardPayload["daily_brief"]]> = [
   ["One-page Executive Summary", "one_page_executive_summary"],
 ];
 
-export function DailyBriefPage({ data }: { data: DashboardPayload }) {
+export function DailyBriefPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       {SECTIONS.map(([title, key]) => (

@@ -1,8 +1,17 @@
+import { useMemo } from "react";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
-import type { DashboardPayload } from "@/types";
+import { loadFollowupsDomain } from "@/lib/loadDashboard";
+import { useDomainPayload } from "@/lib/useDomainPayload";
+import type { DashboardBootstrapPayload, DashboardPayload, FollowupsDomainPayload } from "@/types";
 
-export function FollowupsPage({ data }: { data: DashboardPayload }) {
+export function FollowupsPage({ data }: { data: DashboardBootstrapPayload | DashboardPayload }) {
+  const embeddedDomain = useMemo(
+    () => ("items" in data.followups ? (data.followups as FollowupsDomainPayload) : null),
+    [data.followups],
+  );
+  const { data: domain, error } = useDomainPayload(embeddedDomain, loadFollowupsDomain);
+
   return (
     <div className="space-y-6">
       <SectionCard title="Follow-ups" kicker="Management View">
@@ -36,8 +45,18 @@ export function FollowupsPage({ data }: { data: DashboardPayload }) {
         </div>
       </SectionCard>
       <SectionCard title="Full Follow-up Collection" kicker="Canonical">
+        {error ? (
+          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">
+            {error}
+          </div>
+        ) : null}
+        {!error && !domain ? (
+          <div className="mb-4 rounded-2xl border border-ink/10 bg-white/70 p-4 text-sm leading-6 text-ink/70">
+            Reading the latest published follow-up register.
+          </div>
+        ) : null}
         <div className="space-y-4">
-          {data.followups.items.map((item) => (
+          {domain?.items.map((item) => (
             <article key={item.work_item_id} className="rounded-2xl border border-ink/10 bg-white/70 p-5">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="space-y-3">

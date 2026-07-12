@@ -2,11 +2,20 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { SectionCard } from "@/components/SectionCard";
 import { StatusPill } from "@/components/StatusPill";
+import { loadObjectivesDomain } from "@/lib/loadDashboard";
 import { postObjectiveAction } from "@/lib/objectiveApi";
-import type { DashboardPayload, LinkedObjectiveItem, ObjectiveDetail, SmartAssessmentDimension } from "@/types";
+import { useDomainPayload } from "@/lib/useDomainPayload";
+import type {
+  DashboardBootstrapPayload,
+  DashboardPayload,
+  LinkedObjectiveItem,
+  ObjectiveDetail,
+  ObjectivesDomainPayload,
+  SmartAssessmentDimension,
+} from "@/types";
 
 type Props = {
-  data: DashboardPayload;
+  data: DashboardBootstrapPayload | DashboardPayload;
   onRefresh: () => Promise<void>;
 };
 
@@ -50,7 +59,12 @@ const EMPTY_FORM: FormState = {
 
 export function ObjectiveDetailPage({ data, onRefresh }: Props) {
   const { objectiveId } = useParams();
-  const detail = objectiveId ? data.objectives.details?.[objectiveId] : undefined;
+  const embeddedDomain = useMemo(
+    () => ("items" in data.objectives ? (data.objectives as ObjectivesDomainPayload) : null),
+    [data.objectives],
+  );
+  const { data: domain, error: domainError, setData: setDomain } = useDomainPayload(embeddedDomain, loadObjectivesDomain);
+  const detail = objectiveId ? domain?.details?.[objectiveId] : undefined;
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [noteText, setNoteText] = useState("");
   const [milestoneTitle, setMilestoneTitle] = useState("");
@@ -93,10 +107,20 @@ export function ObjectiveDetailPage({ data, onRefresh }: Props) {
     return <Navigate to="/objectives" replace />;
   }
 
+  if (!detail && !domain && !domainError) {
+    return (
+      <SectionCard title="Loading Objective" kicker="Objective Workspace">
+        <p className="text-sm leading-6 text-ink/70">Reading the latest published objective workspace.</p>
+      </SectionCard>
+    );
+  }
+
   if (!detail) {
     return (
       <SectionCard title="Objective Not Found" kicker="Objective Workspace">
-        <p className="text-sm leading-6 text-ink/70">No objective management workspace was found for this link.</p>
+        <p className="text-sm leading-6 text-ink/70">
+          {domainError ?? "No objective management workspace was found for this link."}
+        </p>
         <Link to="/objectives" className="mt-4 inline-flex text-sm font-semibold text-accent">
           Back to objectives
         </Link>
@@ -110,6 +134,7 @@ export function ObjectiveDetailPage({ data, onRefresh }: Props) {
     try {
       await postObjectiveAction(objectiveId, payload);
       await onRefresh();
+      setDomain(await loadObjectivesDomain());
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Objective action failed.");
     } finally {

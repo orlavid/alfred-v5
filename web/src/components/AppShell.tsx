@@ -2,10 +2,13 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { KeyboardEvent, PropsWithChildren, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CONTROL_SECTIONS, findNavigationEntry } from "@/navigation";
+import type { SnapshotInfo } from "@/types";
 
 type AppShellProps = PropsWithChildren<{
   askQuery: string;
   onAskQueryChange: (value: string) => void;
+  snapshot?: SnapshotInfo | null;
+  onRefreshNow?: () => void;
 }>;
 
 const FLYOUT_SAFE_MARGIN = 16;
@@ -23,7 +26,7 @@ export function getViewportSafeFlyoutTop(
   return Math.min(Math.max(preferredTop, margin), maxTop);
 }
 
-export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps) {
+export function AppShell({ children, askQuery, onAskQueryChange, snapshot = null, onRefreshNow = () => undefined }: AppShellProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [flyoutPosition, setFlyoutPosition] = useState({ left: 96, top: FLYOUT_SAFE_MARGIN });
   const navigate = useNavigate();
@@ -174,6 +177,16 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
           <div className="md:w-72 md:flex-none">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-accent">Ask Alfred</p>
             <p className="mt-1 text-sm text-ink/70">Persistent executive query bar. Always visible while scrolling.</p>
+            {snapshot ? (
+              <div className="mt-3 text-xs leading-5 text-ink/65">
+                <p><span className="font-semibold text-ink">Snapshot:</span> {snapshot.build_timestamp ?? "Not published"}</p>
+                <p><span className="font-semibold text-ink">Status:</span> {snapshot.refresh_in_progress ? "Refreshing" : snapshot.certification_status}</p>
+                <p><span className="font-semibold text-ink">Last Success:</span> {snapshot.last_successful_refresh ?? "None"}</p>
+                {snapshot.last_failed_refresh ? (
+                  <p><span className="font-semibold text-ink">Last Failure:</span> {snapshot.last_failed_refresh}</p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
           <div className="flex flex-1 gap-3">
             <input
@@ -193,6 +206,13 @@ export function AppShell({ children, askQuery, onAskQueryChange }: AppShellProps
               className="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-pine"
             >
               Open
+            </button>
+            <button
+              type="button"
+              onClick={onRefreshNow}
+              className="rounded-2xl border border-ink/15 bg-white/90 px-5 py-3 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent"
+            >
+              {snapshot?.refresh_in_progress ? "Refreshing..." : "Refresh now"}
             </button>
           </div>
         </div>

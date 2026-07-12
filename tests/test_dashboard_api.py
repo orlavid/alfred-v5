@@ -62,10 +62,16 @@ def test_dashboard_empty_vault_returns_explicit_no_evidence(tmp_path):
 def test_build_dashboard_api_generates_json_output():
     output = Path("output/Dashboard_Home.json")
     public_output = Path("web/public/api/dashboard-home.json")
+    objectives_output = Path("web/public/api/objectives.json")
+    projects_output = Path("web/public/api/projects.json")
     if output.exists():
         output.unlink()
     if public_output.exists():
         public_output.unlink()
+    if objectives_output.exists():
+        objectives_output.unlink()
+    if projects_output.exists():
+        projects_output.unlink()
 
     result = subprocess.run(
         [sys.executable, "build_dashboard_api.py"],
@@ -77,6 +83,8 @@ def test_build_dashboard_api_generates_json_output():
     assert result.returncode == 0
     assert output.exists()
     assert public_output.exists()
+    assert objectives_output.exists()
+    assert projects_output.exists()
 
     payload = json.loads(output.read_text())
     assert "burning_fires" in payload
@@ -90,6 +98,9 @@ def test_build_dashboard_api_generates_json_output():
     assert "open_loops" in payload
     assert "board" in payload
     assert "admin_configuration" in payload
+    assert objectives_output.stat().st_size > 0
+    assert projects_output.stat().st_size > 0
+    assert public_output.stat().st_size < 100_000
 
 
 def test_dashboard_consumes_executive_state_only():
