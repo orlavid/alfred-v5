@@ -126,6 +126,9 @@ def test_snapshot_publish_creates_bootstrap_and_domain_files(monkeypatch, tmp_pa
     assert bootstrap["next_best_action"]["action"] == "published action"
     assert "projects" in bootstrap
     assert objectives["health"]["total"] == 1
+    assert bootstrap["snapshot"]["certification_status"] == "GREEN"
+    assert bootstrap["snapshot"]["current_snapshot_version"] == result.version
+    assert bootstrap["snapshot"]["last_successful_refresh"] == result.build_timestamp
     assert refresh_status["current_snapshot_version"] == result.version
     assert refresh_status["bootstrap_payload_size_bytes"] == result.bootstrap_size_bytes
 

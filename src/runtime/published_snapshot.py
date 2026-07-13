@@ -200,6 +200,25 @@ class SnapshotStore:
                     f"snapshot validation failed: operational_readiness={readiness.overall_health}; snapshot_validation={validation_status}"
                 )
 
+            published_bootstrap = {
+                **snapshot["bootstrap"],
+                "snapshot": {
+                    **snapshot["bootstrap"]["snapshot"],
+                    "build_timestamp": build_timestamp,
+                    "source_vault_timestamp": source_vault_timestamp,
+                    "deployed_commit": deployed_commit,
+                    "certification_status": certification_status,
+                    "last_successful_refresh": build_timestamp,
+                    "last_failed_refresh": None,
+                    "last_failed_reason": None,
+                    "refresh_in_progress": False,
+                    "refresh_started_at": None,
+                    "current_snapshot_version": version,
+                },
+            }
+            bootstrap_size = _write_json(files_dir / "dashboard-home.json", published_bootstrap)
+            _write_json(staged_output_dir / "Dashboard_Home.json", published_bootstrap)
+
             target_version_dir = self.versions_dir / version
             if target_version_dir.exists():
                 shutil.rmtree(target_version_dir)
@@ -221,7 +240,7 @@ class SnapshotStore:
             )
             self._write_status(status)
             refresh_status = {
-                **status.as_dict(),
+                **published_bootstrap["snapshot"],
                 "trigger": trigger,
                 "bootstrap_payload_size_bytes": bootstrap_size,
                 "domain_payload_sizes": domain_sizes,
