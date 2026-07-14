@@ -585,3 +585,65 @@ def test_executive_home_excludes_personal_note_projects_from_landing():
     assert all("vinnie" not in json.dumps(section).lower() for section in executive_home["sections"])
     assert matters_page["counts"]["total"] == 0
     assert details["__system_health__"]["data_quality_alerts"]
+
+
+def test_executive_home_rewrites_raw_decision_titles_into_business_language():
+    state = SimpleNamespace(suppliers=())
+    read_model = SimpleNamespace(work_items=(), meetings=(), entities=())
+    objectives_page = {"items": [], "details": {}, "summary": [], "health": {}}
+    projects_page = {"items": [], "details": {}, "summary": [], "health": {}}
+    decisions_page = {
+        "items": [{"decision_id": "decision-1"}],
+        "details": {
+            "decision-1": {
+                "title": "Capture - 20260520-221048 Decision",
+                "rationale": "going forward we will use Telegram as the primary capture interface for the second brain",
+                "decision_date": "2026-05-20",
+                "current_status": "OPEN",
+                "owner": "Not defined",
+                "importance": 80,
+                "related_projects": [],
+                "related_objectives": [],
+                "related_people": [],
+                "related_companies": [],
+                "evidence_confidence": "HIGH",
+                "route": "/decisions/decision-1",
+                "source_path": "04 Decisions/Capture - 20260520-221048 Decision.md",
+                "evidence_sources": [{"path": "04 Decisions/Capture - 20260520-221048 Decision.md"}],
+                "provenance": {"decision": ["04 Decisions/Capture - 20260520-221048 Decision.md"]},
+                "missing_information": [],
+            }
+        },
+        "summary": [],
+        "counts": {},
+    }
+    followups_page = {"items": [], "summary": [], "counts": {}, "recommendations": []}
+    open_loops_page = {"items": [], "summary": [], "counts": {}, "recommended_actions": []}
+    meetings_page = {"subject": "No active meeting identified.", "executive_summary": [], "related_people": [], "related_projects": [], "related_companies": [], "related_objectives": [], "related_decisions": [], "risks": [], "open_loops": [], "follow_ups": [], "recommended_discussion": [], "recommended_questions": [], "recommended_decisions": [], "recent_changes": [], "meeting_purpose": [], "evidence_references": [], "confidence": "LOW"}
+    admin_configuration_page = {
+        "overview": {"environment_score": 100, "overall_health": "GREEN", "summary_lines": ["Operational readiness is GREEN."]},
+        "sections": {},
+        "actions": [],
+        "doctor_summary": {},
+        "auto_configured": {},
+    }
+
+    executive_home, _matters, _details = build_executive_home_payload(
+        state,
+        read_model=read_model,
+        objectives_page=objectives_page,
+        projects_page=projects_page,
+        decisions_page=decisions_page,
+        followups_page=followups_page,
+        open_loops_page=open_loops_page,
+        meetings_page=meetings_page,
+        admin_configuration_page=admin_configuration_page,
+    )
+
+    decision_titles = [
+        matter["business_title"]
+        for section in executive_home["sections"]
+        for matter in section["matters"]
+        if matter["matter_category"] == "decision"
+    ]
+    assert decision_titles == ["Going forward we will use Telegram as the primary capture interface for the second brain"]

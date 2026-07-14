@@ -361,10 +361,11 @@ def _build_decision_matter(item: dict[str, Any], detail: dict[str, Any], state: 
     related_companies = [entry["title"] for entry in detail.get("related_companies", [])]
     if not related_companies and state.suppliers:
         related_companies = [supplier.title for supplier in state.suppliers[:1]]
+    business_title = _decision_business_title(detail)
     return {
         "matter_id": matter_id,
         "matter_category": "decision",
-        "business_title": detail["title"],
+        "business_title": business_title,
         "human_summary": detail["rationale"],
         "why_it_matters": _decision_impact_summary(detail),
         "why_now": _why_now_from_dates(detail["decision_date"], detail["decision_date"], detail["current_status"]),
@@ -589,6 +590,17 @@ def _decision_impact_summary(detail: dict[str, Any]) -> str:
     if detail.get("related_objectives"):
         return f"This decision affects {len(detail['related_objectives'])} linked objective(s)."
     return "This decision remains part of the active executive record and still needs explicit treatment."
+
+
+def _decision_business_title(detail: dict[str, Any]) -> str:
+    title = str(detail.get("title", "")).strip()
+    rationale = str(detail.get("rationale", "")).strip()
+    lowered = title.lower()
+    if lowered.startswith(("capture -", "decision -")) and rationale and not rationale.startswith("["):
+        sentence = rationale.split(".")[0].strip().rstrip(".")
+        if sentence:
+            return sentence[0].upper() + sentence[1:]
+    return title
 
 
 def _decision_next_step(detail: dict[str, Any]) -> str:
