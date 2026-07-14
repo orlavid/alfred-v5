@@ -89,6 +89,9 @@ def build_executive_home_payload(
         if not detail:
             continue
         matter = _build_project_matter(item, detail)
+        if _is_non_executive_project(matter):
+            technical_alerts.append(_technical_alert(matter, "Project rejected because the source reads as personal or scratch-note material rather than an executive programme matter."))
+            continue
         if _is_closed_or_superseded(matter):
             continue
         if not _is_at_risk_matter(matter):
@@ -700,6 +703,16 @@ def _is_closed_or_superseded(matter: dict[str, Any]) -> bool:
         for key in ("business_title", "status", "human_summary", "why_it_matters", "recommended_next_step")
     ).lower()
     return any(token in text for token in ("closed", "complete", "completed", "superseded", "archived"))
+
+
+def _is_non_executive_project(matter: dict[str, Any]) -> bool:
+    if matter.get("matter_category") != "project":
+        return False
+    text = " ".join(
+        str(matter.get(key, ""))
+        for key in ("business_title", "human_summary", "source_path", "evidence_summary")
+    ).lower()
+    return any(token in text for token in ("personal-notes", "personal notes", "scratch note", "scratch-note"))
 
 
 def _is_active_matter(matter: dict[str, Any]) -> bool:

@@ -518,3 +518,70 @@ def test_executive_home_prevents_duplicate_matter_across_sections():
         for matter in section["matters"]
     ]
     assert len(matter_ids) == len(set(matter_ids))
+
+
+def test_executive_home_excludes_personal_note_projects_from_landing():
+    state = SimpleNamespace(suppliers=())
+    read_model = SimpleNamespace(work_items=(), meetings=(), entities=())
+    objectives_page = {"items": [], "details": {}, "summary": [], "health": {}}
+    projects_page = {
+        "items": [
+            {
+                "project_id": "vinnie-1",
+                "title": "Project Vinnie",
+            }
+        ],
+        "details": {
+            "vinnie-1": {
+                "title": "Project Vinnie",
+                "executive_definition": "tags: [personal-notes, programme, project-vinnie].",
+                "key_risk_or_blocker": "No evidence found",
+                "recommended_next_action": "Project has limited supporting evidence; review owner, objective, decisions and dependencies.",
+                "next_checkpoint_or_deadline": "Not defined",
+                "last_meaningful_activity": "No evidence found",
+                "current_status": "WATCH",
+                "priority": "MEDIUM",
+                "rag_rating": "AMBER",
+                "owner": "Not defined",
+                "related_people": [],
+                "related_companies": [],
+                "evidence_confidence": "LOW",
+                "route": "/projects/vinnie-1",
+                "source_path": "03 Projects/Project Vinnie.md",
+                "evidence_sources": [{"path": "03 Projects/Project Vinnie.md"}],
+                "provenance": {"project": ["03 Projects/Project Vinnie.md"]},
+                "audit_history": [],
+                "management_notes": [],
+                "missing_information": [],
+            }
+        },
+        "summary": [],
+        "health": {},
+    }
+    decisions_page = {"items": [], "details": {}, "summary": [], "counts": {}}
+    followups_page = {"items": [], "summary": [], "counts": {}, "recommendations": []}
+    open_loops_page = {"items": [], "summary": [], "counts": {}, "recommended_actions": []}
+    meetings_page = {"subject": "No active meeting identified.", "executive_summary": [], "related_people": [], "related_projects": [], "related_companies": [], "related_objectives": [], "related_decisions": [], "risks": [], "open_loops": [], "follow_ups": [], "recommended_discussion": [], "recommended_questions": [], "recommended_decisions": [], "recent_changes": [], "meeting_purpose": [], "evidence_references": [], "confidence": "LOW"}
+    admin_configuration_page = {
+        "overview": {"environment_score": 100, "overall_health": "GREEN", "summary_lines": ["Operational readiness is GREEN."]},
+        "sections": {},
+        "actions": [],
+        "doctor_summary": {},
+        "auto_configured": {},
+    }
+
+    executive_home, matters_page, details = build_executive_home_payload(
+        state,
+        read_model=read_model,
+        objectives_page=objectives_page,
+        projects_page=projects_page,
+        decisions_page=decisions_page,
+        followups_page=followups_page,
+        open_loops_page=open_loops_page,
+        meetings_page=meetings_page,
+        admin_configuration_page=admin_configuration_page,
+    )
+
+    assert all("vinnie" not in json.dumps(section).lower() for section in executive_home["sections"])
+    assert matters_page["counts"]["total"] == 0
+    assert details["__system_health__"]["data_quality_alerts"]
