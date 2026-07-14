@@ -2,6 +2,8 @@ import type {
   DashboardBootstrapPayload,
   DecisionsDomainPayload,
   FollowupsDomainPayload,
+  ExecutiveMatterDetail,
+  MattersDomainPayload,
   ObjectiveDetail,
   ObjectivesDomainPayload,
   OpenLoopsDomainPayload,
@@ -48,6 +50,14 @@ export async function loadFollowupsDomain(): Promise<FollowupsDomainPayload> {
 
 export async function loadOpenLoopsDomain(): Promise<OpenLoopsDomainPayload> {
   return fetchJson<OpenLoopsDomainPayload>("/api/open-loops.json");
+}
+
+export async function loadMattersDomain(): Promise<MattersDomainPayload> {
+  return fetchJson<MattersDomainPayload>("/api/matters.json");
+}
+
+export async function loadMatterDetail(matterId: string): Promise<ExecutiveMatterDetail> {
+  return fetchJson<ExecutiveMatterDetail>(`/api/matters/${matterId}.json`);
 }
 
 export async function loadRefreshStatus(): Promise<SnapshotInfo> {

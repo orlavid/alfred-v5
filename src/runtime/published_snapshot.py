@@ -370,6 +370,7 @@ def _build_snapshot_payloads(
         "burning_fires": payload["burning_fires"],
         "plan_today": payload["plan_today"],
         "next_best_action": payload["next_best_action"],
+        "executive_home": payload["executive_home"],
         "operating_picture": payload["operating_picture"],
         "navigation_priorities": payload["navigation_priorities"],
         "interruption_policy": payload["interruption_policy"],
@@ -411,6 +412,7 @@ def _build_snapshot_payloads(
             },
         },
         "admin_configuration": payload["admin_configuration"],
+        "system_health": payload["system_health"],
         "generated_from": payload["generated_from"],
     }
     domains = {
@@ -427,6 +429,11 @@ def _build_snapshot_payloads(
         "decisions": payload["decisions"],
         "followups": payload["followups"],
         "open_loops": payload["open_loops"],
+        "matters": {
+            "counts": payload["matters"]["counts"],
+            "sections": payload["matters"]["sections"],
+            "summary": payload["matters"]["summary"],
+        },
         "risks": {
             "items": payload["daily_brief"]["risks_escalating"],
             "summary": payload["operating_picture"]["summary"],
@@ -466,6 +473,7 @@ def _build_snapshot_payloads(
     detail_domains = {
         "objectives": payload["objectives"].get("details", {}),
         "projects": payload["projects"].get("details", {}),
+        "matters": payload["matters"].get("details", {}),
     }
     refresh_status = {
         **bootstrap["snapshot"],

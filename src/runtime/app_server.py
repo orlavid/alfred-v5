@@ -25,6 +25,10 @@ from src.management.objectives import (
     set_objective_status,
     update_objective_fields,
 )
+from src.management.matters import (
+    add_management_note as add_matter_management_note,
+    update_matter_fields,
+)
 from src.runtime.published_snapshot import SnapshotStore
 from src.management.projects import (
     add_linked_item as add_project_linked_item,
@@ -39,9 +43,11 @@ from src.management.projects import (
 ROOT = Path(__file__).resolve().parents[2]
 OBJECTIVE_ACTION_PATH = re.compile(r"^/api/objectives/([^/]+)/actions$")
 PROJECT_ACTION_PATH = re.compile(r"^/api/projects/([^/]+)/actions$")
+MATTER_ACTION_PATH = re.compile(r"^/api/matters/([^/]+)/actions$")
 OBJECTIVE_DETAIL_PATH = re.compile(r"^/api/objectives/([^/]+)\.json$")
 PROJECT_DETAIL_PATH = re.compile(r"^/api/projects/([^/]+)\.json$")
-DOMAIN_API_PATH = re.compile(r"^/api/(objectives|projects|decisions|followups|open-loops|risks|companies|people|governance|operations|meetings|daily-brief)\.json$")
+MATTER_DETAIL_PATH = re.compile(r"^/api/matters/([^/]+)\.json$")
+DOMAIN_API_PATH = re.compile(r"^/api/(objectives|projects|decisions|followups|open-loops|risks|companies|people|governance|operations|meetings|daily-brief|matters)\.json$")
 
 
 class AlfredAppHandler(SimpleHTTPRequestHandler):
@@ -64,6 +70,9 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
         if match := PROJECT_DETAIL_PATH.match(parsed.path):
             self._send_json(self.server.snapshot_store.read_domain_detail("projects", match.group(1)))
             return
+        if match := MATTER_DETAIL_PATH.match(parsed.path):
+            self._send_json(self.server.snapshot_store.read_domain_detail("matters", match.group(1)))
+            return
         if match := DOMAIN_API_PATH.match(parsed.path):
             domain = match.group(1).replace("-", "_")
             self._send_json(self.server.snapshot_store.read_domain(domain))
@@ -83,6 +92,11 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
         if match := PROJECT_ACTION_PATH.match(parsed.path):
             payload = self._read_json_body()
             response = self._handle_project_action(match.group(1), payload)
+            self._send_json(response)
+            return
+        if match := MATTER_ACTION_PATH.match(parsed.path):
+            payload = self._read_json_body()
+            response = self._handle_matter_action(match.group(1), payload)
             self._send_json(response)
             return
         if parsed.path == "/api/refresh-now":
@@ -220,6 +234,52 @@ class AlfredAppHandler(SimpleHTTPRequestHandler):
             return {"status": "error", "message": f"Unsupported action: {action}"}
         self.server.snapshot_store.refresh_async(trigger="project_action")
         return {"status": "ok", "action": action, "project_id": project_id}
+
+    def _handle_matter_action(self, matter_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        action = payload.get("action", "update_fields")
+        actor = payload.get("actor", "user")
+        reason = payload.get("reason", "")
+
+        if action == "update_fields":
+            update_matter_fields(matter_id, payload.get("changes", {}), actor=actor, reason=reason)
+        elif action == "add_management_note":
+            add_matter_management_note(matter_id, payload.get("text", ""), actor=actor, reason=reason)
+        elif action == "set_owner":
+            update_matter_fields(matter_id, {"owner": payload.get("owner", "Not defined")}, actor=actor, reason=reason)
+        elif action == "set_priority":
+            update_matter_fields(matter_id, {"priority": payload.get("priority", "Not defined")}, actor=actor, reason=reason)
+        elif action == "hold_matter":
+            update_matter_fields(
+                matter_id,
+                {"status": "HOLD", "hold_reason": reason or "Matter placed on hold."},
+                actor=actor,
+                reason=reason or "Matter placed on hold.",
+            )
+        elif action == "resolve_matter":
+            update_matter_fields(
+                matter_id,
+                {"status": "RESOLVED", "resolution_note": reason or "Matter resolved."},
+                actor=actor,
+                reason=reason or "Matter resolved.",
+            )
+        elif action == "dismiss_matter":
+            update_matter_fields(
+                matter_id,
+                {"status": "DISMISSED", "dismiss_reason": reason or "Matter dismissed."},
+                actor=actor,
+                reason=reason or "Matter dismissed.",
+            )
+        elif action == "reopen_matter":
+            update_matter_fields(
+                matter_id,
+                {"status": "OPEN", "hold_reason": "", "dismiss_reason": "", "resolution_note": ""},
+                actor=actor,
+                reason=reason or "Matter reopened.",
+            )
+        else:
+            return {"status": "error", "message": f"Unsupported action: {action}"}
+        self.server.snapshot_store.refresh_async(trigger="matter_action")
+        return {"status": "ok", "action": action, "matter_id": matter_id}
 
 
 def main() -> None:

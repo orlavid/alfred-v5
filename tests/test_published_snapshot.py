@@ -11,6 +11,13 @@ from src.runtime.published_snapshot import SnapshotStore
 
 def _payload(label: str) -> dict[str, object]:
     return {
+        "executive_home": {
+            "headline": f"{label} executive home",
+            "summary_lines": [f"{label} summary line"],
+            "kpis": [],
+            "sections": [],
+            "system_health_route": "/system-health",
+        },
         "burning_fires": [{"type": "risk", "summary": f"{label} fire"}],
         "plan_today": [{"type": "plan", "summary": f"{label} plan", "confidence": "HIGH", "origin": "test", "provider": "test", "source_notes": []}],
         "next_best_action": {"priority": "HIGH", "action": f"{label} action", "why_it_matters": "Test", "confidence": "HIGH"},
@@ -29,6 +36,7 @@ def _payload(label: str) -> dict[str, object]:
         "decisions": {"counts": {"total": 1, "defined_status": 1, "owner_defined": 1, "source_notes": 1}, "summary": [], "items": [], "details": {}},
         "followups": {"counts": {"total": 12, "overdue": 3, "due_today": 2, "due_this_week": 7, "waiting_on_others": 4, "high_priority": 5}, "summary": [], "recommendations": [], "items": []},
         "open_loops": {"counts": {"total": 15, "critical": 4, "waiting_for": 5, "stalled_projects": 2, "missing_decisions": 1, "missing_owners": 1}, "summary": [], "recommended_actions": [], "items": []},
+        "matters": {"counts": {"total": 0, "requires_attention": 0, "decisions_required": 0, "meetings_to_prepare": 0, "objectives_projects_at_risk": 0, "waiting_blocked": 0, "recently_changed": 0}, "summary": [], "sections": [], "details": {}},
         "meetings": {"subject": "No active meeting identified.", "executive_summary": [], "related_people": [], "related_projects": [], "related_companies": [], "related_objectives": [], "related_decisions": [], "risks": [], "open_loops": [], "follow_ups": [], "recommended_discussion": [], "confidence": "LOW"},
         "board": {"summary": [], "members": [], "weekly_meeting": [], "monthly_meeting": [], "standing_agenda": []},
         "ask_alfred": {"questions": ["What should I do today?"], "responses": [{"question": "What should I do today?", "executive_answer": ["Proceed"], "supporting_evidence": [], "confidence": "HIGH", "recommended_next_actions": ["Proceed"]}]},
@@ -63,6 +71,11 @@ def _payload(label: str) -> dict[str, object]:
             "auto_configured": {},
             "doctor_summary": {"environment_score": 100, "healthy": [], "warnings": [], "disabled": [], "recommended_actions": [], "summary_lines": []},
             "actions": [],
+        },
+        "system_health": {
+            "summary": [],
+            "data_quality_alerts": [],
+            "refresh_status": {"overall_health": "GREEN", "environment_score": 100},
         },
         "generated_from": {"meeting_subject": None, "runtime_model": "ExecutiveState", "production_mode": True, "sources": ["ExecutiveState"], "confidence": "HIGH"},
     }

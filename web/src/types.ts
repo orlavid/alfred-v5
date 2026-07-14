@@ -21,6 +21,50 @@ export type PlanItem = {
   source_notes: string[];
 };
 
+export type ExecutiveMatterAction = {
+  action: string;
+  label: string;
+};
+
+export type ExecutiveMatter = {
+  matter_id: string;
+  matter_category: string;
+  business_title: string;
+  human_summary: string;
+  why_it_matters: string;
+  why_now: string;
+  status: string;
+  priority: string;
+  urgency: string;
+  owner: string;
+  related: {
+    objective: string;
+    projects: string[];
+    people: string[];
+    companies: string[];
+  };
+  evidence_summary: string;
+  confidence: string;
+  recommended_next_step: string;
+  available_actions: ExecutiveMatterAction[];
+  route: string;
+  authoritative_route: string;
+  action_target: { kind: string; id: string };
+};
+
+export type ExecutiveMatterDetail = ExecutiveMatter & {
+  source_path: string;
+  evidence_paths: string[];
+  provenance: Record<string, string[]>;
+  source_kind: string;
+  source_record_id: string;
+  detail_backlink_label: string;
+  recent_activity: string;
+  audit_history: ObjectiveDetail["audit_history"];
+  management_notes: ObjectiveDetail["management_notes"];
+  missing_information: string[];
+};
+
 export type LinkedObjectiveItem = {
   id?: string;
   work_item_id?: string;
@@ -399,8 +443,41 @@ export type OpenLoopsDomainPayload = {
   recommended_actions: string[];
 };
 
+export type MattersDomainPayload = {
+  counts: {
+    total: number;
+    requires_attention: number;
+    decisions_required: number;
+    meetings_to_prepare: number;
+    objectives_projects_at_risk: number;
+    waiting_blocked: number;
+    recently_changed: number;
+  };
+  sections: Array<{
+    section_id: string;
+    title: string;
+    summary: string;
+    matters: ExecutiveMatter[];
+  }>;
+  details?: Record<string, ExecutiveMatterDetail>;
+  summary: string[];
+};
+
 export type DashboardBootstrapPayload = {
   snapshot: SnapshotInfo;
+  executive_home: {
+    headline: string;
+    summary_lines: string[];
+    kpis: Array<{
+      card_id: string;
+      label: string;
+      summary: string;
+      count: number;
+      route: string;
+    }>;
+    sections: MattersDomainPayload["sections"];
+    system_health_route: string;
+  };
   burning_fires: Array<{ type: string; summary: string }>;
   plan_today: PlanItem[];
   next_best_action: {
@@ -447,6 +524,10 @@ export type DashboardBootstrapPayload = {
     counts: OpenLoopsDomainPayload["counts"];
     summary: string[];
     recommended_actions: string[];
+  };
+  matters: {
+    counts: MattersDomainPayload["counts"];
+    summary: string[];
   };
   meetings: {
     subject: string;
@@ -548,6 +629,19 @@ export type DashboardBootstrapPayload = {
     };
     actions: AdminAction[];
   };
+  system_health: {
+    summary: string[];
+    data_quality_alerts: Array<{
+      title: string;
+      summary: string;
+      source_path: string;
+      route: string;
+    }>;
+    refresh_status: {
+      overall_health: string;
+      environment_score: number;
+    };
+  };
   generated_from: {
     meeting_subject: string;
     runtime_model: string;
@@ -558,11 +652,12 @@ export type DashboardBootstrapPayload = {
 
 export type DashboardPayload = Omit<
   DashboardBootstrapPayload,
-  "objectives" | "projects" | "decisions" | "followups" | "open_loops"
+  "objectives" | "projects" | "decisions" | "followups" | "open_loops" | "matters"
 > & {
   objectives: ObjectivesDomainPayload;
   projects: ProjectsDomainPayload;
   decisions: DecisionsDomainPayload;
   followups: FollowupsDomainPayload;
   open_loops: OpenLoopsDomainPayload;
+  matters: MattersDomainPayload;
 };

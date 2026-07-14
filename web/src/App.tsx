@@ -19,7 +19,9 @@ import { FollowupsPage } from "@/pages/FollowupsPage";
 import { OpenLoopsPage } from "@/pages/OpenLoopsPage";
 import { ActionsPage } from "@/pages/ActionsPage";
 import { ExecutiveSummaryPage } from "@/pages/ExecutiveSummaryPage";
+import { MatterDetailPage } from "@/pages/MatterDetailPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
+import { SystemHealthPage } from "@/pages/SystemHealthPage";
 import { loadDashboard, loadRefreshStatus, requestRefreshNow } from "@/lib/loadDashboard";
 import type { DashboardBootstrapPayload, SnapshotInfo } from "@/types";
 import { startTransition, useEffect, useState } from "react";
@@ -81,9 +83,10 @@ export function App() {
       {error ? <ErrorState message={error} /> : null}
       {data ? (
         <Routes>
-          <Route path="/" element={<DashboardPage data={data} />} />
+          <Route path="/" element={<DashboardPage data={data} onRefresh={refreshDashboard} />} />
           <Route path="/daily-brief" element={<DailyBriefPage data={data} />} />
           <Route path="/executive-summary" element={<ExecutiveSummaryPage data={data} />} />
+          <Route path="/matters/:matterId" element={<MatterDetailPage data={data} onRefresh={refreshDashboard} />} />
           <Route path="/objectives" element={<ObjectivesPage data={data} />} />
           <Route path="/objectives/:objectiveId" element={<ObjectiveDetailPage data={data} onRefresh={refreshDashboard} />} />
           <Route path="/projects" element={<ProjectsPage data={data} />} />
@@ -152,7 +155,7 @@ export function App() {
           />
           <Route
             path="/system-health"
-            element={<PlaceholderPage title="System Health" kicker="Operations" summary="System health will present app and knowledge pipeline status from canonical backend telemetry." bullets={["Executive health is visible today, but system health remains a placeholder.", "Production system health should be authenticated and backend-shaped."]} />}
+            element={<SystemHealthPage data={data} />}
           />
           <Route path="/help" element={<HelpPage />} />
           <Route

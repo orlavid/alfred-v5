@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from src.alfred.ask import ask_alfred_from_state
+from src.api.executive_home import build_executive_home_payload, build_system_health_from_matter_details
 from src.board.board_registry import BoardMember
 from src.daily.daily_brief import DailyBrief, build_daily_brief_from_state
 from executive.knowledge.entity_contract import CanonicalExecutiveEntityContract
@@ -18,6 +19,7 @@ from src.executive.executive_reasoning import ExecutiveReasoning, build_executiv
 from src.executive.executive_state import ExecutiveState, build_executive_state
 from src.management.objectives import load_objective_management_store, merge_objective_detail
 from src.management.projects import load_project_management_store, merge_project_detail
+from src.management.matters import load_matter_management_store, merge_matter_record
 from src.objectives.objective_intelligence import (
     ObjectiveView,
     build_objective_intelligence_from_state,
@@ -60,25 +62,51 @@ def get_dashboard_home(
     next_best_action = get_next_best_action(state, reasoning=reasoning, presentation=presentation)
     operating_picture = get_operating_picture(state, reasoning=reasoning, brief=brief, presentation=presentation)
     navigation_priorities = get_navigation_priorities(state, reasoning=reasoning, brief=brief, presentation=presentation)
+    objectives_page = _build_objectives_page(state)
+    projects_page = _build_projects_page(state)
+    decisions_page = _build_decisions_page(state, read_model=read_model)
+    followups_page = _build_followups_page(state)
+    open_loops_page = _build_open_loops_page(state)
+    meetings_page = _build_meetings_page(read_model, presentation)
+    board_page = _build_board_page(state)
+    ask_alfred_page = _build_ask_alfred_page(state)
+    daily_brief_page = _build_daily_brief_page(brief)
+    knowledge_page = _build_knowledge_page(state)
+    admin_configuration_page = _build_admin_configuration_page()
+    landing_home, matters_page, matter_details = build_executive_home_payload(
+        state,
+        read_model=read_model,
+        objectives_page=objectives_page,
+        projects_page=projects_page,
+        decisions_page=decisions_page,
+        followups_page=followups_page,
+        open_loops_page=open_loops_page,
+        meetings_page=meetings_page,
+        admin_configuration_page=admin_configuration_page,
+    )
+    system_health_page = build_system_health_from_matter_details(matter_details)
 
     return {
+        "executive_home": landing_home,
         "burning_fires": burning_fires,
         "plan_today": plan_today,
         "next_best_action": next_best_action,
         "operating_picture": operating_picture,
         "navigation_priorities": navigation_priorities,
         "interruption_policy": _build_interruption_policy(state, burning_fires, next_best_action),
-        "objectives": _build_objectives_page(state),
-        "projects": _build_projects_page(state),
-        "decisions": _build_decisions_page(state, read_model=read_model),
-        "followups": _build_followups_page(state),
-        "open_loops": _build_open_loops_page(state),
-        "meetings": _build_meetings_page(read_model, presentation),
-        "board": _build_board_page(state),
-        "ask_alfred": _build_ask_alfred_page(state),
-        "daily_brief": _build_daily_brief_page(brief),
-        "knowledge": _build_knowledge_page(state),
-        "admin_configuration": _build_admin_configuration_page(),
+        "objectives": objectives_page,
+        "projects": projects_page,
+        "decisions": decisions_page,
+        "followups": followups_page,
+        "open_loops": open_loops_page,
+        "matters": {**matters_page, "details": {key: value for key, value in matter_details.items() if not key.startswith("__")}},
+        "meetings": meetings_page,
+        "board": board_page,
+        "ask_alfred": ask_alfred_page,
+        "daily_brief": daily_brief_page,
+        "knowledge": knowledge_page,
+        "admin_configuration": admin_configuration_page,
+        "system_health": system_health_page,
         "generated_from": {
             "meeting_subject": meeting_subject,
             "runtime_model": "ExecutiveState",

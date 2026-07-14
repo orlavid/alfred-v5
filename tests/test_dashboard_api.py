@@ -5,6 +5,7 @@ import subprocess
 import sys
 from types import SimpleNamespace
 
+from src.api.executive_home import build_executive_home_payload
 from src.api.dashboard_api import get_dashboard_home
 from src.followups.followup_intelligence import FollowupIntelligence, FollowupItem
 from src.openloops.open_loop_intelligence import OpenLoopIntelligence, OpenLoopItem
@@ -13,6 +14,7 @@ from src.openloops.open_loop_intelligence import OpenLoopIntelligence, OpenLoopI
 def test_get_dashboard_home_returns_expected_shape():
     payload = get_dashboard_home(Path("evidence/alfred-inventory"))
 
+    assert "executive_home" in payload
     assert "burning_fires" in payload
     assert "plan_today" in payload
     assert "next_best_action" in payload
@@ -24,13 +26,16 @@ def test_get_dashboard_home_returns_expected_shape():
     assert "projects" in payload
     assert "followups" in payload
     assert "open_loops" in payload
+    assert "matters" in payload
     assert "meetings" in payload
     assert "board" in payload
     assert "ask_alfred" in payload
     assert "daily_brief" in payload
     assert "knowledge" in payload
     assert "admin_configuration" in payload
+    assert "system_health" in payload
     assert isinstance(payload["burning_fires"], list)
+    assert isinstance(payload["executive_home"]["sections"], list)
     assert isinstance(payload["plan_today"], list)
     assert isinstance(payload["next_best_action"], dict)
     assert isinstance(payload["operating_picture"], dict)
@@ -391,3 +396,125 @@ def test_dashboard_payload_preserves_full_canonical_work_item_collections(monkey
     assert len(payload["open_loops"]["items"]) == 11
     assert payload["open_loops"]["items"][-1]["work_item_id"].startswith("open_loop::")
     assert len(payload["daily_brief"]["open_loops_blocking_progress"]) == 3
+
+
+def test_executive_home_diverts_technical_noise_to_system_health():
+    state = SimpleNamespace(suppliers=())
+    read_model = SimpleNamespace(work_items=(), meetings=(), entities=())
+    objectives_page = {"items": [], "details": {}, "summary": [], "health": {}}
+    projects_page = {"items": [], "details": {}, "summary": [], "health": {}}
+    decisions_page = {"items": [], "details": {}, "summary": [], "counts": {}}
+    followups_page = {"items": [], "summary": [], "counts": {}, "recommendations": []}
+    open_loops_page = {
+        "items": [
+            {
+                "work_item_id": "open_loop::1",
+                "title": "Project has no graph linkage",
+                "summary": "Project has no graph linkage; review whether it is current, duplicated, or missing relationships.",
+                "source_path": "07 Open Loops/Open Loop Register.md",
+                "status": "OPEN",
+                "priority": "HIGH",
+                "owner": "Not defined",
+                "source_date": "2026-07-13",
+                "recency": "2026-07-13",
+                "buckets": ["Critical"],
+                "classification": "Critical",
+                "confidence": "HIGH",
+                "related_entities": [],
+                "evidence_paths": ["07 Open Loops/Open Loop Register.md"],
+                "provenance": {"evidence_paths": ["07 Open Loops/Open Loop Register.md"]},
+            }
+        ],
+        "summary": [],
+        "counts": {},
+        "recommended_actions": [],
+    }
+    meetings_page = {"subject": "No active meeting identified.", "executive_summary": [], "related_people": [], "related_projects": [], "related_companies": [], "related_objectives": [], "related_decisions": [], "risks": [], "open_loops": [], "follow_ups": [], "recommended_discussion": [], "recommended_questions": [], "recommended_decisions": [], "recent_changes": [], "meeting_purpose": [], "evidence_references": [], "confidence": "LOW"}
+    admin_configuration_page = {
+        "overview": {"environment_score": 100, "overall_health": "GREEN", "summary_lines": ["Operational readiness is GREEN."]},
+        "sections": {},
+        "actions": [],
+        "doctor_summary": {},
+        "auto_configured": {},
+    }
+
+    executive_home, _matters, details = build_executive_home_payload(
+        state,
+        read_model=read_model,
+        objectives_page=objectives_page,
+        projects_page=projects_page,
+        decisions_page=decisions_page,
+        followups_page=followups_page,
+        open_loops_page=open_loops_page,
+        meetings_page=meetings_page,
+        admin_configuration_page=admin_configuration_page,
+    )
+
+    assert all(
+        "graph linkage" not in matter["business_title"].lower()
+        and "graph linkage" not in matter["human_summary"].lower()
+        for section in executive_home["sections"]
+        for matter in section["matters"]
+    )
+    assert details["__system_health__"]["data_quality_alerts"]
+    assert "graph linkage" in details["__system_health__"]["data_quality_alerts"][0]["title"].lower()
+
+
+def test_executive_home_prevents_duplicate_matter_across_sections():
+    state = SimpleNamespace(suppliers=())
+    read_model = SimpleNamespace(work_items=(), meetings=(), entities=())
+    objectives_page = {"items": [], "details": {}, "summary": [], "health": {}}
+    projects_page = {"items": [], "details": {}, "summary": [], "health": {}}
+    decisions_page = {"items": [], "details": {}, "summary": [], "counts": {}}
+    followups_page = {
+        "items": [
+            {
+                "work_item_id": "follow_up::1",
+                "title": "Confirm Barclays commercial proposal",
+                "summary": "Confirm Barclays commercial proposal before the next steering meeting.",
+                "source_path": "01 Daily Logs/2026-07-13.md",
+                "status": "OPEN",
+                "priority": "HIGH",
+                "owner": "Not defined",
+                "due_date": "2026-07-14",
+                "source_date": "2026-07-13",
+                "recency": "2026-07-13",
+                "buckets": ["Due Today", "High Priority"],
+                "classification": "Due Today",
+                "confidence": "HIGH",
+                "evidence_paths": ["01 Daily Logs/2026-07-13.md"],
+                "provenance": {"evidence_paths": ["01 Daily Logs/2026-07-13.md"]},
+            }
+        ],
+        "summary": [],
+        "counts": {},
+        "recommendations": [],
+    }
+    open_loops_page = {"items": [], "summary": [], "counts": {}, "recommended_actions": []}
+    meetings_page = {"subject": "No active meeting identified.", "executive_summary": [], "related_people": [], "related_projects": [], "related_companies": [], "related_objectives": [], "related_decisions": [], "risks": [], "open_loops": [], "follow_ups": [], "recommended_discussion": [], "recommended_questions": [], "recommended_decisions": [], "recent_changes": [], "meeting_purpose": [], "evidence_references": [], "confidence": "LOW"}
+    admin_configuration_page = {
+        "overview": {"environment_score": 100, "overall_health": "GREEN", "summary_lines": ["Operational readiness is GREEN."]},
+        "sections": {},
+        "actions": [],
+        "doctor_summary": {},
+        "auto_configured": {},
+    }
+
+    executive_home, _matters, _details = build_executive_home_payload(
+        state,
+        read_model=read_model,
+        objectives_page=objectives_page,
+        projects_page=projects_page,
+        decisions_page=decisions_page,
+        followups_page=followups_page,
+        open_loops_page=open_loops_page,
+        meetings_page=meetings_page,
+        admin_configuration_page=admin_configuration_page,
+    )
+
+    matter_ids = [
+        matter["matter_id"]
+        for section in executive_home["sections"]
+        for matter in section["matters"]
+    ]
+    assert len(matter_ids) == len(set(matter_ids))
